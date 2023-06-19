@@ -1,0 +1,27 @@
+#' tern Package
+#'
+#' Package to create tables, listings and graphs to analyze clinical trials data.
+#'
+"_PACKAGE"
+
+#' @import rtables ggplot2
+#' @importFrom broom tidy
+#' @importFrom formatters propose_column_widths
+#' @importFrom magrittr %>%
+#' @importFrom methods new
+#' @importFrom Rdpack reprompt
+#' @importFrom rlang .data
+#' @importFrom survival coxph strata Surv
+#' @importFrom stats pchisq
+NULL
+
+# Resolve missing global definitions:
+utils::globalVariables(c(
+  ".",
+  "x",
+  "control_coxph",
+  "control_incidence_rate",
+  "control_summarize_vars",
+  "control_surv_time",
+  "control_surv_timepoint"
+))

@@ -1,0 +1,227 @@
+#' Tabulate Biomarker Effects on Binary Response by Subgroup
+#'
+#' @description `r lifecycle::badge("stable")`
+#'
+#' Tabulate the estimated effects of multiple continuous biomarker variables
+#' on a binary response endpoint across population subgroups.
+#'
+#' @inheritParams argument_convention
+#' @param df (`data.frame`)\cr containing all analysis variables, as returned by
+#'   [extract_rsp_biomarkers()].
+#' @param vars (`character`)\cr the names of statistics to be reported among:
+#'   * `n_tot`: Total number of patients per group.
+#'   * `n_rsp`: Total number of responses per group.
+#'   * `prop`: Total response proportion per group.
+#'   * `or`: Odds ratio.
+#'   * `ci`: Confidence interval of odds ratio.
+#'   * `pval`: p-value of the effect.
+#'   Note, the statistics `n_tot`, `or` and `ci` are required.
+#'
+#' @return An `rtables` table summarizing biomarker effects on binary response by subgroup.
+#'
+#' @details These functions create a layout starting from a data frame which contains
+#'   the required statistics. The tables are then typically used as input for forest plots.
+#'
+#' @note In contrast to [tabulate_rsp_subgroups()] this tabulation function does
+#'   not start from an input layout `lyt`. This is because internally the table is
+#'   created by combining multiple subtables.
+#'
+#' @seealso [h_tab_rsp_one_biomarker()] which is used internally, [extract_rsp_biomarkers()].
+#'
+#' @examples
+#' library(dplyr)
+#' library(forcats)
+#'
+#' adrs <- tern_ex_adrs
+#' adrs_labels <- formatters::var_labels(adrs)
+#'
+#' adrs_f <- adrs %>%
+#'   filter(PARAMCD == "BESRSPI") %>%
+#'   mutate(rsp = AVALC == "CR")
+#' formatters::var_labels(adrs_f) <- c(adrs_labels, "Response")
+#'
+#' df <- extract_rsp_biomarkers(
+#'   variables = list(
+#'     rsp = "rsp",
+#'     biomarkers = c("BMRKR1", "AGE"),
+#'     covariates = "SEX",
+#'     subgroups = "BMRKR2"
+#'   ),
+#'   data = adrs_f
+#' )
+#'
+#' \donttest{
+#' ## Table with default columns.
+#' tabulate_rsp_biomarkers(df)
+#'
+#' ## Table with a manually chosen set of columns: leave out "pval", reorder.
+#' tab <- tabulate_rsp_biomarkers(
+#'   df = df,
+#'   vars = c("n_rsp", "ci", "n_tot", "prop", "or")
+#' )
+#'
+#' ## Finally produce the forest plot.
+#' g_forest(tab, xlim = c(0.7, 1.4))
+#' }
+#'
+#' @export
+#' @name response_biomarkers_subgroups
+tabulate_rsp_biomarkers <- function(df,
+                                    vars = c("n_tot", "n_rsp", "prop", "or", "ci", "pval"),
+                                    .indent_mods = 0L) {
+  checkmate::assert_data_frame(df)
+  checkmate::assert_character(df$biomarker)
+  checkmate::assert_character(df$biomarker_label)
+  checkmate::assert_subset(vars, c("n_tot", "n_rsp", "prop", "or", "ci", "pval"))
+
+  df_subs <- split(df, f = df$biomarker)
+  tabs <- lapply(df_subs, FUN = function(df_sub) {
+    tab_sub <- h_tab_rsp_one_biomarker(
+      df = df_sub,
+      vars = vars,
+      .indent_mods = .indent_mods
+    )
+    # Insert label row as first row in table.
+    label_at_path(tab_sub, path = row_paths(tab_sub)[[1]][1]) <- df_sub$biomarker_label[1]
+    tab_sub
+  })
+  result <- do.call(rbind, tabs)
+
+  n_id <- grep("n_tot", vars)
+  or_id <- match("or", vars)
+  ci_id <- match("ci", vars)
+  structure(
+    result,
+    forest_header = paste0(c("Lower", "Higher"), "\nBetter"),
+    col_x = or_id,
+    col_ci = ci_id,
+    col_symbol_size = n_id
+  )
+}
+
+#' Prepares Response Data Estimates for Multiple Biomarkers in a Single Data Frame
+#'
+#' @description `r lifecycle::badge("stable")`
+#'
+#' Prepares estimates for number of responses, patients and overall response rate,
+#' as well as odds ratio estimates, confidence intervals and p-values,
+#' for multiple biomarkers across population subgroups in a single data frame.
+#' `variables` corresponds to the names of variables found in `data`, passed as a
+#' named list and requires elements `rsp` and `biomarkers` (vector of continuous
+#' biomarker variables) and optionally `covariates`, `subgroups` and `strat`.
+#' `groups_lists` optionally specifies groupings for `subgroups` variables.
+#'
+#' @inheritParams argument_convention
+#' @inheritParams response_subgroups
+#' @param control (named `list`)\cr controls for the response definition and the
+#'   confidence level produced by [control_logistic()].
+#'
+#' @return A `data.frame` with columns `biomarker`, `biomarker_label`, `n_tot`, `n_rsp`,
+#'   `prop`, `or`, `lcl`, `ucl`, `conf_level`, `pval`, `pval_label`, `subgroup`, `var`,
+#'   `var_label`, and `row_type`.
+#'
+#' @note You can also specify a continuous variable in `rsp` and then use the
+#'   `response_definition` control to convert that internally to a logical
+#'   variable reflecting binary response.
+#'
+#' @seealso [h_logistic_mult_cont_df()] which is used internally.
+#'
+#' @examples
+#' library(dplyr)
+#' library(forcats)
+#'
+#' adrs <- tern_ex_adrs
+#' adrs_labels <- formatters::var_labels(adrs)
+#'
+#' adrs_f <- adrs %>%
+#'   filter(PARAMCD == "BESRSPI") %>%
+#'   mutate(rsp = AVALC == "CR")
+#'
+#' # Typical analysis of two continuous biomarkers `BMRKR1` and `AGE`,
+#' # in logistic regression models with one covariate `RACE`. The subgroups
+#' # are defined by the levels of `BMRKR2`.
+#' df <- extract_rsp_biomarkers(
+#'   variables = list(
+#'     rsp = "rsp",
+#'     biomarkers = c("BMRKR1", "AGE"),
+#'     covariates = "SEX",
+#'     subgroups = "BMRKR2"
+#'   ),
+#'   data = adrs_f
+#' )
+#' df
+#'
+#' # Here we group the levels of `BMRKR2` manually, and we add a stratification
+#' # variable `STRATA1`. We also here use a continuous variable `EOSDY`
+#' # which is then binarized internally (response is defined as this variable
+#' # being larger than 500).
+#' df_grouped <- extract_rsp_biomarkers(
+#'   variables = list(
+#'     rsp = "EOSDY",
+#'     biomarkers = c("BMRKR1", "AGE"),
+#'     covariates = "SEX",
+#'     subgroups = "BMRKR2",
+#'     strat = "STRATA1"
+#'   ),
+#'   data = adrs_f,
+#'   groups_lists = list(
+#'     BMRKR2 = list(
+#'       "low" = "LOW",
+#'       "low/medium" = c("LOW", "MEDIUM"),
+#'       "low/medium/high" = c("LOW", "MEDIUM", "HIGH")
+#'     )
+#'   ),
+#'   control = control_logistic(
+#'     response_definition = "I(response > 500)"
+#'   )
+#' )
+#' df_grouped
+#'
+#' @export
+extract_rsp_biomarkers <- function(variables,
+                                   data,
+                                   groups_lists = list(),
+                                   control = control_logistic(),
+                                   label_all = "All Patients") {
+  assert_list_of_variables(variables)
+  checkmate::assert_string(variables$rsp)
+  checkmate::assert_character(variables$subgroups, null.ok = TRUE)
+  checkmate::assert_string(label_all)
+
+  # Start with all patients.
+  result_all <- h_logistic_mult_cont_df(
+    variables = variables,
+    data = data,
+    control = control
+  )
+  result_all$subgroup <- label_all
+  result_all$var <- "ALL"
+  result_all$var_label <- label_all
+  result_all$row_type <- "content"
+  if (is.null(variables$subgroups)) {
+    # Only return result for all patients.
+    result_all
+  } else {
+    # Add subgroups results.
+    l_data <- h_split_by_subgroups(
+      data,
+      variables$subgroups,
+      groups_lists = groups_lists
+    )
+    l_result <- lapply(l_data, function(grp) {
+      result <- h_logistic_mult_cont_df(
+        variables = variables,
+        data = grp$df,
+        control = control
+      )
+      result_labels <- grp$df_labels[rep(1, times = nrow(result)), ]
+      cbind(result, result_labels)
+    })
+    result_subgroups <- do.call(rbind, args = c(l_result, make.row.names = FALSE))
+    result_subgroups$row_type <- "analysis"
+    rbind(
+      result_all,
+      result_subgroups
+    )
+  }
+}
