@@ -1,7 +1,7 @@
 Package: tern
 Title: Create Common TLGs Used in Clinical Trials
-Version: 0.8.3
-Date: 2023-06-15
+Version: 0.8.4
+Date: 2023-06-26
 Authors@R: c(
     person("Joe", "Zhu", , "joe.zhu@roche.com", role = c("aut", "cre")),
     person("Daniel", "Sabanés Bové", , "daniel.sabanes_bove@roche.com", role = "aut"),
@@ -75,7 +75,7 @@ Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'survival_timepoint.R' 'utils.R' 'utils_checkmate.R'
         'utils_factor.R' 'utils_grid.R' 'utils_rtables.R'
 NeedsCompilation: no
-Packaged: 2023-06-17 05:00:25 UTC; rstudio
+Packaged: 2023-06-27 09:27:22 UTC; rstudio
 Author: Joe Zhu [aut, cre],
   Daniel Sabanés Bové [aut],
   Jana Stoilova [aut],
@@ -88,4 +88,4 @@ Author: Joe Zhu [aut, cre],
   F. Hoffmann-La Roche AG [cph, fnd]
 Maintainer: Joe Zhu <joe.zhu@roche.com>
 Repository: CRAN
-Date/Publication: 2023-06-19 15:20:02 UTC
+Date/Publication: 2023-06-27 11:00:02 UTC

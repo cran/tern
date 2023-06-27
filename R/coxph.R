@@ -1,25 +1,3 @@
-#' Pairwise Formula Special Term
-#'
-#' @description `r lifecycle::badge("deprecated")`
-#'
-#' The special term `pairwise` indicate that the model should be fitted individually for
-#' every tested level in comparison to the reference level.
-#'
-#' @param x the variable for which pairwise result is expected.
-#'
-#' @return Variable "paired".
-#'
-#' @details Let's `ARM` being a factor with level A, B, C; let's be B the reference level,
-#'   a model calling the formula including `pairwise(ARM)` will result in two models:
-#'   * A model including only levels A and B, and effect of A estimated in reference to B.
-#'   * A model including only levels C and B, the effect of C estimated in reference to B.
-#'
-#' @export
-pairwise <- function(x) {
-  lifecycle::deprecate_warn("0.8.1.9013", "pairwise()", "univariate()")
-  structure(x, varname = deparse(substitute(x)))
-}
-
 #' Univariate Formula Special Term
 #'
 #' @description `r lifecycle::badge("stable")`
@@ -182,7 +160,7 @@ estimate_coef <- function(variable, given,
 #'
 #' @examples
 #' # `car::Anova` on cox regression model including strata and expected
-#' # a likelihood ratio test triggers a warning as only Wald method is
+#' # a likelihood ratio test triggers a warning as only `Wald` method is
 #' # accepted.
 #'
 #' library(survival)
@@ -224,7 +202,7 @@ try_car_anova <- function(mod,
   return(y)
 }
 
-#' Fit the Cox Regression Model and Anova
+#' Fit the Cox Regression Model and `Anova`
 #'
 #' The functions allows to derive from the [survival::coxph()] results the effect p.values using [car::Anova()].
 #' This last package introduces more flexibility to get the effect p.values.
@@ -328,7 +306,7 @@ check_increments <- function(increments, covariates) {
 #' @param data (`data.frame`)\cr A data frame which includes the variable in formula and covariates.
 #' @param conf_level (`proportion`)\cr The confidence level for the hazard ratio interval estimations. Default is 0.95.
 #' @param pval_method (`character`)\cr The method used for the estimation of p-values, should be one of
-#'   "wald" (default) or "likelihood".
+#'   `"wald"` (default) or `"likelihood"`.
 #' @param ... Optional parameters passed to [survival::coxph()]. Can include `ties`, a character string specifying the
 #'   method for tie handling, one of `exact` (default), `efron`, `breslow`.
 #'
