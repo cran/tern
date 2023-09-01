@@ -5,7 +5,6 @@
 #' Various tests were implemented to test the difference between two proportions.
 #'
 #' @inheritParams argument_convention
-#' @param tbl (`matrix`)\cr matrix with two groups in rows and the binary response (`TRUE`/`FALSE`) in columns.
 #'
 #' @seealso [h_prop_diff_test]
 #'
@@ -136,6 +135,7 @@ a_test_proportion_diff <- make_afun(
 #' @export
 test_proportion_diff <- function(lyt,
                                  vars,
+                                 nested = TRUE,
                                  ...,
                                  var_labels = vars,
                                  show_labels = "hidden",
@@ -156,6 +156,7 @@ test_proportion_diff <- function(lyt,
     vars,
     afun = afun,
     var_labels = var_labels,
+    nested = nested,
     extra_args = list(...),
     show_labels = show_labels,
     table_names = table_names
@@ -211,8 +212,7 @@ prop_cmh <- function(ary) {
 
 #' @describeIn h_prop_diff_test performs the Chi-Squared test with Schouten correction.
 #'
-#' @seealso For information on the Schouten correction (Schouten, 1980),
-#'   visit \url{https://onlinelibrary.wiley.com/doi/abs/10.1002/bimj.4710220305}.
+#' @seealso Schouten correction is based upon \insertCite{Schouten1980-kd;textual}{tern}.
 #'
 #'
 #' @keywords internal

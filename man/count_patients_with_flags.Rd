@@ -10,6 +10,7 @@ s_count_patients_with_flags(
   df,
   .var,
   flag_variables,
+  flag_labels = NULL,
   .N_col,
   .N_row,
   denom = c("n", "N_row", "N_col")
@@ -19,6 +20,7 @@ a_count_patients_with_flags(
   df,
   .var,
   flag_variables,
+  flag_labels = NULL,
   .N_col,
   .N_row,
   denom = c("n", "N_row", "N_col")
@@ -29,6 +31,8 @@ count_patients_with_flags(
   var,
   var_labels = var,
   show_labels = "hidden",
+  riskdiff = FALSE,
+  nested = TRUE,
   ...,
   table_names = paste0("tbl_flags_", var),
   .stats = "count_fraction",
@@ -44,10 +48,13 @@ count_patients_with_flags(
 \item{flag_variables}{(\code{character})\cr a character vector specifying the names of \code{logical}
 variables from analysis dataset used for counting the number of unique identifiers.}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{flag_labels}{(\code{character})\cr vector of labels to use for flag variables.}
 
-\item{.N_row}{(\code{count})\cr column-wise N (column count) for the full column that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
+
+\item{.N_row}{(\code{integer})\cr row-wise N (row group count) for the group of observations being analyzed
+(i.e. with no column-based subsetting) that is typically passed by \code{rtables}.}
 
 \item{denom}{(\code{string})\cr choice of denominator for proportion. Options are:
 \itemize{
@@ -64,6 +71,14 @@ by a statistics function.}
 \item{var_labels}{(\code{character})\cr character for label.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
+
+\item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
+used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
+See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 
@@ -110,6 +125,12 @@ in \code{count_patients_with_flags()}.
 arguments and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
 
 }}
+\note{
+If \code{flag_labels} is not specified, variables labels will be extracted from \code{df}. If variables are not
+labeled, variable names will be used instead. Alternatively, a named \code{vector} can be supplied to
+\code{flag_variables} such that within each name-value pair the name corresponds to the variable name and the value is
+the label to use for this variable.
+}
 \examples{
 library(dplyr)
 
@@ -163,7 +184,7 @@ lyt2 <- basic_table() \%>\%
   add_colcounts() \%>\%
   count_patients_with_flags(
     "SUBJID",
-    flag_variables = formatters::var_labels(adae[, c("fl1", "fl2", "fl3", "fl4")]),
+    flag_variables = c("fl1", "fl2", "fl3", "fl4"),
     denom = "N_col"
   )
 build_table(lyt2, adae, alt_counts_df = tern_ex_adsl)

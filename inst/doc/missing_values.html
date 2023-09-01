@@ -1610,26 +1610,26 @@ factor resulting in the table being generated.</p>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, x_name = .var, verbose = verbose):</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; automatically converting character variable SEX to factor, better manually</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; convert to factor to avoid failures</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, x_name = .var, verbose = verbose):</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; automatically converting character variable SEX to factor, better manually</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; convert to factor to avoid failures</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
 <span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, x_name = .var, verbose = verbose):</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; automatically converting character variable SEX to factor, better manually</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; convert to factor to avoid failures</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
 <span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, x_name = .var, verbose = verbose):</span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; automatically converting character variable SEX to factor, better manually</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; convert to factor to avoid failures</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
 <span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>result</span>
 <span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;                                                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
 <span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;                                                 (N=69)        (N=73)          (N=58)         (N=200)   </span></span>
@@ -1681,7 +1681,7 @@ percent values.</p>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
@@ -1709,7 +1709,7 @@ calculating percent values, use the <code>na_level</code> argument.</p>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
@@ -1750,7 +1750,7 @@ valued greater than 30 are included in the table below.</p>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>

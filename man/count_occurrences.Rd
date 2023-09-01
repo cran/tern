@@ -31,6 +31,8 @@ count_occurrences(
   vars,
   var_labels = vars,
   show_labels = "hidden",
+  riskdiff = FALSE,
+  nested = TRUE,
   ...,
   table_names = vars,
   .stats = "count_fraction",
@@ -48,8 +50,8 @@ count_occurrences(
 \item \code{n}: number of patients with any occurrences
 }}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 
 \item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 
@@ -68,6 +70,14 @@ by a statistics function.}
 \item{var_labels}{(\code{character})\cr character for label.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
+
+\item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
+used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
+See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 

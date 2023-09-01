@@ -1614,9 +1614,9 @@ useful from the perspective of clinical trials and other statistical
 projects.</p>
 <p>Examples of the <code>tern</code> analyze functions are
 <code>tern::count_occurrences</code>,
-<code>tern::summarize_ancova</code> or
-<code>tern::summarize_vars</code>. As there is no one prefix to identify
-all <code>tern</code> analyze functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/main/reference/index.html">the
+<code>tern::summarize_ancova</code> or <code>tern::analyze_vars</code>.
+As there is no one prefix to identify all <code>tern</code> analyze
+functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/main/reference/index.html">the
 tern website functions reference</a>.</p>
 <div id="internals-of-tern-analyze-functions" class="section level3">
 <h3>Internals of <code>tern</code> Analyze Functions</h3>
@@ -1689,7 +1689,7 @@ analyze functions and the <code>rtables</code> interface.</p>
 <tbody>
 <tr class="odd">
 <td><strong>Demographic Table</strong></td>
-<td align="left"><code>summarize_vars()</code> and
+<td align="left"><code>analyze_vars()</code> and
 <code>summarize_num_patients()</code></td>
 </tr>
 <tr class="even">
@@ -1711,8 +1711,8 @@ patients enrolled in a clinical trial. Typically the table columns
 represent treatment arms and variables summarized in the table are
 demographic properties such as age, sex, race, etc.</p>
 <p>In the example below the only function from <code>tern</code> is
-<code>summarize_vars()</code> and the remaining layout functions are
-from <code>rtables</code>.</p>
+<code>analyze_vars()</code> and the remaining layout functions are from
+<code>rtables</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Select variables to include in table.</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;AGE&quot;</span>, <span class="st">&quot;SEX&quot;</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>var_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Age (yr)&quot;</span>, <span class="st">&quot;Sex&quot;</span>)</span>
@@ -1721,7 +1721,7 @@ from <code>rtables</code>.</p>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
@@ -1755,7 +1755,7 @@ these types of data processing steps (not used below).</p>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
@@ -1775,21 +1775,21 @@ these types of data processing steps (not used below).</p>
 <span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt;   U                   2 (1.5%)      3 (2.2%)         4 (3%)         9 (2.2%)  </span></span>
 <span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;   UNDIFFERENTIATED        0         1 (0.7%)        2 (1.5%)        3 (0.8%)</span></span></code></pre></div>
 <p>The <code>tern</code> package includes many functions similar to
-<code>summarize_vars()</code>. These functions are called layout
-creating functions and are used in combination with other
-<code>rtables</code> layout functions just like in the examples above.
-Layout creating functions are wrapping calls to <code>rtables</code>
+<code>analyze_vars()</code>. These functions are called layout creating
+functions and are used in combination with other <code>rtables</code>
+layout functions just like in the examples above. Layout creating
+functions are wrapping calls to <code>rtables</code>
 <code>analyze()</code>, <code>analyze_colvars()</code> and
 <code>summarize_row_groups()</code> and provide options for easy
 formatting and analysis modifications.</p>
 <p>To customize the display for the demographics table, we can do so via
-the arguments in <code>summarize_vars()</code>. Most layout creating
+the arguments in <code>analyze_vars()</code>. Most layout creating
 functions in <code>tern</code> include the standard arguments
 <code>.stats</code>, <code>.formats</code>, <code>.labels</code> and
 <code>.indent_mods</code> which control which statistics are displayed
 and how the numbers are formatted. Refer to the package help with
-<code>help(&quot;summarize_vars&quot;)</code> or <code>?summarize_vars</code> to
-see the full set of options.</p>
+<code>help(&quot;analyze_vars&quot;)</code> or <code>?analyze_vars</code> to see
+the full set of options.</p>
 <p>For this example we will change the default summary for numeric
 variables to include the number of records, and the mean and standard
 deviation (in a single statistic, i.e. within a single cell). For
@@ -1802,7 +1802,7 @@ of just one.</p>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels,</span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    <span class="at">.stats =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;mean_sd&quot;</span>, <span class="st">&quot;count&quot;</span>),</span>
@@ -1829,7 +1829,7 @@ China subgroups, respectively:</p>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">summarize_vars</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  )</span>
@@ -2302,7 +2302,7 @@ perform a specific type of analysis.</p>
 <p>The <code>tern</code> analyze functions introduced in this vignette
 are:</p>
 <ul>
-<li><code>summarize_vars()</code></li>
+<li><code>analyze_vars()</code></li>
 <li><code>summarize_num_patients()</code></li>
 <li><code>count_occurrences()</code></li>
 <li><code>estimate_proportion()</code></li>

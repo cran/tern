@@ -169,12 +169,16 @@ count_occurrences <- function(lyt,
                               vars,
                               var_labels = vars,
                               show_labels = "hidden",
+                              riskdiff = FALSE,
+                              nested = TRUE,
                               ...,
                               table_names = vars,
                               .stats = "count_fraction",
                               .formats = NULL,
                               .labels = NULL,
                               .indent_mods = NULL) {
+  checkmate::assert_flag(riskdiff)
+
   afun <- make_afun(
     a_count_occurrences,
     .stats = .stats,
@@ -184,13 +188,25 @@ count_occurrences <- function(lyt,
     .ungroup_stats = .stats
   )
 
+  extra_args <- if (isFALSE(riskdiff)) {
+    list(...)
+  } else {
+    list(
+      afun = list("s_count_occurrences" = afun),
+      .stats = .stats,
+      .indent_mods = .indent_mods,
+      s_args = list(...)
+    )
+  }
+
   analyze(
     lyt = lyt,
     vars = vars,
-    afun = afun,
+    afun = ifelse(isFALSE(riskdiff), afun, afun_riskdiff),
     var_labels = var_labels,
     show_labels = show_labels,
     table_names = table_names,
-    extra_args = list(...)
+    nested = nested,
+    extra_args = extra_args
   )
 }

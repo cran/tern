@@ -38,6 +38,7 @@ summarize_glm_count(
   lyt,
   vars,
   var_labels,
+  nested = TRUE,
   ...,
   show_labels = "visible",
   table_names = vars,
@@ -61,13 +62,24 @@ by a statistics function.}
 
 \item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
 
+\item{distribution}{(\code{character})\cr a character value specifying the distribution
+used in the regression (poisson, quasipoisson).}
+
 \item{conf_level}{(\code{proportion})\cr confidence level of the interval.}
+
+\item{weights}{(\code{character})\cr a character vector specifying weights used
+in averaging predictions. Number of weights must equal the number of levels included in the covariates.
+Weights option passed to \code{\link[emmeans:emmeans]{emmeans::emmeans()}}.}
 
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
 
 \item{var_labels}{(\code{character})\cr character for label.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 
@@ -133,7 +145,7 @@ anl$AVAL_f <- as.factor(anl$AVAL)
 lyt <- basic_table() \%>\%
   split_cols_by("ARM", ref_group = "B: Placebo") \%>\%
   add_colcounts() \%>\%
-  summarize_vars(
+  analyze_vars(
     "AVAL_f",
     var_labels = "Number of exacerbations per patient",
     .stats = c("count_fraction"),

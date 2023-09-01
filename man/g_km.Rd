@@ -19,6 +19,7 @@ g_km(
   xlab = "Days",
   yval = c("Survival", "Failure"),
   ylab = paste(yval, "Probability"),
+  ylim = NULL,
   title = NULL,
   footnotes = NULL,
   draw = TRUE,
@@ -86,6 +87,9 @@ an optimal tick position on the x axis.}
 \item{yval}{(\code{string})\cr value of y-axis. Options are \code{Survival} (default) and \code{Failure} probability.}
 
 \item{ylab}{(\code{string})\cr label of y-axis.}
+
+\item{ylim}{(\code{vector} of \code{numeric})\cr vector of length 2 containing lower and upper limits for the y-axis.
+If \code{NULL} (default), the minimum and maximum y-values displayed are used as limits.}
 
 \item{title}{(\code{string})\cr title for plot.}
 

@@ -16,11 +16,11 @@ lyt <- rtables::basic_table() %>%
   rtables::analyze(vars = "AVAL", mean, format = "xx.x")
 
 ## -----------------------------------------------------------------------------
-# Create table layout with tern summarize_vars analyze function
+# Create table layout with tern analyze_vars analyze function
 lyt2 <- rtables::basic_table() %>%
   rtables::split_cols_by(var = "ARM") %>%
   rtables::split_rows_by(var = "AVISIT") %>%
-  tern::summarize_vars(vars = "AVAL", .formats = c("mean_sd" = "(xx.xx, xx.xx)"))
+  tern::analyze_vars(vars = "AVAL", .formats = c("mean_sd" = "(xx.xx, xx.xx)"))
 
 ## -----------------------------------------------------------------------------
 # Apply table layout to data and produce `rtables` object

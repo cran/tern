@@ -25,7 +25,7 @@ var_labels <- c(
 result <- basic_table(show_colcounts = TRUE) %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%
@@ -46,7 +46,7 @@ var_labels <- c(
 result <- basic_table(show_colcounts = TRUE) %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%
@@ -61,7 +61,7 @@ adsl <- df_explicit_na(adsl, na_level = "Missing Values")
 result <- basic_table(show_colcounts = TRUE) %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%
@@ -82,7 +82,7 @@ var_labels <- c(
 result <- basic_table(show_colcounts = TRUE) %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%

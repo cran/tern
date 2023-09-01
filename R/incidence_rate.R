@@ -14,8 +14,6 @@
 #'   * `input_time_unit` (`string`)\cr `day`, `week`, `month`, or `year` (default)
 #'     indicating time unit for data input.
 #'   * `num_pt_year` (`numeric`)\cr time unit for desired output (in person-years).
-#' @param person_years (`numeric`)\cr total person-years at risk.
-#' @param alpha (`numeric`)\cr two-sided alpha-level for confidence interval.
 #' @param n_events (`integer`)\cr number of events observed.
 #'
 #' @seealso [control_incidence_rate()] and helper functions [h_incidence_rate].
@@ -135,6 +133,7 @@ a_incidence_rate <- make_afun(
 #' @export
 estimate_incidence_rate <- function(lyt,
                                     vars,
+                                    nested = TRUE,
                                     ...,
                                     show_labels = "hidden",
                                     table_names = vars,
@@ -156,6 +155,7 @@ estimate_incidence_rate <- function(lyt,
     show_labels = show_labels,
     table_names = table_names,
     afun = afun,
+    nested = nested,
     extra_args = list(...)
   )
 }

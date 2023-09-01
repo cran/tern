@@ -6,14 +6,18 @@
 \arguments{
 \item{...}{additional arguments for the lower level functions.}
 
+\item{.all_col_counts}{(\code{vector} of \code{integer})\cr each value represents a global count for a column. Values are
+taken from \code{alt_counts_df} if specified (see \code{\link[rtables:build_table]{rtables::build_table()}}).}
+
 \item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 
 \item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 
-\item{.N_row}{(\code{count})\cr column-wise N (column count) for the full column that is passed by \code{rtables}.}
+\item{.N_row}{(\code{integer})\cr row-wise N (row group count) for the group of observations being analyzed
+(i.e. with no column-based subsetting) that is typically passed by \code{rtables}.}
 
 \item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
 
@@ -48,11 +52,17 @@ that constitute the split. A custom label can be set for this level via the \cod
 \item{drop}{(\code{flag})\cr should non appearing occurrence levels be dropped from the resulting table.
 Note that in that case the remaining occurrence levels in the table are sorted alphabetically.}
 
+\item{groups_lists}{(named \code{list} of \code{list})\cr optionally contains for each \code{subgroups} variable a
+list, which specifies the new group levels via the names and the
+levels that belong to it in the character vectors that are elements of the list.}
+
 \item{id}{(\code{string})\cr subject variable name.}
 
 \item{is_event}{(\code{logical})\cr \code{TRUE} if event, \code{FALSE} if time to event is censored.}
 
 \item{indent_mod}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use the \code{.indent_mods} argument instead.}
+
+\item{label_all}{(\code{string})\cr label for the total population analysis.}
 
 \item{labelstr}{(\code{character})\cr label of the level of the parent split currently being summarized
 (must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
@@ -60,18 +70,25 @@ for more information.}
 
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
+\item{method}{(\code{string})\cr specifies the test used to calculate the p-value for the difference between
+two proportions. For options, see \code{\link[=s_test_proportion_diff]{s_test_proportion_diff()}}. Default is \code{NULL} so no test is performed.}
+
 \item{na.rm}{(\code{flag})\cr whether \code{NA} values should be removed from \code{x} prior to analysis.}
 
 \item{na_level}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
-\item{nested}{(\code{flag})\cr whether this layout instruction be applied within the existing layout structure \emph{if
-possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
 underneath analyses, which is not allowed.}
 
 \item{newpage}{(\code{flag})\cr whether the plot should be drawn on a new page.
 Only considered if \code{draw = TRUE} is used.}
 
 \item{prune_zero_rows}{(\code{flag})\cr whether to prune all zero rows.}
+
+\item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
+used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
+See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
 
 \item{rsp}{(\code{logical})\cr whether each subject is a responder or not.}
 

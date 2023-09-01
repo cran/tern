@@ -18,6 +18,7 @@ count_missed_doses(
   vars,
   var_labels = vars,
   show_labels = "visible",
+  nested = TRUE,
   ...,
   table_names = vars,
   .stats = NULL,
@@ -31,8 +32,8 @@ count_missed_doses(
 
 \item{thresholds}{(vector of \code{count})\cr number of missed doses the patients at least had.}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
@@ -41,6 +42,10 @@ count_missed_doses(
 \item{var_labels}{(\code{character})\cr character for label.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 

@@ -35,9 +35,9 @@ NULL
 #'   * `covariates` (`character`)\cr a vector that can contain single variable names (such as
 #'     `"X1"`), and/or interaction terms indicated by `"X1 * X2"`.
 #'   * `offset` (`numeric`)\cr a numeric vector or scalar adding an offset.
-#' @param `weights`(`character`)\cr a character vector specifying weights used
+#' @param weights (`character`)\cr a character vector specifying weights used
 #'   in averaging predictions. Number of weights must equal the number of levels included in the covariates.
-#'   Weights option passed to emmeans function (hyperlink) (link to emmeans documentation)
+#'   Weights option passed to [emmeans::emmeans()].
 #'
 #' @return
 #' * `h_glm_poisson()` returns the results of a Poisson model.
@@ -141,8 +141,7 @@ h_glm_quasipoisson <- function(.var,
 #'   * `covariates` (`character`)\cr a vector that can contain single variable names (such as
 #'     `"X1"`), and/or interaction terms indicated by `"X1 * X2"`.
 #'   * `offset` (`numeric`)\cr a numeric vector or scalar adding an offset.
-#' @param `weights`(`character`)\cr character vector specifying weights used in averaging predictions.
-#' @param `distribution`(`character`)\cr a character value specifying the distribution
+#' @param distribution (`character`)\cr a character value specifying the distribution
 #'   used in the regression (poisson, quasipoisson).
 #'
 #' @return
@@ -170,7 +169,7 @@ h_glm_count <- function(.var,
 #' @param .df_row (`data.frame`)\cr data set that includes all the variables that are called in `.var` and `variables`.
 #' @param conf_level (`numeric`)\cr value used to derive the confidence interval for the rate.
 #' @param obj (`glm.fit`)\cr fitted model object used to derive the mean rate estimates in each treatment arm.
-#' @param `arm` (`string`)\cr group variable, for which the covariate adjusted means of multiple groups will be
+#' @param arm (`string`)\cr group variable, for which the covariate adjusted means of multiple groups will be
 #'   summarized. Specifically, the first level of `arm` variable is taken as the reference group.
 #'
 #' @return
@@ -362,7 +361,7 @@ a_glm_count <- make_afun(
 #' lyt <- basic_table() %>%
 #'   split_cols_by("ARM", ref_group = "B: Placebo") %>%
 #'   add_colcounts() %>%
-#'   summarize_vars(
+#'   analyze_vars(
 #'     "AVAL_f",
 #'     var_labels = "Number of exacerbations per patient",
 #'     .stats = c("count_fraction"),
@@ -400,6 +399,7 @@ a_glm_count <- make_afun(
 summarize_glm_count <- function(lyt,
                                 vars,
                                 var_labels,
+                                nested = TRUE,
                                 ...,
                                 show_labels = "visible",
                                 table_names = vars,
@@ -422,6 +422,7 @@ summarize_glm_count <- function(lyt,
     show_labels = show_labels,
     table_names = table_names,
     afun = afun,
+    nested = nested,
     extra_args = list(...)
   )
 }

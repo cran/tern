@@ -35,7 +35,7 @@
 #'   (`do_summarize_row_groups = FALSE`, the default), and to the group label for
 #'   `do_summarize_row_groups = TRUE`.
 #'
-#' @seealso [summarize_vars()], [rtables::analyze_colvars()].
+#' @seealso [analyze_vars()], [rtables::analyze_colvars()].
 #'
 #' @examples
 #' library(dplyr)
@@ -255,6 +255,14 @@ analyze_vars_in_cols <- function(lyt,
         function(u, .spl_context, ...) {
           # Main statistics
           res <- s_summary(u, ...)[[stat]]
+
+          if (is.list(res)) {
+            if (length(res) > 1) {
+              stop("The analyzed column produced more than one category of results.")
+            } else {
+              res <- unlist(res)
+            }
+          }
 
           # Label from context
           label_from_context <- .spl_context$value[nrow(.spl_context)]

@@ -34,12 +34,14 @@ summarize_num_patients(
     "Number of events"),
   indent_mod = lifecycle::deprecated(),
   .indent_mods = 0L,
+  riskdiff = FALSE,
   ...
 )
 
 analyze_num_patients(
   lyt,
   vars,
+  nested = TRUE,
   .stats = NULL,
   .formats = NULL,
   .labels = c(unique = "Number of patients with at least one event", nonunique =
@@ -47,6 +49,7 @@ analyze_num_patients(
   show_labels = c("default", "visible", "hidden"),
   indent_mod = lifecycle::deprecated(),
   .indent_mods = 0L,
+  riskdiff = FALSE,
   ...
 )
 }
@@ -57,8 +60,8 @@ analyze_num_patients(
 (must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
 for more information.}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 
 \item{count_by}{(\code{character} or \code{factor})\cr optional vector to be combined with \code{x} when counting
 \code{nonunique} records.}
@@ -86,9 +89,17 @@ by a statistics function.}
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
 
+\item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
+used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
+See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
+
 \item{...}{additional arguments for the lower level functions.}
 
 \item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
 }

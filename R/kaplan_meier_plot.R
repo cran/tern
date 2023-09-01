@@ -26,6 +26,8 @@
 #' @param censor_show (`flag`)\cr whether to show censored.
 #' @param xlab (`string`)\cr label of x-axis.
 #' @param ylab (`string`)\cr label of y-axis.
+#' @param ylim (`vector` of `numeric`)\cr vector of length 2 containing lower and upper limits for the y-axis.
+#'   If `NULL` (default), the minimum and maximum y-values displayed are used as limits.
 #' @param title (`string`)\cr title for plot.
 #' @param footnotes (`string`)\cr footnotes for plot.
 #' @param col (`character`)\cr lines colors. Length of a vector should be equal
@@ -181,6 +183,7 @@ g_km <- function(df,
                  xlab = "Days",
                  yval = c("Survival", "Failure"),
                  ylab = paste(yval, "Probability"),
+                 ylim = NULL,
                  title = NULL,
                  footnotes = NULL,
                  draw = TRUE,
@@ -219,7 +222,12 @@ g_km <- function(df,
   checkmate::assert_numeric(df[[tte]], min.len = 1, any.missing = FALSE)
 
   armval <- as.character(unique(df[[arm]]))
-  if (length(armval) > 1) {
+  if (annot_coxph && length(armval) < 2) {
+    stop(paste(
+      "When `annot_coxph` = TRUE, `df` must contain at least 2 levels of `variables$arm`",
+      "in order to calculate the hazard ratio."
+    ))
+  } else if (length(armval) > 1) {
     armval <- NULL
   }
   yval <- match.arg(yval)
@@ -246,6 +254,7 @@ g_km <- function(df,
     xlab = xlab,
     yval = yval,
     ylab = ylab,
+    ylim = ylim,
     title = title,
     footnotes = footnotes,
     max_time = max_time,
@@ -631,6 +640,7 @@ h_ggkm <- function(data,
                    censor_show,
                    xlab,
                    ylab,
+                   ylim = NULL,
                    title,
                    footnotes = NULL,
                    max_time = NULL,
@@ -643,6 +653,20 @@ h_ggkm <- function(data,
                    ggtheme = nestcolor::theme_nest()) {
   checkmate::assert_numeric(lty, null.ok = TRUE)
   checkmate::assert_character(col, null.ok = TRUE)
+
+  if (is.null(ylim)) {
+    data_lims <- data
+    if (yval == "Failure") data_lims[["estimate"]] <- 1 - data_lims[["estimate"]]
+    if (!is.null(max_time)) {
+      y_lwr <- min(data_lims[data_lims$time < max_time, ][["estimate"]])
+      y_upr <- max(data_lims[data_lims$time < max_time, ][["estimate"]])
+    } else {
+      y_lwr <- min(data_lims[["estimate"]])
+      y_upr <- max(data_lims[["estimate"]])
+    }
+    ylim <- c(y_lwr, y_upr)
+  }
+  checkmate::assert_numeric(ylim, finite = TRUE, any.missing = FALSE, len = 2, sorted = TRUE)
 
   # change estimates of survival to estimates of failure (1 - survival)
   if (yval == "Failure") {
@@ -683,7 +707,7 @@ h_ggkm <- function(data,
   }
 
   gg <- gg +
-    ggplot2::coord_cartesian(ylim = c(0, 1)) +
+    ggplot2::coord_cartesian(ylim = ylim) +
     ggplot2::labs(x = xlab, y = ylab, title = title, caption = footnotes)
 
   if (!is.null(col)) {

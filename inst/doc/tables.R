@@ -23,7 +23,7 @@ basic_table() %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
   add_colcounts() %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%
@@ -40,7 +40,7 @@ basic_table() %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
   add_colcounts() %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   ) %>%
@@ -52,7 +52,7 @@ basic_table() %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
   add_colcounts() %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels,
     .stats = c("n", "mean_sd", "count"),
@@ -65,7 +65,7 @@ lyt <- basic_table() %>%
   split_cols_by(var = "ARM") %>%
   add_overall_col("All Patients") %>%
   add_colcounts() %>%
-  summarize_vars(
+  analyze_vars(
     vars = vars,
     var_labels = var_labels
   )

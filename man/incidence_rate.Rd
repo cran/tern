@@ -26,6 +26,7 @@ a_incidence_rate(
 estimate_incidence_rate(
   lyt,
   vars,
+  nested = TRUE,
   ...,
   show_labels = "hidden",
   table_names = vars,
@@ -60,6 +61,10 @@ indicating time unit for data input.
 
 \item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
 
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
+
 \item{...}{additional arguments for the lower level functions.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
@@ -75,10 +80,6 @@ to avoid warnings from \code{rtables}.}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
-
-\item{person_years}{(\code{numeric})\cr total person-years at risk.}
-
-\item{alpha}{(\code{numeric})\cr two-sided alpha-level for confidence interval.}
 }
 \value{
 \itemize{

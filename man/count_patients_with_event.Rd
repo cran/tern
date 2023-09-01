@@ -27,6 +27,8 @@ a_count_patients_with_event(
 count_patients_with_event(
   lyt,
   vars,
+  riskdiff = FALSE,
+  nested = TRUE,
   ...,
   table_names = vars,
   .stats = "count_fraction",
@@ -46,10 +48,11 @@ Multiple column names and flags are accepted in this format
 \code{c("column_name1" = "flag1", "column_name2" = "flag2")}.
 Note that only equality is being accepted as condition.}
 
-\item{.N_col}{(\code{count})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is passed by \code{rtables}.}
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 
-\item{.N_row}{(\code{count})\cr column-wise N (column count) for the full column that is passed by \code{rtables}.}
+\item{.N_row}{(\code{integer})\cr row-wise N (row group count) for the group of observations being analyzed
+(i.e. with no column-based subsetting) that is typically passed by \code{rtables}.}
 
 \item{denom}{(\code{string})\cr choice of denominator for proportion. Options are:
 \itemize{
@@ -61,6 +64,14 @@ Note that only equality is being accepted as condition.}
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
+
+\item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
+used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
+See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 
