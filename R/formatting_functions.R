@@ -160,6 +160,43 @@ format_count_fraction_fixed_dp <- function(x, ...) {
   return(result)
 }
 
+#' Formatting Count and Fraction with Special Case for Count < 10
+#'
+#' @description `r lifecycle::badge("stable")`
+#'
+#' Formats a count together with fraction with special consideration when count is less than 10.
+#'
+#' @inheritParams format_count_fraction
+#'
+#' @return A string in the format `count (fraction %)`. If `count` is less than 10, only `count` is printed.
+#'
+#' @examples
+#' format_count_fraction_lt10(x = c(275, 0.9673))
+#' format_count_fraction_lt10(x = c(2, 0.6667))
+#' format_count_fraction_lt10(x = c(9, 1))
+#'
+#' @family formatting functions
+#' @export
+format_count_fraction_lt10 <- function(x, ...) {
+  attr(x, "label") <- NULL
+
+  if (any(is.na(x))) {
+    return("NA")
+  }
+
+  checkmate::assert_vector(x)
+  checkmate::assert_integerish(x[1])
+  assert_proportion_value(x[2], include_boundaries = TRUE)
+
+  result <- if (x[1] < 10) {
+    paste0(x[1])
+  } else {
+    paste0(x[1], " (", round(x[2] * 100, 1), "%)")
+  }
+
+  return(result)
+}
+
 #' Formatting: XX as Formatting Function
 #'
 #' Translate a string where x and dots are interpreted as number place
@@ -207,6 +244,45 @@ format_xx <- function(str) {
   }
 
   return(rtable_format)
+}
+
+#' Formatting Numeric Values By Significant Figures
+#'
+#' Format numeric values to print with a specified number of significant figures.
+#'
+#' @param sigfig (`integer`)\cr number of significant figures to display.
+#' @param format (`character`)\cr the format label (string) to apply when printing the value. Decimal
+#'   places in string are ignored in favor of formatting by significant figures. Formats options are:
+#'   `"xx"`, `"xx / xx"`, `"(xx, xx)"`, `"xx - xx"`, and `"xx (xx)"`.
+#' @param num_fmt (`character`)\cr numeric format modifiers to apply to the value. Defaults to `"fg"` for
+#'   standard significant figures formatting - fixed (non-scientific notation) format (`"f"`)
+#'   and `sigfig` equal to number of significant figures instead of decimal places (`"g"`). See the
+#'   [formatC()] `format` argument for more options.
+#'
+#' @return An `rtables` formatting function.
+#'
+#' @examples
+#' fmt_3sf <- format_sigfig(3)
+#' fmt_3sf(1.658)
+#' fmt_3sf(1e1)
+#'
+#' fmt_5sf <- format_sigfig(5)
+#' fmt_5sf(0.57)
+#' fmt_5sf(0.000025645)
+#'
+#' @family formatting functions
+#' @export
+format_sigfig <- function(sigfig, format = "xx", num_fmt = "fg") {
+  checkmate::assert_integerish(sigfig)
+  format <- gsub("xx\\.|xx\\.x+", "xx", format)
+  checkmate::assert_choice(format, c("xx", "xx / xx", "(xx, xx)", "xx - xx", "xx (xx)"))
+  function(x, ...) {
+    if (!is.numeric(x)) stop("`format_sigfig` cannot be used for non-numeric values. Please choose another format.")
+    num <- formatC(signif(x, digits = sigfig), digits = sigfig, format = num_fmt, flag = "#")
+    num <- gsub("\\.$", "", num) # remove trailing "."
+
+    format_value(num, format)
+  }
 }
 
 #' Formatting Fraction with Lower Threshold
@@ -379,4 +455,123 @@ format_extreme_values_ci <- function(digits = 2L) {
 
     paste0("(", l_result, ", ", h_result, ")")
   }
+}
+
+#' Automatic formats from data significant digits
+#'
+#' @description `r lifecycle::badge("stable")`
+#'
+#' Formatting function for the majority of default methods used in [analyze_vars()].
+#' For non-derived values, the significant digits of data is used (e.g. range), while derived
+#' values have one more digits (measure of location and dispersion like mean, standard deviation).
+#' This function can be called internally with "auto" like, for example,
+#' `.formats = c("mean" = "auto")`. See details to see how this works with the inner function.
+#'
+#' @param dt_var (`numeric`) \cr all the data the statistics was created upon. Used only to find
+#'   significant digits. In [analyze_vars] this comes from `.df_row` (see
+#'   [rtables::additional_fun_params]), and it is the row data after the above row splits. No
+#'   column split is considered.
+#' @param x_stat (`string`) \cr string indicating the current statistical method used.
+#'
+#' @return A string that `rtables` prints in a table cell.
+#'
+#' @details
+#' The internal function is needed to work with `rtables` default structure for
+#' format functions, i.e. `function(x, ...)`, where is x are results from statistical evaluation.
+#' It can be more than one element (e.g. for `.stats = "mean_sd"`).
+#'
+#' @examples
+#' x_todo <- c(0.001, 0.2, 0.0011000, 3, 4)
+#' res <- c(mean(x_todo[1:3]), sd(x_todo[1:3]))
+#'
+#' # x is the result coming into the formatting function -> res!!
+#' format_auto(dt_var = x_todo, x_stat = "mean_sd")(x = res)
+#' format_auto(x_todo, "range")(x = range(x_todo))
+#' no_sc_x <- c(0.0000001, 1)
+#' format_auto(no_sc_x, "range")(x = no_sc_x)
+#'
+#' @family formatting functions
+#' @export
+format_auto <- function(dt_var, x_stat) {
+  function(x = "", ...) {
+    checkmate::assert_numeric(x, min.len = 1)
+    checkmate::assert_numeric(dt_var, min.len = 1)
+    # Defaults - they may be a param in the future
+    der_stats <- c(
+      "mean", "sd", "se", "median", "geom_mean", "quantiles", "iqr",
+      "mean_sd", "mean_se", "mean_se", "mean_ci", "mean_sei", "mean_sdi",
+      "median_ci"
+    )
+    nonder_stats <- c("n", "range", "min", "max")
+
+    # Safenet for miss-modifications
+    stopifnot(length(intersect(der_stats, nonder_stats)) == 0) # nolint
+    checkmate::assert_choice(x_stat, c(der_stats, nonder_stats))
+
+    # Finds the max number of digits in data
+    detect_dig <- vapply(dt_var, count_decimalplaces, FUN.VALUE = numeric(1)) %>%
+      max()
+
+    if (x_stat %in% der_stats) {
+      detect_dig <- detect_dig + 1
+    }
+
+    # Render input
+    str_vals <- formatC(x, digits = detect_dig, format = "f")
+    def_fmt <- get_formats_from_stats(x_stat)[[x_stat]]
+    str_fmt <- str_extract(def_fmt, invert = FALSE)[[1]]
+    if (length(str_fmt) != length(str_vals)) {
+      stop(
+        "Number of inserted values as result (", length(str_vals),
+        ") is not the same as there should be in the default tern formats for ",
+        x_stat, " (-> ", def_fmt, " needs ", length(str_fmt), " values). ",
+        "See tern_default_formats to check all of them."
+      )
+    }
+
+    # Squashing them together
+    inv_str_fmt <- str_extract(def_fmt, invert = TRUE)[[1]]
+    stopifnot(length(inv_str_fmt) == length(str_vals) + 1) # nolint
+
+    out <- vector("character", length = length(inv_str_fmt) + length(str_vals))
+    is_even <- seq_along(out) %% 2 == 0
+    out[is_even] <- str_vals
+    out[!is_even] <- inv_str_fmt
+
+    return(paste0(out, collapse = ""))
+  }
+}
+
+# Utility function that could be useful in general
+str_extract <- function(string, pattern = "xx|xx\\.|xx\\.x+", invert = FALSE) {
+  regmatches(string, gregexpr(pattern, string), invert = invert)
+}
+
+# Helper function
+count_decimalplaces <- function(dec) {
+  if (abs(dec - round(dec)) > .Machine$double.eps^0.5) { # For precision
+    nchar(strsplit(format(dec, scientific = FALSE, trim = FALSE), ".", fixed = TRUE)[[1]][[2]])
+  } else {
+    return(0)
+  }
+}
+
+#' Apply Auto Formatting
+#'
+#' Checks if any of the listed formats in `.formats` are `"auto"`, and replaces `"auto"` with
+#' the correct implementation of `format_auto` for the given statistics, data, and variable.
+#'
+#' @inheritParams argument_convention
+#' @param x_stats (named `list`)\cr a named list of statistics where each element corresponds
+#'   to an element in `.formats`, with matching names.
+#'
+#' @keywords internal
+apply_auto_formatting <- function(.formats, x_stats, .df_row, .var) {
+  is_auto_fmt <- vapply(.formats, function(ii) is.character(ii) && ii == "auto", logical(1))
+  if (any(is_auto_fmt)) {
+    auto_stats <- x_stats[is_auto_fmt]
+    var_df <- .df_row[[.var]] # xxx this can be extended for the WHOLE data or single facets
+    .formats[is_auto_fmt] <- lapply(names(auto_stats), format_auto, dt_var = var_df)
+  }
+  .formats
 }

@@ -2,11 +2,32 @@
 % Please edit documentation in R/estimate_proportion.R
 \name{estimate_proportions}
 \alias{estimate_proportions}
+\alias{estimate_proportion}
 \alias{s_proportion}
 \alias{a_proportion}
-\alias{estimate_proportion}
 \title{Estimation of Proportions}
 \usage{
+estimate_proportion(
+  lyt,
+  vars,
+  conf_level = 0.95,
+  method = c("waldcc", "wald", "clopper-pearson", "wilson", "wilsonc", "strat_wilson",
+    "strat_wilsonc", "agresti-coull", "jeffreys"),
+  weights = NULL,
+  max_iterations = 50,
+  variables = list(strata = NULL),
+  long = FALSE,
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  show_labels = "hidden",
+  table_names = vars,
+  .stats = NULL,
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_proportion(
   df,
   .var,
@@ -30,30 +51,11 @@ a_proportion(
   variables = list(strata = NULL),
   long = FALSE
 )
-
-estimate_proportion(
-  lyt,
-  vars,
-  nested = TRUE,
-  ...,
-  show_labels = "hidden",
-  table_names = vars,
-  .stats = NULL,
-  .formats = NULL,
-  .labels = NULL,
-  .indent_mods = NULL
-)
 }
 \arguments{
-\item{df}{(\code{logical} or \code{data.frame})\cr if only a logical vector is used,
-it indicates whether each subject is a responder or not. \code{TRUE} represents
-a successful outcome. If a \code{data.frame} is provided, also the \code{strata} variable
-names must be provided in \code{variables} as a list element with the strata strings.
-In the case of \code{data.frame}, the logical vector of responses must be indicated as a
-variable name in \code{.var}.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
-\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
+\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
 
 \item{conf_level}{(\code{proportion})\cr confidence level of the interval.}
 
@@ -72,31 +74,47 @@ to find estimates of optimal weights.}
 
 \item{long}{(\code{flag})\cr a long description is required.}
 
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
-
-\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
 underneath analyses, which is not allowed.}
 
-\item{...}{other arguments are ultimately conveyed to \code{\link[=s_proportion]{s_proportion()}}.}
+\item{...}{additional arguments for the lower level functions.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
 
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("estimate_proportion")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{df}{(\code{logical} or \code{data.frame})\cr if only a logical vector is used,
+it indicates whether each subject is a responder or not. \code{TRUE} represents
+a successful outcome. If a \code{data.frame} is provided, also the \code{strata} variable
+names must be provided in \code{variables} as a list element with the strata strings.
+In the case of \code{data.frame}, the logical vector of responses must be indicated as a
+variable name in \code{.var}.}
+
+\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
 }
 \value{
+\itemize{
+\item \code{estimate_proportion()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_proportion()} to the table layout.
+}
+
 \itemize{
 \item \code{s_proportion()} returns statistics \code{n_prop} (\code{n} and proportion) and \code{prop_ci} (proportion CI) for a
 given variable.
@@ -104,12 +122,6 @@ given variable.
 
 \itemize{
 \item \code{a_proportion()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
-}
-
-\itemize{
-\item \code{estimate_proportion()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_proportion()} to the table layout.
 }
 }
 \description{
@@ -119,17 +131,28 @@ Estimate the proportion of responders within a studied population.
 }
 \section{Functions}{
 \itemize{
+\item \code{estimate_proportion()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_proportion()}: Statistics function estimating a
 proportion along with its confidence interval.
 
 \item \code{a_proportion()}: Formatted analysis function which is used as \code{afun}
 in \code{estimate_proportion()}.
 
-\item \code{estimate_proportion()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
-
 }}
 \examples{
+dta_test <- data.frame(
+  USUBJID = paste0("S", 1:12),
+  ARM     = rep(LETTERS[1:3], each = 4),
+  AVAL    = c(A = c(1, 1, 1, 1), B = c(0, 0, 1, 1), C = c(0, 0, 0, 0))
+)
+
+basic_table() \%>\%
+  split_cols_by("ARM") \%>\%
+  estimate_proportion(vars = "AVAL") \%>\%
+  build_table(df = dta_test)
+
 # Case with only logical vector.
 rsp_v <- c(1, 0, 1, 0, 1, 1, 0, 0)
 s_proportion(rsp_v)
@@ -151,17 +174,6 @@ s_proportion(
   conf_level = 0.90,
   method = "strat_wilson"
 )
-
-dta_test <- data.frame(
-  USUBJID = paste0("S", 1:12),
-  ARM     = rep(LETTERS[1:3], each = 4),
-  AVAL    = c(A = c(1, 1, 1, 1), B = c(0, 0, 1, 1), C = c(0, 0, 0, 0))
-)
-
-basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  estimate_proportion(vars = "AVAL") \%>\%
-  build_table(df = dta_test)
 
 }
 \seealso{

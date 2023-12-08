@@ -8,8 +8,11 @@
 #' `riskdiff` to `TRUE` in all following analyze function calls.
 #'
 #' @param arm_x (`character`)\cr Name of reference arm to use in risk difference calculations.
-#' @param arm_y (`character`)\cr Name of arm to compare to reference arm in risk difference calculations.
-#' @param col_label (`character`)\cr Label to use when rendering the risk difference column within the table.
+#' @param arm_y (`character`)\cr Names of one or more arms to compare to reference arm in risk difference
+#'   calculations. A new column will be added for each value of `arm_y`.
+#' @param col_label (`character`)\cr Labels to use when rendering the risk difference column within the table.
+#'   If more than one comparison arm is specified in `arm_y`, default labels will specify which two arms are
+#'   being compared (reference arm vs. comparison arm).
 #' @param pct (`flag`)\cr whether output should be returned as percentages. Defaults to `TRUE`.
 #'
 #' @return A closure suitable for use as a split function (`split_fun`) within [rtables::split_cols_by()]
@@ -22,7 +25,7 @@
 #' adae$AESEV <- factor(adae$AESEV)
 #'
 #' lyt <- basic_table() %>%
-#'   split_cols_by("ARMCD", split_fun = add_riskdiff(arm_x = "ARM A", arm_y = "ARM B")) %>%
+#'   split_cols_by("ARMCD", split_fun = add_riskdiff(arm_x = "ARM A", arm_y = c("ARM B", "ARM C"))) %>%
 #'   count_occurrences_by_grade(
 #'     var = "AESEV",
 #'     riskdiff = TRUE
@@ -34,13 +37,24 @@
 #' @export
 add_riskdiff <- function(arm_x,
                          arm_y,
-                         col_label = "Risk Difference (%) (95% CI)",
+                         col_label = paste0(
+                           "Risk Difference (%) (95% CI)", if (length(arm_y) > 1) paste0("\n", arm_x, " vs. ", arm_y)
+                         ),
                          pct = TRUE) {
-  sapply(c(arm_x, arm_y, col_label), checkmate::assert_character, len = 1)
-  combodf <- tibble::tribble(
-    ~valname, ~label, ~levelcombo, ~exargs,
-    paste("riskdiff", arm_x, arm_y, sep = "_"), col_label, c(arm_x, arm_y), list()
-  )
+  checkmate::assert_character(arm_x, len = 1)
+  checkmate::assert_character(arm_y, min.len = 1)
+  checkmate::assert_character(col_label, len = length(arm_y))
+
+  combodf <- tibble::tribble(~valname, ~label, ~levelcombo, ~exargs)
+  for (i in seq_len(length(arm_y))) {
+    combodf <- rbind(
+      combodf,
+      tibble::tribble(
+        ~valname, ~label, ~levelcombo, ~exargs,
+        paste("riskdiff", arm_x, arm_y[i], sep = "_"), col_label[i], c(arm_x, arm_y[i]), list()
+      )
+    )
+  }
   if (pct) combodf$valname <- paste0(combodf$valname, "_pct")
   add_combo_levels(combodf)
 }
@@ -78,7 +92,10 @@ afun_riskdiff <- function(df,
                           .spl_context,
                           .all_col_counts,
                           .stats,
-                          .indent_mods,
+                          .formats = NULL,
+                          .labels = NULL,
+                          .indent_mods = NULL,
+                          na_str = default_na_str(),
                           afun,
                           s_args = list()) {
   if (!any(grepl("riskdiff", names(.spl_context)))) {
@@ -89,8 +106,10 @@ afun_riskdiff <- function(df,
   }
   checkmate::assert_list(afun, len = 1, types = "function")
   checkmate::assert_named(afun)
-
-  afun_args <- list(.var = .var, .df_row = .df_row, .N_row = .N_row, denom = "N_col", labelstr = labelstr)
+  afun_args <- list(
+    .var = .var, .df_row = .df_row, .N_row = .N_row, denom = "N_col", labelstr = labelstr,
+    .stats = .stats, .formats = .formats, .labels = .labels, .indent_mods = .indent_mods, na_str = na_str
+  )
   afun_args <- afun_args[intersect(names(afun_args), names(as.list(args(afun[[1]]))))]
   if ("denom" %in% names(s_args)) afun_args[["denom"]] <- NULL
 
@@ -113,8 +132,9 @@ afun_riskdiff <- function(df,
     cur_var <- tail(.spl_context$cur_col_split[[1]], 1)
 
     # Apply statistics function to arm X and arm Y data
-    s_x <- do.call(names(afun), args = c(list(df = df[df[[cur_var]] == arm_x, ], .N_col = N_col_x), afun_args, s_args))
-    s_y <- do.call(names(afun), args = c(list(df = df[df[[cur_var]] == arm_y, ], .N_col = N_col_y), afun_args, s_args))
+    s_args <- c(s_args, afun_args[intersect(names(afun_args), names(as.list(args(names(afun)))))])
+    s_x <- do.call(names(afun), args = c(list(df = df[df[[cur_var]] == arm_x, ], .N_col = N_col_x), s_args))
+    s_y <- do.call(names(afun), args = c(list(df = df[df[[cur_var]] == arm_y, ], .N_col = N_col_y), s_args))
 
     # Get statistic name and row names
     stat <- ifelse("count_fraction" %in% names(s_x), "count_fraction", "unique")

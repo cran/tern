@@ -257,7 +257,7 @@ testthat::test_that("`estimate_proportion_diff` and cmh is compatible with `rtab
     stringsAsFactors = TRUE
   )
   l <- basic_table() %>%
-    split_cols_by(var = "grp", ref_group = "B") %>%
+    split_cols_by(var = "grp", ref_group = "B", split_fun = ref_group_position("first")) %>%
     estimate_proportion_diff(
       vars = "rsp",
       variables = list(strata = c("f1", "f2")),
@@ -296,11 +296,11 @@ testthat::test_that("`estimate_proportion_diff` and strat_newcombe is compatible
       method = "strat_newcombe"
     )
   result <- build_table(l, df = dta)
-  result <- to_string_matrix(result)
+  result <- to_string_matrix(result, with_spaces = FALSE, print_txt_to_copy = FALSE)
   expected <- structure(
     c(
       "", "Difference in Response rate (%)",
-      "95% CI (Stratified Newcombe, without correction)",
+      "  95% CI (Stratified Newcombe, without correction)",
       "B", "", "", "A", "25.39", "(3.47, 44.54)"
     ),
     .Dim = c(3L, 3L)

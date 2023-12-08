@@ -2,11 +2,25 @@
 % Please edit documentation in R/abnormal_by_marked.R
 \name{abnormal_by_marked}
 \alias{abnormal_by_marked}
+\alias{count_abnormal_by_marked}
 \alias{s_count_abnormal_by_marked}
 \alias{a_count_abnormal_by_marked}
-\alias{count_abnormal_by_marked}
 \title{Count Patients with Marked Laboratory Abnormalities}
 \usage{
+count_abnormal_by_marked(
+  lyt,
+  var,
+  category = list(single = "SINGLE", last_replicated = c("LAST", "REPLICATED")),
+  variables = list(id = "USUBJID", param = "PARAM", direction = "abn_dir"),
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  .stats = NULL,
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_count_abnormal_by_marked(
   df,
   .var = "AVALCAT1",
@@ -22,33 +36,16 @@ a_count_abnormal_by_marked(
   category = list(single = "SINGLE", last_replicated = c("LAST", "REPLICATED")),
   variables = list(id = "USUBJID", param = "PARAM", direction = "abn_dir")
 )
-
-count_abnormal_by_marked(
-  lyt,
-  var,
-  nested = TRUE,
-  ...,
-  .stats = NULL,
-  .formats = NULL,
-  .labels = NULL,
-  .indent_mods = NULL
-)
 }
 \arguments{
-\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
-
-\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
-
-\item{.spl_context}{(\code{data.frame})\cr gives information about ancestor split states
-that is passed by \code{rtables}.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{category}{(\code{list})\cr with different marked category names for single
 and last or replicated.}
 
 \item{variables}{(named \code{list} of \code{string})\cr list of additional analysis variables.}
 
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -56,16 +53,32 @@ underneath analyses, which is not allowed.}
 
 \item{...}{additional arguments for the lower level functions.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("abnormal_by_marked")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
+
+\item{.spl_context}{(\code{data.frame})\cr gives information about ancestor split states
+that is passed by \code{rtables}.}
 }
 \value{
+\itemize{
+\item \code{count_abnormal_by_marked()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_count_abnormal_by_marked()} to the table layout.
+}
+
 \itemize{
 \item \code{s_count_abnormal_by_marked()} returns statistic \code{count_fraction} with \verb{Single, not last},
 \verb{Last or replicated}, and \code{Any} results.
@@ -73,12 +86,6 @@ unmodified default behavior. Can be negative.}
 
 \itemize{
 \item \code{a_count_abnormal_by_marked()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
-}
-
-\itemize{
-\item \code{count_abnormal_by_marked()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_count_abnormal_by_marked()} to the table layout.
 }
 }
 \description{
@@ -97,13 +104,13 @@ replicated marked abnormalities.
 }
 \section{Functions}{
 \itemize{
+\item \code{count_abnormal_by_marked()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_count_abnormal_by_marked()}: Statistics function for patients with marked lab abnormalities.
 
 \item \code{a_count_abnormal_by_marked()}: Formatted analysis function which is used as \code{afun}
 in \code{count_abnormal_by_marked()}.
-
-\item \code{count_abnormal_by_marked()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
 
 }}
 \note{

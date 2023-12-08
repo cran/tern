@@ -5,21 +5,22 @@
 #' These are specific functions to count patients with missed doses. The difference to [count_cumulative()] is
 #' mainly the special labels.
 #'
+#' @inheritParams s_count_cumulative
 #' @inheritParams argument_convention
+#' @param thresholds (vector of `count`)\cr number of missed doses the patients at least had.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("count_missed_doses")`
+#'   to see available statistics for this function.
 #'
 #' @seealso Relevant description function [d_count_missed_doses()].
 #'
 #' @name count_missed_doses
+#' @order 1
 NULL
 
 #' @describeIn count_missed_doses Statistics function to count non-missing values.
 #'
 #' @return
 #' * `s_count_nonmissing()` returns the statistic `n` which is the count of non-missing values in `x`.
-#'
-#' @examples
-#' set.seed(1)
-#' x <- c(sample(1:10, 10), NA)
 #'
 #' @keywords internal
 s_count_nonmissing <- function(x) {
@@ -42,8 +43,6 @@ d_count_missed_doses <- function(thresholds) {
 }
 
 #' @describeIn count_missed_doses Statistics function to count patients with missed doses.
-#'
-#' @param thresholds (vector of `count`)\cr number of missed doses the patients at least had.
 #'
 #' @return
 #' * `s_count_missed_doses()` returns the statistics `n` and `count_fraction` with one element for each threshold.
@@ -82,8 +81,6 @@ a_count_missed_doses <- make_afun(
 #' @describeIn count_missed_doses Layout-creating function which can take statistics function arguments
 #'   and additional format arguments. This function is a wrapper for [rtables::analyze()].
 #'
-#' @inheritParams s_count_cumulative
-#'
 #' @return
 #' * `count_missed_doses()` returns a layout object suitable for passing to further layouting functions,
 #'   or to [rtables::build_table()]. Adding this function to an `rtable` layout will add formatted rows containing
@@ -108,10 +105,13 @@ a_count_missed_doses <- make_afun(
 #'   build_table(anl, alt_counts_df = tern_ex_adsl)
 #'
 #' @export
+#' @order 2
 count_missed_doses <- function(lyt,
                                vars,
+                               thresholds,
                                var_labels = vars,
                                show_labels = "visible",
+                               na_str = default_na_str(),
                                nested = TRUE,
                                ...,
                                table_names = vars,
@@ -119,6 +119,8 @@ count_missed_doses <- function(lyt,
                                .formats = NULL,
                                .labels = NULL,
                                .indent_mods = NULL) {
+  extra_args <- list(thresholds = thresholds, ...)
+
   afun <- make_afun(
     a_count_missed_doses,
     .stats = .stats,
@@ -134,7 +136,8 @@ count_missed_doses <- function(lyt,
     var_labels = var_labels,
     table_names = table_names,
     show_labels = show_labels,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }

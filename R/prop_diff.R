@@ -2,18 +2,20 @@
 #'
 #' @description `r lifecycle::badge("stable")`
 #'
+#' @inheritParams prop_diff_strat_nc
 #' @inheritParams argument_convention
+#' @param method (`string`)\cr the method used for the confidence interval estimation.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("estimate_proportion_diff")`
+#'   to see available statistics for this function.
 #'
 #' @seealso [d_proportion_diff()]
 #'
 #' @name prop_diff
+#' @order 1
 NULL
 
 #' @describeIn prop_diff Statistics function estimating the difference
 #'   in terms of responder proportion.
-#'
-#' @inheritParams prop_diff_strat_nc
-#' @param method (`string`)\cr the method used for the confidence interval estimation.
 #'
 #' @return
 #' * `s_proportion_diff()` returns a named list of elements `diff` and `diff_ci`.
@@ -22,18 +24,6 @@ NULL
 #'   not permitted.
 #'
 #' @examples
-#' # Summary
-#'
-#' ## "Mid" case: 4/4 respond in group A, 1/2 respond in group B.
-#' nex <- 100 # Number of example rows
-#' dta <- data.frame(
-#'   "rsp" = sample(c(TRUE, FALSE), nex, TRUE),
-#'   "grp" = sample(c("A", "B"), nex, TRUE),
-#'   "f1" = sample(c("a1", "a2"), nex, TRUE),
-#'   "f2" = sample(c("x", "y", "z"), nex, TRUE),
-#'   stringsAsFactors = TRUE
-#' )
-#'
 #' s_proportion_diff(
 #'   df = subset(dta, grp == "A"),
 #'   .var = "rsp",
@@ -170,14 +160,22 @@ a_proportion_diff <- make_afun(
 #' @describeIn prop_diff Layout-creating function which can take statistics function arguments
 #'   and additional format arguments. This function is a wrapper for [rtables::analyze()].
 #'
-#' @param ... arguments passed to `s_proportion_diff()`.
-#'
 #' @return
 #' * `estimate_proportion_diff()` returns a layout object suitable for passing to further layouting functions,
 #'   or to [rtables::build_table()]. Adding this function to an `rtable` layout will add formatted rows containing
 #'   the statistics from `s_proportion_diff()` to the table layout.
 #'
 #' @examples
+#' ## "Mid" case: 4/4 respond in group A, 1/2 respond in group B.
+#' nex <- 100 # Number of example rows
+#' dta <- data.frame(
+#'   "rsp" = sample(c(TRUE, FALSE), nex, TRUE),
+#'   "grp" = sample(c("A", "B"), nex, TRUE),
+#'   "f1" = sample(c("a1", "a2"), nex, TRUE),
+#'   "f2" = sample(c("x", "y", "z"), nex, TRUE),
+#'   stringsAsFactors = TRUE
+#' )
+#'
 #' l <- basic_table() %>%
 #'   split_cols_by(var = "grp", ref_group = "B") %>%
 #'   estimate_proportion_diff(
@@ -189,8 +187,18 @@ a_proportion_diff <- make_afun(
 #' build_table(l, df = dta)
 #'
 #' @export
+#' @order 2
 estimate_proportion_diff <- function(lyt,
                                      vars,
+                                     variables = list(strata = NULL),
+                                     conf_level = 0.95,
+                                     method = c(
+                                       "waldcc", "wald", "cmh",
+                                       "ha", "newcombe", "newcombecc",
+                                       "strat_newcombe", "strat_newcombecc"
+                                     ),
+                                     weights_method = "cmh",
+                                     na_str = default_na_str(),
                                      nested = TRUE,
                                      ...,
                                      var_labels = vars,
@@ -200,6 +208,10 @@ estimate_proportion_diff <- function(lyt,
                                      .formats = NULL,
                                      .labels = NULL,
                                      .indent_mods = NULL) {
+  extra_args <- list(
+    variables = variables, conf_level = conf_level, method = method, weights_method = weights_method, ...
+  )
+
   afun <- make_afun(
     a_proportion_diff,
     .stats = .stats,
@@ -213,8 +225,9 @@ estimate_proportion_diff <- function(lyt,
     vars,
     afun = afun,
     var_labels = var_labels,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...),
+    extra_args = extra_args,
     show_labels = show_labels,
     table_names = table_names
   )
@@ -320,6 +333,7 @@ NULL
 #' set.seed(2)
 #' rsp <- sample(c(TRUE, FALSE), replace = TRUE, size = 20)
 #' grp <- factor(c(rep("A", 10), rep("B", 10)))
+#'
 #' prop_diff_wald(rsp = rsp, grp = grp, conf_level = 0.95, correct = FALSE)
 #'
 #' @export
@@ -363,11 +377,13 @@ prop_diff_wald <- function(rsp,
 #' ## "Mid" case: 3/4 respond in group A, 1/2 respond in group B.
 #' rsp <- c(TRUE, FALSE, FALSE, TRUE, TRUE, TRUE)
 #' grp <- factor(c("A", "B", "A", "B", "A", "A"), levels = c("B", "A"))
+#'
 #' prop_diff_ha(rsp = rsp, grp = grp, conf_level = 0.90)
 #'
 #' ## Edge case: Same proportion of response in A and B.
 #' rsp <- c(TRUE, FALSE, TRUE, FALSE)
 #' grp <- factor(c("A", "A", "B", "B"), levels = c("A", "B"))
+#'
 #' prop_diff_ha(rsp = rsp, grp = grp, conf_level = 0.6)
 #'
 #' @export
@@ -404,6 +420,7 @@ prop_diff_ha <- function(rsp,
 #' )
 #' grp <- factor(rep(c("A", "B"), each = 40), levels = c("B", "A"))
 #' table(rsp, grp)
+#'
 #' prop_diff_nc(rsp = rsp, grp = grp, conf_level = 0.9)
 #'
 #' @export

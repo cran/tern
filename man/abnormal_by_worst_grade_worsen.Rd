@@ -2,11 +2,25 @@
 % Please edit documentation in R/abnormal_by_worst_grade_worsen.R
 \name{abnormal_by_worst_grade_worsen}
 \alias{abnormal_by_worst_grade_worsen}
+\alias{count_abnormal_lab_worsen_by_baseline}
 \alias{s_count_abnormal_lab_worsen_by_baseline}
 \alias{a_count_abnormal_lab_worsen_by_baseline}
-\alias{count_abnormal_lab_worsen_by_baseline}
 \title{Patient Counts for Laboratory Events (Worsen From Baseline) by Highest Grade Post-Baseline}
 \usage{
+count_abnormal_lab_worsen_by_baseline(
+  lyt,
+  var,
+  variables = list(id = "USUBJID", baseline_var = "BTOXGR", direction_var = "GRADDR"),
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  table_names = NULL,
+  .stats = NULL,
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_count_abnormal_lab_worsen_by_baseline(
   df,
   .var = "ATOXGR",
@@ -18,24 +32,9 @@ a_count_abnormal_lab_worsen_by_baseline(
   .var = "ATOXGR",
   variables = list(id = "USUBJID", baseline_var = "BTOXGR", direction_var = "GRADDR")
 )
-
-count_abnormal_lab_worsen_by_baseline(
-  lyt,
-  var,
-  nested = TRUE,
-  ...,
-  table_names = NULL,
-  .stats = NULL,
-  .formats = NULL,
-  .labels = NULL,
-  .indent_mods = NULL
-)
 }
 \arguments{
-\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
-
-\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{variables}{(named \code{list} of \code{string})\cr list of additional analysis variables including:
 \itemize{
@@ -44,7 +43,7 @@ by a statistics function.}
 \item \code{direction_var} (\code{string})\cr see \code{direction_var} for more details.
 }}
 
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -55,16 +54,29 @@ underneath analyses, which is not allowed.}
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("abnormal_by_worst_grade_worsen")}
+to see all available statistics.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
 }
 \value{
+\itemize{
+\item \code{count_abnormal_lab_worsen_by_baseline()} returns a layout object suitable for passing to further layouting
+functions, or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted
+rows containing the statistics from \code{s_count_abnormal_lab_worsen_by_baseline()} to the table layout.
+}
+
 \itemize{
 \item \code{s_count_abnormal_lab_worsen_by_baseline()} returns the counts and fraction of patients whose worst
 post-baseline lab grades are worse than their baseline grades, for post-baseline worst grades
@@ -75,12 +87,6 @@ post-baseline lab grades are worse than their baseline grades, for post-baseline
 \item \code{a_count_abnormal_lab_worsen_by_baseline()} returns the corresponding list with
 formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
 }
-
-\itemize{
-\item \code{count_abnormal_lab_worsen_by_baseline()} returns a layout object suitable for passing to further layouting
-functions, or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted
-rows containing the statistics from \code{s_count_abnormal_lab_worsen_by_baseline()} to the table layout.
-}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
@@ -89,14 +95,14 @@ Patient count and fraction for laboratory events (worsen from baseline) shift ta
 }
 \section{Functions}{
 \itemize{
+\item \code{count_abnormal_lab_worsen_by_baseline()}: Layout-creating function which can take statistics function
+arguments and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_count_abnormal_lab_worsen_by_baseline()}: Statistics function for patients whose worst post-baseline
 lab grades are worse than their baseline grades.
 
 \item \code{a_count_abnormal_lab_worsen_by_baseline()}: Formatted analysis function which is used as \code{afun}
 in \code{count_abnormal_lab_worsen_by_baseline()}.
-
-\item \code{count_abnormal_lab_worsen_by_baseline()}: Layout-creating function which can take statistics function
-arguments and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
 
 }}
 \examples{

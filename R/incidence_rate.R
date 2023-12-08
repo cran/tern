@@ -15,10 +15,13 @@
 #'     indicating time unit for data input.
 #'   * `num_pt_year` (`numeric`)\cr time unit for desired output (in person-years).
 #' @param n_events (`integer`)\cr number of events observed.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("estimate_incidence_rate")`
+#'   to see available statistics for this function.
 #'
 #' @seealso [control_incidence_rate()] and helper functions [h_incidence_rate].
 #'
 #' @name incidence_rate
+#' @order 1
 NULL
 
 #' @describeIn incidence_rate Statistics function which estimates the incidence rate and the
@@ -30,18 +33,6 @@ NULL
 #'   - `n_events`: Total number of events observed.
 #'   - `rate`: Estimated incidence rate.
 #'   - `rate_ci`: Confidence interval for the incidence rate.
-#'
-#' @examples
-#' library(dplyr)
-#'
-#' df <- data.frame(
-#'   USUBJID = as.character(seq(6)),
-#'   CNSR = c(0, 1, 1, 0, 0, 0),
-#'   AVAL = c(10.1, 20.4, 15.3, 20.8, 18.7, 23.4),
-#'   ARM = factor(c("A", "A", "A", "B", "B", "B"))
-#' ) %>%
-#'   mutate(is_event = CNSR == 0) %>%
-#'   mutate(n_events = as.integer(is_event))
 #'
 #' @keywords internal
 s_incidence_rate <- function(df,
@@ -96,7 +87,6 @@ s_incidence_rate <- function(df,
 #' @return
 #' * `a_incidence_rate()` returns the corresponding list with formatted [rtables::CellValue()].
 #'
-#'
 #' @keywords internal
 a_incidence_rate <- make_afun(
   s_incidence_rate,
@@ -117,6 +107,17 @@ a_incidence_rate <- make_afun(
 #'   the statistics from `s_incidence_rate()` to the table layout.
 #'
 #' @examples
+#' library(dplyr)
+#'
+#' df <- data.frame(
+#'   USUBJID = as.character(seq(6)),
+#'   CNSR = c(0, 1, 1, 0, 0, 0),
+#'   AVAL = c(10.1, 20.4, 15.3, 20.8, 18.7, 23.4),
+#'   ARM = factor(c("A", "A", "A", "B", "B", "B"))
+#' ) %>%
+#'   mutate(is_event = CNSR == 0) %>%
+#'   mutate(n_events = as.integer(is_event))
+#'
 #' basic_table() %>%
 #'   split_cols_by("ARM") %>%
 #'   add_colcounts() %>%
@@ -131,8 +132,12 @@ a_incidence_rate <- make_afun(
 #'   build_table(df)
 #'
 #' @export
+#' @order 2
 estimate_incidence_rate <- function(lyt,
                                     vars,
+                                    n_events,
+                                    control = control_incidence_rate(),
+                                    na_str = default_na_str(),
                                     nested = TRUE,
                                     ...,
                                     show_labels = "hidden",
@@ -141,6 +146,8 @@ estimate_incidence_rate <- function(lyt,
                                     .formats = NULL,
                                     .labels = NULL,
                                     .indent_mods = NULL) {
+  extra_args <- list(n_events = n_events, control = control, ...)
+
   afun <- make_afun(
     a_incidence_rate,
     .stats = .stats,
@@ -155,8 +162,9 @@ estimate_incidence_rate <- function(lyt,
     show_labels = show_labels,
     table_names = table_names,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }
 
@@ -276,7 +284,6 @@ h_incidence_rate_byar <- function(person_years,
 
 #' @describeIn h_incidence_rate Helper function to estimate the incidence rate and
 #'   associated confidence interval.
-#'
 #'
 #' @keywords internal
 h_incidence_rate <- function(person_years,

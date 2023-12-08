@@ -5,10 +5,18 @@
 #' The primary analysis variable `.var` denotes the unique patient identifier.
 #'
 #' @inheritParams argument_convention
+#' @param filters (`character`)\cr a character vector specifying the column names and flag variables
+#'   to be used for counting the number of unique identifiers satisfying such conditions.
+#'   Multiple column names and flags are accepted in this format
+#'   `c("column_name1" = "flag1", "column_name2" = "flag2")`.
+#'   Note that only equality is being accepted as condition.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("count_patients_with_event")`
+#'   to see available statistics for this function.
 #'
 #' @seealso [count_patients_with_flags]
 #'
 #' @name count_patients_with_event
+#' @order 1
 NULL
 
 #' @describeIn count_patients_with_event Statistics function which counts the number of patients for which
@@ -16,18 +24,11 @@ NULL
 #'
 #' @inheritParams analyze_variables
 #' @param .var (`character`)\cr name of the column that contains the unique identifier.
-#' @param filters (`character`)\cr a character vector specifying the column names and flag variables
-#'   to be used for counting the number of unique identifiers satisfying such conditions.
-#'   Multiple column names and flags are accepted in this format
-#'   `c("column_name1" = "flag1", "column_name2" = "flag2")`.
-#'   Note that only equality is being accepted as condition.
 #'
 #' @return
 #' * `s_count_patients_with_event()` returns the count and fraction of unique identifiers with the defined event.
 #'
 #' @examples
-#' library(dplyr)
-#'
 #' # `s_count_patients_with_event()`
 #'
 #' s_count_patients_with_event(
@@ -35,11 +36,13 @@ NULL
 #'   .var = "SUBJID",
 #'   filters = c("TRTEMFL" = "Y")
 #' )
+#'
 #' s_count_patients_with_event(
 #'   tern_ex_adae,
 #'   .var = "SUBJID",
 #'   filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL")
 #' )
+#'
 #' s_count_patients_with_event(
 #'   tern_ex_adae,
 #'   .var = "SUBJID",
@@ -139,12 +142,16 @@ a_count_patients_with_event <- make_afun(
 #'     .indent_mods = c(count_fraction = 2L),
 #'     table_names = "tbl_rel_fatal"
 #'   )
+#'
 #' build_table(lyt, tern_ex_adae, alt_counts_df = tern_ex_adsl)
 #'
 #' @export
+#' @order 2
 count_patients_with_event <- function(lyt,
                                       vars,
+                                      filters,
                                       riskdiff = FALSE,
+                                      na_str = default_na_str(),
                                       nested = TRUE,
                                       ...,
                                       table_names = vars,
@@ -153,6 +160,8 @@ count_patients_with_event <- function(lyt,
                                       .labels = NULL,
                                       .indent_mods = NULL) {
   checkmate::assert_flag(riskdiff)
+
+  s_args <- list(filters = filters, ...)
 
   afun <- make_afun(
     a_count_patients_with_event,
@@ -163,13 +172,13 @@ count_patients_with_event <- function(lyt,
   )
 
   extra_args <- if (isFALSE(riskdiff)) {
-    list(...)
+    s_args
   } else {
     list(
       afun = list("s_count_patients_with_event" = afun),
       .stats = .stats,
       .indent_mods = .indent_mods,
-      s_args = list(...)
+      s_args = s_args
     )
   }
 
@@ -177,6 +186,7 @@ count_patients_with_event <- function(lyt,
     lyt,
     vars,
     afun = ifelse(isFALSE(riskdiff), afun, afun_riskdiff),
+    na_str = na_str,
     nested = nested,
     extra_args = extra_args,
     show_labels = ifelse(length(vars) > 1, "visible", "hidden"),

@@ -62,12 +62,18 @@
 #' @export
 summarize_colvars <- function(lyt,
                               ...,
-                              na_level = NA_character_,
+                              na_level = lifecycle::deprecated(),
+                              na_str = default_na_str(),
                               .stats = c("n", "mean_sd", "median", "range", "count_fraction"),
                               .formats = NULL,
                               .labels = NULL,
                               .indent_mods = NULL) {
-  extra_args <- list(.stats = .stats, na_level = na_level, ...)
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "summarize_colvars(na_level)", "summarize_colvars(na_str)")
+    na_str <- na_level
+  }
+
+  extra_args <- list(.stats = .stats, na_str = na_str, ...)
   if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
   if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
   if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
@@ -75,6 +81,7 @@ summarize_colvars <- function(lyt,
   analyze_colvars(
     lyt,
     afun = a_summary,
+    na_str = na_str,
     extra_args = extra_args
   )
 }

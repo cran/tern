@@ -8,7 +8,11 @@
 tabulate_survival_biomarkers(
   df,
   vars = c("n_tot", "n_tot_events", "median", "hr", "ci", "pval"),
+  groups_lists = list(),
+  control = control_coxreg(),
+  label_all = "All Patients",
   time_unit = NULL,
+  na_str = default_na_str(),
   .indent_mods = 0L
 )
 }
@@ -27,7 +31,17 @@ tabulate_survival_biomarkers(
 Note, one of the statistics \code{n_tot} and \code{n_tot_events}, as well as both \code{hr} and \code{ci} are required.
 }}
 
+\item{groups_lists}{(named \code{list} of \code{list})\cr optionally contains for each \code{subgroups} variable a
+list, which specifies the new group levels via the names and the
+levels that belong to it in the character vectors that are elements of the list.}
+
+\item{control}{(\code{list})\cr a list of parameters as returned by the helper function \code{\link[=control_coxreg]{control_coxreg()}}.}
+
+\item{label_all}{(\code{string})\cr label for the total population analysis.}
+
 \item{time_unit}{(\code{string})\cr label with unit of median survival time. Default \code{NULL} skips displaying unit.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
@@ -73,6 +87,11 @@ adtte_f <- adtte \%>\%
 labels <- c("AVALU" = adtte_labels[["AVALU"]], "is_event" = "Event Flag")
 formatters::var_labels(adtte_f)[names(labels)] <- labels
 
+# Typical analysis of two continuous biomarkers `BMRKR1` and `AGE`,
+# in multiple regression models containing one covariate `RACE`,
+# as well as one stratification variable `STRATA1`. The subgroups
+# are defined by the levels of `BMRKR2`.
+
 df <- extract_survival_biomarkers(
   variables = list(
     tte = "AVAL",
@@ -85,6 +104,27 @@ df <- extract_survival_biomarkers(
   data = adtte_f
 )
 df
+
+# Here we group the levels of `BMRKR2` manually.
+df_grouped <- extract_survival_biomarkers(
+  variables = list(
+    tte = "AVAL",
+    is_event = "is_event",
+    biomarkers = c("BMRKR1", "AGE"),
+    strata = "STRATA1",
+    covariates = "SEX",
+    subgroups = "BMRKR2"
+  ),
+  data = adtte_f,
+  groups_lists = list(
+    BMRKR2 = list(
+      "low" = "LOW",
+      "low/medium" = c("LOW", "MEDIUM"),
+      "low/medium/high" = c("LOW", "MEDIUM", "HIGH")
+    )
+  )
+)
+df_grouped
 
 ## Table with default columns.
 tabulate_survival_biomarkers(df)

@@ -6,13 +6,6 @@
 #' when a column table layout is required.
 #'
 #' @inheritParams argument_convention
-#'
-#' @name count_patients_events_in_cols
-NULL
-
-#' @describeIn count_patients_events_in_cols Statistics function which counts numbers of patients and multiple
-#'   events defined by filters. Used as analysis function `afun` in `summarize_patients_events_in_cols()`.
-#'
 #' @param filters_list (named `list` of `character`)\cr each element in this list describes one
 #'   type of event describe by filters, in the same format as [s_count_patients_with_event()].
 #'   If it has a label, then this will be used for the column title.
@@ -20,6 +13,16 @@ NULL
 #'   that corresponding table cells will stay blank.
 #' @param custom_label (`string` or `NULL`)\cr if provided and `labelstr` is empty then this will
 #'   be used as label.
+#' @param .stats (`character`)\cr statistics to select for the table. Run
+#'   `get_stats("summarize_patients_events_in_cols")` to see available statistics for this function, in addition
+#'   to any added using `filters_list`.
+#'
+#' @name count_patients_events_in_cols
+#' @order 1
+NULL
+
+#' @describeIn count_patients_events_in_cols Statistics function which counts numbers of patients and multiple
+#'   events defined by filters. Used as analysis function `afun` in `summarize_patients_events_in_cols()`.
 #'
 #' @return
 #' * `s_count_patients_and_multiple_events()` returns a list with the statistics:
@@ -27,18 +30,6 @@ NULL
 #'   - `all`: number of rows in `df`.
 #'   - one element with the same name as in `filters_list`: number of rows in `df`,
 #'     i.e. events, fulfilling the filter condition.
-#'
-#' @examples
-#' # `s_count_patients_and_multiple_events()`
-#' df <- data.frame(
-#'   USUBJID = rep(c("id1", "id2", "id3", "id4"), c(2, 3, 1, 1)),
-#'   ARM = c("A", "A", "B", "B", "B", "B", "A"),
-#'   AESER = rep("Y", 7),
-#'   AESDTH = c("Y", "Y", "N", "Y", "Y", "N", "N"),
-#'   AEREL = c("Y", "Y", "N", "Y", "Y", "N", "Y"),
-#'   AEDECOD = c("A", "A", "A", "B", "B", "C", "D"),
-#'   AEBODSYS = rep(c("SOC1", "SOC2", "SOC3"), c(3, 3, 1))
-#' )
 #'
 #' @keywords internal
 s_count_patients_and_multiple_events <- function(df, # nolint
@@ -105,7 +96,18 @@ s_count_patients_and_multiple_events <- function(df, # nolint
 #' * `summarize_patients_events_in_cols()` returns a layout object suitable for passing to further layouting functions,
 #'   or to [rtables::build_table()]. Adding this function to an `rtable` layout will add formatted content rows
 #'   containing the statistics from `s_count_patients_and_multiple_events()` to the table layout.
+#'
 #' @examples
+#' df <- data.frame(
+#'   USUBJID = rep(c("id1", "id2", "id3", "id4"), c(2, 3, 1, 1)),
+#'   ARM = c("A", "A", "B", "B", "B", "B", "A"),
+#'   AESER = rep("Y", 7),
+#'   AESDTH = c("Y", "Y", "N", "Y", "Y", "N", "N"),
+#'   AEREL = c("Y", "Y", "N", "Y", "Y", "N", "Y"),
+#'   AEDECOD = c("A", "A", "A", "B", "B", "C", "D"),
+#'   AEBODSYS = rep(c("SOC1", "SOC2", "SOC3"), c(3, 3, 1))
+#' )
+#'
 #' # `summarize_patients_events_in_cols()`
 #' basic_table() %>%
 #'   summarize_patients_events_in_cols(
@@ -119,9 +121,12 @@ s_count_patients_and_multiple_events <- function(df, # nolint
 #'   build_table(df)
 #'
 #' @export
+#' @order 2
 summarize_patients_events_in_cols <- function(lyt, # nolint
                                               id = "USUBJID",
                                               filters_list = list(),
+                                              empty_stats = character(),
+                                              na_str = default_na_str(),
                                               ...,
                                               .stats = c(
                                                 "unique",
@@ -134,12 +139,12 @@ summarize_patients_events_in_cols <- function(lyt, # nolint
                                                 labels_or_names(filters_list)
                                               ),
                                               col_split = TRUE) {
+  extra_args <- list(id = id, filters_list = filters_list, empty_stats = empty_stats, ...)
+
   afun_list <- Map(
     function(stat) {
       make_afun(
         s_count_patients_and_multiple_events,
-        id = id,
-        filters_list = filters_list,
         .stats = stat,
         .formats = "xx."
       )
@@ -156,6 +161,7 @@ summarize_patients_events_in_cols <- function(lyt, # nolint
   summarize_row_groups(
     lyt = lyt,
     cfun = afun_list,
-    extra_args = list(...)
+    na_str = na_str,
+    extra_args = extra_args
   )
 }

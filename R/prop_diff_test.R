@@ -5,21 +5,22 @@
 #' Various tests were implemented to test the difference between two proportions.
 #'
 #' @inheritParams argument_convention
+#' @param method (`string`)\cr one of `chisq`, `cmh`, `fisher`, or `schouten`; specifies the test used
+#'   to calculate the p-value.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("test_proportion_diff")`
+#'   to see available statistics for this function.
 #'
 #' @seealso [h_prop_diff_test]
 #'
 #' @name prop_diff_test
+#' @order 1
 NULL
 
 #' @describeIn prop_diff_test Statistics function which tests the difference between two proportions.
 #'
-#' @param method (`string`)\cr one of `chisq`, `cmh`, `fisher`, or `schouten`; specifies the test used
-#'   to calculate the p-value.
-#'
 #' @return
 #' * `s_test_proportion_diff()` returns a named `list` with a single item `pval` with an attribute `label`
 #'   describing the method used. The p-value tests the null hypothesis that proportions in two groups are the same.
-#'
 #'
 #' @keywords internal
 s_test_proportion_diff <- function(df,
@@ -97,7 +98,6 @@ d_test_proportion_diff <- function(method) {
 #' @return
 #' * `a_test_proportion_diff()` returns the corresponding list with formatted [rtables::CellValue()].
 #'
-#'
 #' @keywords internal
 a_test_proportion_diff <- make_afun(
   s_test_proportion_diff,
@@ -107,8 +107,6 @@ a_test_proportion_diff <- make_afun(
 
 #' @describeIn prop_diff_test Layout-creating function which can take statistics function arguments
 #'   and additional format arguments. This function is a wrapper for [rtables::analyze()].
-#'
-#' @param ... other arguments are passed to [s_test_proportion_diff()].
 #'
 #' @return
 #' * `test_proportion_diff()` returns a layout object suitable for passing to further layouting functions,
@@ -133,8 +131,12 @@ a_test_proportion_diff <- make_afun(
 #' build_table(l, df = dta)
 #'
 #' @export
+#' @order 2
 test_proportion_diff <- function(lyt,
                                  vars,
+                                 variables = list(strata = NULL),
+                                 method = c("chisq", "schouten", "fisher", "cmh"),
+                                 na_str = default_na_str(),
                                  nested = TRUE,
                                  ...,
                                  var_labels = vars,
@@ -144,6 +146,8 @@ test_proportion_diff <- function(lyt,
                                  .formats = NULL,
                                  .labels = NULL,
                                  .indent_mods = NULL) {
+  extra_args <- list(variables = variables, method = method, ...)
+
   afun <- make_afun(
     a_test_proportion_diff,
     .stats = .stats,
@@ -156,8 +160,9 @@ test_proportion_diff <- function(lyt,
     vars,
     afun = afun,
     var_labels = var_labels,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...),
+    extra_args = extra_args,
     show_labels = show_labels,
     table_names = table_names
   )
@@ -178,7 +183,6 @@ NULL
 
 #' @describeIn h_prop_diff_test performs Chi-Squared test. Internally calls [stats::prop.test()].
 #'
-#'
 #' @keywords internal
 prop_chisq <- function(tbl) {
   checkmate::assert_integer(c(ncol(tbl), nrow(tbl)), lower = 2, upper = 2)
@@ -194,7 +198,6 @@ prop_chisq <- function(tbl) {
 #'
 #' @param ary (`array`, 3 dimensions)\cr array with two groups in rows, the binary response
 #'   (`TRUE`/`FALSE`) in columns, and the strata in the third dimension.
-#'
 #'
 #' @keywords internal
 prop_cmh <- function(ary) {
@@ -213,7 +216,6 @@ prop_cmh <- function(ary) {
 #' @describeIn h_prop_diff_test performs the Chi-Squared test with Schouten correction.
 #'
 #' @seealso Schouten correction is based upon \insertCite{Schouten1980-kd;textual}{tern}.
-#'
 #'
 #' @keywords internal
 prop_schouten <- function(tbl) {
@@ -240,7 +242,6 @@ prop_schouten <- function(tbl) {
 }
 
 #' @describeIn h_prop_diff_test performs the Fisher's exact test. Internally calls [stats::fisher.test()].
-#'
 #'
 #' @keywords internal
 prop_fisher <- function(tbl) {

@@ -76,6 +76,7 @@
 #' result2
 #'
 #' @export
+#' @order 1
 summarize_logistic <- function(lyt,
                                conf_level,
                                drop_and_remove_str = "",
@@ -334,7 +335,7 @@ logistic_regression_cols <- function(lyt,
 #' @return A content function.
 #'
 #' @export
-logistic_summary_by_flag <- function(flag_var, .indent_mods = NULL) {
+logistic_summary_by_flag <- function(flag_var, na_str = default_na_str(), .indent_mods = NULL) {
   checkmate::assert_string(flag_var)
   function(lyt) {
     cfun_list <- list(
@@ -347,7 +348,8 @@ logistic_summary_by_flag <- function(flag_var, .indent_mods = NULL) {
     )
     summarize_row_groups(
       lyt = lyt,
-      cfun = cfun_list
+      cfun = cfun_list,
+      na_str = na_str
     )
   }
 }

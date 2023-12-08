@@ -14,8 +14,11 @@
 #'   * `ties` (`string`)\cr specifying the method for tie handling. Default is `"efron"`,
 #'     can also be set to `"breslow"` or `"exact"`. See more in [survival::coxph()]
 #'   * `conf_level` (`proportion`)\cr confidence level of the interval for HR.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("coxph_pairwise")`
+#'   to see available statistics for this function.
 #'
 #' @name survival_coxph_pairwise
+#' @order 1
 NULL
 
 #' @describeIn survival_coxph_pairwise Statistics function which analyzes HR, CIs of HR and p-value of a `coxph` model.
@@ -27,17 +30,6 @@ NULL
 #'   * `hr_ci`: Confidence interval for hazard ratio.
 #'   * `n_tot`: Total number of observations.
 #'   * `n_tot_events`: Total number of events.
-#'
-#' @examples
-#' library(dplyr)
-#'
-#' adtte_f <- tern_ex_adtte %>%
-#'   filter(PARAMCD == "OS") %>%
-#'   mutate(is_event = CNSR == 0)
-#' df <- adtte_f %>%
-#'   filter(ARMCD == "ARM A")
-#' df_ref_group <- adtte_f %>%
-#'   filter(ARMCD == "ARM B")
 #'
 #' @keywords internal
 s_coxph_pairwise <- function(df,
@@ -117,7 +109,6 @@ s_coxph_pairwise <- function(df,
 #' @return
 #' * `a_coxph_pairwise()` returns the corresponding list with formatted [rtables::CellValue()].
 #'
-#'
 #' @keywords internal
 a_coxph_pairwise <- make_afun(
   s_coxph_pairwise,
@@ -140,6 +131,15 @@ a_coxph_pairwise <- make_afun(
 #'   the statistics from `s_coxph_pairwise()` to the table layout.
 #'
 #' @examples
+#' library(dplyr)
+#'
+#' adtte_f <- tern_ex_adtte %>%
+#'   filter(PARAMCD == "OS") %>%
+#'   mutate(is_event = CNSR == 0)
+#'
+#' df <- adtte_f %>% filter(ARMCD == "ARM A")
+#' df_ref_group <- adtte_f %>% filter(ARMCD == "ARM B")
+#'
 #' basic_table() %>%
 #'   split_cols_by(var = "ARMCD", ref_group = "ARM A") %>%
 #'   add_colcounts() %>%
@@ -163,8 +163,10 @@ a_coxph_pairwise <- make_afun(
 #'   build_table(df = adtte_f)
 #'
 #' @export
+#' @order 2
 coxph_pairwise <- function(lyt,
                            vars,
+                           na_str = default_na_str(),
                            nested = TRUE,
                            ...,
                            var_labels = "CoxPH",
@@ -174,6 +176,8 @@ coxph_pairwise <- function(lyt,
                            .formats = NULL,
                            .labels = NULL,
                            .indent_mods = NULL) {
+  extra_args <- list(...)
+
   afun <- make_afun(
     a_coxph_pairwise,
     .stats = .stats,
@@ -188,7 +192,8 @@ coxph_pairwise <- function(lyt,
     show_labels = show_labels,
     table_names = table_names,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }

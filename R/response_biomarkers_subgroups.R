@@ -68,17 +68,19 @@
 #' @name response_biomarkers_subgroups
 tabulate_rsp_biomarkers <- function(df,
                                     vars = c("n_tot", "n_rsp", "prop", "or", "ci", "pval"),
+                                    na_str = default_na_str(),
                                     .indent_mods = 0L) {
   checkmate::assert_data_frame(df)
   checkmate::assert_character(df$biomarker)
   checkmate::assert_character(df$biomarker_label)
-  checkmate::assert_subset(vars, c("n_tot", "n_rsp", "prop", "or", "ci", "pval"))
+  checkmate::assert_subset(vars, get_stats("tabulate_rsp_biomarkers"))
 
   df_subs <- split(df, f = df$biomarker)
   tabs <- lapply(df_subs, FUN = function(df_sub) {
     tab_sub <- h_tab_rsp_one_biomarker(
       df = df_sub,
       vars = vars,
+      na_str = na_str,
       .indent_mods = .indent_mods
     )
     # Insert label row as first row in table.

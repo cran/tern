@@ -11,18 +11,22 @@ testthat::test_that("analyze_vars_in_cols works correctly", {
   testthat::expect_snapshot(res)
 
   # It fails if called multiple times with identical col split
-  testthat::expect_error(basic_table() %>%
-    split_rows_by(var = "ARM", label_pos = "topleft") %>%
-    split_rows_by(var = "SEX", label_pos = "topleft") %>%
-    analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")) %>%
-    analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")))
+  testthat::expect_error(
+    basic_table() %>%
+      split_rows_by(var = "ARM", label_pos = "topleft") %>%
+      split_rows_by(var = "SEX", label_pos = "topleft") %>%
+      analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")) %>%
+      analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se"))
+  )
 
   # It fails if called multiple times with identical col split on different lines
-  testthat::expect_error(basic_table() %>%
-    split_rows_by(var = "ARM", label_pos = "topleft") %>%
-    analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")) %>%
-    split_rows_by(var = "SEX", label_pos = "topleft") %>%
-    analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")))
+  testthat::expect_error(
+    basic_table() %>%
+      split_rows_by(var = "ARM", label_pos = "topleft") %>%
+      analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se")) %>%
+      split_rows_by(var = "SEX", label_pos = "topleft") %>%
+      analyze_vars_in_cols(vars = "AGE", .stats = c("n", "mean", "se"))
+  )
 })
 
 testthat::test_that("analyze_vars_in_cols throws error when vars and .stats lengths differ in len", {
@@ -263,10 +267,157 @@ testthat::test_that("analyze_vars_in_cols works well with categorical data", {
     in_rows(.list = ret_list, .formats = aform)
   }
 
-  testthat::expect_snapshot(basic_table(show_colcounts = TRUE) %>%
-    split_rows_by(var = "STRATA1", label_pos = "topleft") %>%
-    split_cols_by("ARM") %>%
-    analyze(vars = "SEX", afun = count_fraction) %>%
-    append_topleft("  SEX") %>%
-    build_table(adpp))
+  testthat::expect_snapshot(
+    basic_table(show_colcounts = TRUE) %>%
+      split_rows_by(var = "STRATA1", label_pos = "topleft") %>%
+      split_cols_by("ARM") %>%
+      analyze(vars = "SEX", afun = count_fraction) %>%
+      append_topleft("  SEX") %>%
+      build_table(adpp)
+  )
+})
+
+testthat::test_that("analyze_vars_in_cols works with imputation rule", {
+  set.seed(1)
+  df <- data.frame(
+    ARM = with_label(rep("A: Drug X", 162), "Arm"),
+    AVAL = runif(162, 0, 100),
+    AVALCAT1 = as.factor(sample(c(1, "BLQ"), 162, replace = TRUE)),
+    AVALCAT2 = as.factor(sample(c(1, "BLQ"), 162, replace = TRUE, prob = c(0.25, 0.75))),
+    VISIT = with_label(as.factor(rep(c(rep("Day 1", 5), rep("Day 2", 4)), 18)), "Visit"),
+    NFRLT = with_label(as.factor(rep(c(0, seq(0, 42, 6)), 18)), "Nominal Time")
+  )
+
+  # 1/3 imputation rule
+  lyt <- basic_table() %>%
+    split_rows_by(
+      var = "ARM",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "VISIT",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "NFRLT",
+      split_fun = drop_split_levels,
+      child_labels = "hidden"
+    ) %>%
+    analyze_vars_in_cols(
+      vars = c("AVAL", "AVALCAT1", rep("AVAL", 5)),
+      .stats = c("n", "n_blq", "mean", "sd", "geom_mean", "min", "max"),
+      .labels = c(
+        n = "n", n_blq = "Number of BLQs", mean = "Mean", sd = "SD",
+        geom_mean = "Geometric Mean", min = "Minimum", max = "Maximum"
+      ),
+      imp_rule = "1/3"
+    )
+
+  result <- build_table(lyt = lyt, df = df)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+
+  df$NFRLT <- as.character(df$NFRLT)
+
+  # 1/3 imputation rule, custom avalcat_var
+  lyt <- basic_table() %>%
+    split_rows_by(
+      var = "ARM",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "VISIT",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "NFRLT",
+      split_fun = drop_split_levels,
+      child_labels = "hidden"
+    ) %>%
+    analyze_vars_in_cols(
+      vars = c("AVAL", "AVALCAT2", rep("AVAL", 5)),
+      .stats = c("n", "n_blq", "mean", "sd", "geom_mean", "min", "max"),
+      .labels = c(
+        n = "n", n_blq = "Number of BLQs", mean = "Mean", sd = "SD",
+        geom_mean = "Geometric Mean", min = "Minimum", max = "Maximum"
+      ),
+      imp_rule = "1/3",
+      avalcat_var = "AVALCAT2"
+    )
+
+  result <- build_table(lyt = lyt, df = df)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+
+  # 1/2 imputation rule
+  lyt <- basic_table() %>%
+    split_rows_by(
+      var = "ARM",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "VISIT",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "NFRLT",
+      split_fun = drop_split_levels,
+      child_labels = "hidden"
+    ) %>%
+    analyze_vars_in_cols(
+      vars = c("AVAL", "AVALCAT1", rep("AVAL", 5)),
+      .stats = c("n", "n_blq", "mean", "sd", "geom_mean", "min", "max"),
+      .labels = c(
+        n = "n", n_blq = "Number of BLQs", mean = "Mean", sd = "SD",
+        geom_mean = "Geometric Mean", min = "Minimum", max = "Maximum"
+      ),
+      imp_rule = "1/2"
+    )
+
+  result <- build_table(lyt = lyt, df = df)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("analyze_vars_in_cols works with caching", {
+  set.seed(1)
+  df <- data.frame(
+    ARM = with_label(rep("A: Drug X", 162), "Arm"),
+    AVAL = runif(162, 0, 100),
+    AVALCAT1 = as.factor(sample(c(1, "BLQ"), 162, replace = TRUE)),
+    VISIT = with_label(as.factor(rep(c(rep("Day 1", 5), rep("Day 2", 4)), 18)), "Visit"),
+    NFRLT = with_label(as.factor(rep(c(0, seq(0, 42, 6)), 18)), "Nominal Time")
+  )
+
+  lyt <- basic_table() %>%
+    split_rows_by(
+      var = "ARM",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "VISIT",
+      split_fun = drop_split_levels
+    ) %>%
+    split_rows_by(
+      var = "NFRLT",
+      split_fun = drop_split_levels,
+      child_labels = "hidden"
+    ) %>%
+    analyze_vars_in_cols(
+      vars = c("AVAL", "AVALCAT1", rep("AVAL", 5)),
+      .stats = c("n", "n_blq", "mean", "sd", "geom_mean", "min", "max"),
+      .labels = c(
+        n = "n", n_blq = "Number of BLQs", mean = "Mean", sd = "SD",
+        geom_mean = "Geometric Mean", min = "Minimum", max = "Maximum"
+      ),
+      cache = TRUE
+    )
+
+  result <- build_table(lyt = lyt, df = df)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
 })

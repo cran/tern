@@ -2,11 +2,28 @@
 % Please edit documentation in R/odds_ratio.R
 \name{odds_ratio}
 \alias{odds_ratio}
+\alias{estimate_odds_ratio}
 \alias{s_odds_ratio}
 \alias{a_odds_ratio}
-\alias{estimate_odds_ratio}
 \title{Odds Ratio Estimation}
 \usage{
+estimate_odds_ratio(
+  lyt,
+  vars,
+  variables = list(arm = NULL, strata = NULL),
+  conf_level = 0.95,
+  groups_list = NULL,
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  show_labels = "hidden",
+  table_names = vars,
+  .stats = "or_ci",
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_odds_ratio(
   df,
   .var,
@@ -28,31 +45,11 @@ a_odds_ratio(
   conf_level = 0.95,
   groups_list = NULL
 )
-
-estimate_odds_ratio(
-  lyt,
-  vars,
-  nested = TRUE,
-  ...,
-  show_labels = "hidden",
-  table_names = vars,
-  .stats = "or_ci",
-  .formats = NULL,
-  .labels = NULL,
-  .indent_mods = NULL
-)
 }
 \arguments{
-\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
-\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
-
-\item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
-
-\item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
-
-\item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
+\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
 
 \item{variables}{(named \code{list} of \code{string})\cr list of additional analysis variables.}
 
@@ -61,9 +58,7 @@ by a statistics function.}
 \item{groups_list}{(named \code{list} of \code{character})\cr specifies the new group levels via the names and the
 levels that belong to it in the character vectors that are elements of the list.}
 
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
-
-\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -76,16 +71,35 @@ underneath analyses, which is not allowed.}
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("estimate_odds_ratio")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
+
+\item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
+
+\item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
+
+\item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 }
 \value{
+\itemize{
+\item \code{estimate_odds_ratio()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_odds_ratio()} to the table layout.
+}
+
 \itemize{
 \item \code{s_odds_ratio()} returns a named list with the statistics \code{or_ci}
 (containing \code{est}, \code{lcl}, and \code{ucl}) and \code{n_tot}.
@@ -93,12 +107,6 @@ unmodified default behavior. Can be negative.}
 
 \itemize{
 \item \code{a_odds_ratio()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
-}
-
-\itemize{
-\item \code{estimate_odds_ratio()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_odds_ratio()} to the table layout.
 }
 }
 \description{
@@ -115,14 +123,14 @@ calculated.
 }
 \section{Functions}{
 \itemize{
+\item \code{estimate_odds_ratio()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_odds_ratio()}: Statistics function which estimates the odds ratio
 between a treatment and a control. A \code{variables} list with \code{arm} and \code{strata}
 variable names must be passed if a stratified analysis is required.
 
 \item \code{a_odds_ratio()}: Formatted analysis function which is used as \code{afun} in \code{estimate_odds_ratio()}.
-
-\item \code{estimate_odds_ratio()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
 
 }}
 \note{
@@ -135,9 +143,15 @@ then the result values will be \code{NA}, because no odds ratio estimation is po
 set.seed(12)
 dta <- data.frame(
   rsp = sample(c(TRUE, FALSE), 100, TRUE),
-  grp = factor(rep(c("A", "B"), each = 50), levels = c("B", "A")),
+  grp = factor(rep(c("A", "B"), each = 50), levels = c("A", "B")),
   strata = factor(sample(c("C", "D"), 100, TRUE))
 )
+
+l <- basic_table() \%>\%
+  split_cols_by(var = "grp", ref_group = "B") \%>\%
+  estimate_odds_ratio(vars = "rsp")
+
+build_table(l, df = dta)
 
 # Unstratified analysis.
 s_odds_ratio(
@@ -165,17 +179,6 @@ a_odds_ratio(
   .in_ref_col = FALSE,
   .df_row = dta
 )
-
-dta <- data.frame(
-  rsp = sample(c(TRUE, FALSE), 100, TRUE),
-  grp = factor(rep(c("A", "B"), each = 50))
-)
-
-l <- basic_table() \%>\%
-  split_cols_by(var = "grp", ref_group = "B") \%>\%
-  estimate_odds_ratio(vars = "rsp")
-
-build_table(l, df = dta)
 
 }
 \seealso{

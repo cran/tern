@@ -1941,7 +1941,7 @@ The results of this Statistics function is a list with the elements
 <span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; $unique_count</span></span>
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; [1] 365</span></span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;label&quot;)</span></span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot; (n)&quot;</span></span></code></pre></div>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;(n)&quot;</span></span></code></pre></div>
 <p>From these results you can see that the <code>unique</code> and
 <code>nonunique</code> statistics are those displayed in the “All
 Patients” column in the initial <code>AE</code> table output above. Also
@@ -2187,11 +2187,11 @@ Placebo” and so this arm is displayed as the first column:</p>
 <span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>    <span class="at">vars =</span> <span class="st">&quot;is_rsp&quot;</span></span>
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt;                                   B: Placebo     A: Drug X     C: Combination</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt;                                   A: Drug X      B: Placebo    C: Combination</span></span>
 <span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt;                                    (N=134)        (N=134)         (N=132)    </span></span>
 <span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; Responders                        90 (67.2%)    114 (85.1%)     120 (90.9%)  </span></span>
-<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; 95% CI (Wald, with correction)   (58.8, 75.5)   (78.7, 91.5)    (85.6, 96.2)</span></span></code></pre></div>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; Responders                       114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; 95% CI (Wald, with correction)   (78.7, 91.5)   (58.8, 75.5)    (85.6, 96.2)</span></span></code></pre></div>
 <p>To further customize the analysis, we can use the <code>method</code>
 and <code>conf_level</code> arguments to modify the type of confidence
 interval that is calculated:</p>
@@ -2204,11 +2204,11 @@ interval that is calculated:</p>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>    <span class="at">conf_level =</span> <span class="fl">0.9</span></span>
 <span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt;                             B: Placebo     A: Drug X     C: Combination</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt;                             A: Drug X      B: Placebo    C: Combination</span></span>
 <span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt;                              (N=134)        (N=134)         (N=132)    </span></span>
 <span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; Responders                  90 (67.2%)    114 (85.1%)     120 (90.9%)  </span></span>
-<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; 90% CI (Clopper-Pearson)   (59.9, 73.9)   (79.1, 89.9)    (85.7, 94.7)</span></span></code></pre></div>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; Responders                 114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; 90% CI (Clopper-Pearson)   (79.1, 89.9)   (59.9, 73.9)    (85.7, 94.7)</span></span></code></pre></div>
 <p>The next table section needed should summarize the difference in
 response rates between the reference arm each comparison arm. Use
 <code>estimate_proportion_diff()</code> layout creating function for
@@ -2222,12 +2222,12 @@ this:</p>
 <span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>    <span class="at">var_labels =</span> <span class="st">&quot;Unstratified Analysis&quot;</span></span>
 <span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt;                                      B: Placebo    A: Drug X    C: Combination</span></span>
-<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt;                                       (N=134)       (N=134)        (N=132)    </span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt;                                       A: Drug X    B: Placebo   C: Combination</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt;                                        (N=134)      (N=134)        (N=132)    </span></span>
 <span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt; ——————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; Unstratified Analysis                                                         </span></span>
-<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)                    17.9            23.7     </span></span>
-<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)                (7.2, 28.6)    (13.7, 33.8)</span></span></code></pre></div>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)       17.9                         23.7     </span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)   (7.2, 28.6)                 (13.7, 33.8)</span></span></code></pre></div>
 <p>The final section needed to complete the table includes a statistical
 test for the difference in response rates. Use the
 <code>test_proportion_diff()</code> layout creating function for
@@ -2237,10 +2237,10 @@ this:</p>
 <span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="fu">test_proportion_diff</span>(<span class="at">vars =</span> <span class="st">&quot;is_rsp&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt;                                B: Placebo   A: Drug X   C: Combination</span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt;                                 (N=134)      (N=134)       (N=132)    </span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt;                                A: Drug X   B: Placebo   C: Combination</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt;                                 (N=134)     (N=134)        (N=132)    </span></span>
 <span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; ——————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test)                 0.0006        &lt;0.0001</span></span></code></pre></div>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test)    0.0006                     &lt;0.0001</span></span></code></pre></div>
 <p>To customize the output, we use the <code>method</code> argument to
 select a Chi-Squared test with Schouten correction.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
@@ -2251,10 +2251,10 @@ select a Chi-Squared test with Schouten correction.</p>
 <span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;schouten&quot;</span></span>
 <span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co">#&gt;                                                         B: Placebo   A: Drug X   C: Combination</span></span>
-<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt;                                                          (N=134)      (N=134)       (N=132)    </span></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co">#&gt;                                                         A: Drug X   B: Placebo   C: Combination</span></span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt;                                                          (N=134)     (N=134)        (N=132)    </span></span>
 <span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)                 0.0008        &lt;0.0001</span></span></code></pre></div>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)    0.0008                     &lt;0.0001</span></span></code></pre></div>
 <p>Now we can put all the table sections together in one layout
 pipeline. Note there is one more small change needed. Since the primary
 analysis variable in all table sections is the same
@@ -2282,15 +2282,15 @@ providing unique names through that:</p>
 <span id="cb23-19"><a href="#cb23-19" tabindex="-1"></a>    <span class="at">table_names =</span> <span class="st">&quot;test_prop_diff&quot;</span></span>
 <span id="cb23-20"><a href="#cb23-20" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb23-21"><a href="#cb23-21" tabindex="-1"></a>  <span class="fu">build_table</span>(anl)</span>
-<span id="cb23-22"><a href="#cb23-22" tabindex="-1"></a><span class="co">#&gt;                                                          B: Placebo     A: Drug X     C: Combination</span></span>
+<span id="cb23-22"><a href="#cb23-22" tabindex="-1"></a><span class="co">#&gt;                                                          A: Drug X      B: Placebo    C: Combination</span></span>
 <span id="cb23-23"><a href="#cb23-23" tabindex="-1"></a><span class="co">#&gt;                                                           (N=134)        (N=134)         (N=132)    </span></span>
 <span id="cb23-24"><a href="#cb23-24" tabindex="-1"></a><span class="co">#&gt; ————————————————————————————————————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb23-25"><a href="#cb23-25" tabindex="-1"></a><span class="co">#&gt; Responders                                               90 (67.2%)    114 (85.1%)     120 (90.9%)  </span></span>
-<span id="cb23-26"><a href="#cb23-26" tabindex="-1"></a><span class="co">#&gt; 90% CI (Clopper-Pearson)                                (59.9, 73.9)   (79.1, 89.9)    (85.7, 94.7) </span></span>
+<span id="cb23-25"><a href="#cb23-25" tabindex="-1"></a><span class="co">#&gt; Responders                                              114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
+<span id="cb23-26"><a href="#cb23-26" tabindex="-1"></a><span class="co">#&gt; 90% CI (Clopper-Pearson)                                (79.1, 89.9)   (59.9, 73.9)    (85.7, 94.7) </span></span>
 <span id="cb23-27"><a href="#cb23-27" tabindex="-1"></a><span class="co">#&gt; Unstratified Analysis                                                                               </span></span>
-<span id="cb23-28"><a href="#cb23-28" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)                                          17.9            23.7     </span></span>
-<span id="cb23-29"><a href="#cb23-29" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)                                     (7.2, 28.6)     (13.7, 33.8) </span></span>
-<span id="cb23-30"><a href="#cb23-30" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)                     0.0008         &lt;0.0001</span></span></code></pre></div>
+<span id="cb23-28"><a href="#cb23-28" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)                           17.9                           23.7     </span></span>
+<span id="cb23-29"><a href="#cb23-29" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)                      (7.2, 28.6)                    (13.7, 33.8) </span></span>
+<span id="cb23-30"><a href="#cb23-30" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)      0.0008                        &lt;0.0001</span></span></code></pre></div>
 </div>
 </div>
 <div id="summary" class="section level2">

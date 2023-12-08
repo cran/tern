@@ -5,6 +5,9 @@
 #' Comparison with a reference group for different `x` objects.
 #'
 #' @inheritParams argument_convention
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("analyze_vars_numeric")` to see
+#'   statistics available for numeric variables, and `get_stats("analyze_vars_counts")` for statistics available
+#'   for non-numeric variables.
 #'
 #' @note
 #' * For factor variables, `denom` for factor proportions can only be `n` since the purpose is to compare proportions
@@ -27,6 +30,7 @@
 #'
 #' @name compare_variables
 #' @include analyze_variables.R
+#' @order 1
 NULL
 
 #' @describeIn compare_variables S3 generic function to produce a comparison summary.
@@ -131,7 +135,7 @@ s_compare.factor <- function(x,
   if ("NA" %in% levels(x)) levels(.ref_group) <- c(levels(.ref_group), "NA")
   checkmate::assert_factor(x, levels = levels(.ref_group), min.levels = 2)
 
-  y$pval <- if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
+  y$pval_counts <- if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
     tab <- rbind(table(x), table(.ref_group))
     res <- suppressWarnings(stats::chisq.test(tab))
     res$p.value
@@ -234,7 +238,7 @@ s_compare.logical <- function(x,
     .ref_group[is.na(.ref_group)] <- FALSE
   }
 
-  y$pval <- if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
+  y$pval_counts <- if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
     x <- factor(x, levels = c(TRUE, FALSE))
     .ref_group <- factor(.ref_group, levels = c(TRUE, FALSE))
     tbl <- rbind(table(x), table(.ref_group))
@@ -365,13 +369,15 @@ create_afun_compare <- function(.stats = NULL,
 #' build_table(lyt, df = tern_ex_adsl)
 #'
 #' @export
+#' @order 2
 compare_vars <- function(lyt,
                          vars,
                          var_labels = vars,
+                         na_level = lifecycle::deprecated(),
+                         na_str = default_na_str(),
                          nested = TRUE,
                          ...,
                          na.rm = TRUE, # nolint
-                         na_level = NA_character_,
                          show_labels = "default",
                          table_names = vars,
                          section_div = NA_character_,
@@ -379,7 +385,12 @@ compare_vars <- function(lyt,
                          .formats = NULL,
                          .labels = NULL,
                          .indent_mods = NULL) {
-  extra_args <- list(.stats = .stats, na.rm = na.rm, na_level = na_level, compare = TRUE, ...)
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "compare_vars(na_level)", "compare_vars(na_str)")
+    na_str <- na_level
+  }
+
+  extra_args <- list(.stats = .stats, na.rm = na.rm, na_str = na_str, compare = TRUE, ...)
   if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
   if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
   if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
@@ -389,6 +400,7 @@ compare_vars <- function(lyt,
     vars = vars,
     var_labels = var_labels,
     afun = a_summary,
+    na_str = na_str,
     nested = nested,
     extra_args = extra_args,
     inclNAs = TRUE,

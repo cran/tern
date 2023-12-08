@@ -1,4 +1,79 @@
+# tern 0.9.3
+
+### New Features
+* Added `ref_group_position` function to place the reference group facet last, first or at a certain position.
+* Added `keep_level_order` split function to retain original order of levels in a split.
+* Added `level_order` split function to reorder manually the levels.
+* Added function `get_indents_from_stats` to format and return indent modifiers for a given set of statistics.
+* Added internal utility function `apply_auto_formatting` to check for `"auto"` formats and replace them with 
+  implementation of `format_auto` in analyze functions.
+* Added utility function `labels_use_control` to modify labels with control specifications.
+* Added list containing default statistics for each method group, `tern_default_stats`.
+* Added summarize function version of `count_occurrences` analyze function, `summarize_occurrences`.
+* Added referential footnotes to `surv_time` for censored range observations, controlled via the `ref_fn_censor` parameter.
+* Added helper function `h_adlb_abnormal_by_worst_grade` to prepare `ADLB` data to use as input in `count_abnormal_by_worst_grade`.
+* Added function `rtable2gg` that converts `rtable` objects to `ggplot` objects.
+* Added helper function to set default `na_str` globally with `set_default_na_str()` and added `default_na_str()` for all interested functions.
+
+### Enhancements
+* Added `ref_group_coxph` parameter to `g_km` to specify the reference group used for pairwise Cox-PH calculations when `annot_coxph = TRUE`.
+* Added `annot_coxph_ref_lbls` parameter to `g_km` to enable printing the reference group in table labels when `annot_coxph = TRUE`.
+* Added `x_lab` parameter to `g_lineplot` to customize x-axis label.
+* Remove 25% padding of y-axis in `g_lineplot`.
+* Added support for creating multiple risk difference columns, each comparing to a single comparison group. Multiple comparison groups can be specified as a vector via the `arm_y` argument.
+* Allowed numeric vector as `count_by` input in `analyze_num_patients` and `summarize_num_patients`.
+* Aligned plot and table vertically in `g_lineplot`.
+
+### Bug Fixes
+* Fixed bug in `decorate_grob` preventing text wrapping from accounting for font size.
+* Fixed implementation of `na_str` argument in all column-wise analysis and tabulation functions.
+
+### Miscellaneous
+* Specified minimal version of package dependencies.
+* Upgraded `to_string_matrix` to take into account `widths` and other printing parameters.
+
+# tern 0.9.2
+
+### New Features
+* Added the `na_str` argument to `analyze` & `summarize_row_groups` wrapper functions `count_abnormal`, `count_abnormal_by_baseline`, `count_abnormal_by_marked`, `count_abnormal_by_worst_grade`, `count_abnormal_lab_worsen_by_baseline`, `count_cumulative`, `count_missed_doses`, `count_occurrences`, `count_occurrences_by_grade`, `summarize_occurrences_by_grade`, `summarize_patients_events_in_cols`, `count_patients_with_event`, `count_patients_with_flags`, `count_values`, `estimate_multinomial_response`, `estimate_proportion`, `h_tab_one_biomarker`, `estimate_incidence_rate`, `logistic_summary_by_flag`, `estimate_odds_ratio`, `estimate_proportion_diff`, `test_proportion_diff`, `summarize_ancova`, `summarize_change`, `summarize_glm_count`, `summarize_num_patients`, `analyze_num_patients`, `summarize_patients_exposure_in_cols`, `coxph_pairwise`, `tabulate_survival_subgroups`, `surv_time`, and `surv_timepoint`.
+
+### Enhancements
+* Added formatting function `format_count_fraction_lt10` for formatting `count_fraction` with special consideration when count is less than 10.
+* Updated `s_summary.logical` output for `count_fraction` when denominator is zero to display as `NA` instead of `0` in tables.
+* Updated `analyze_vars_in_cols` to allow character input to indicate whether nominal time point is post-dose or pre-dose when applying the 1/3 imputation rule.
+
+### Bug Fixes
+* Fixed bug in `g_km` causing an error when converting certain annotation width units.
+
+### Miscellaneous
+* Began deprecation of `na_level` argument in `s_count_abnormal_by_baseline`, `a_summary`, `analyze_vars`, `analyze_vars_in_cols`, `compare_vars`, `h_map_for_count_abnormal`, `h_stack_by_baskets`, `summarize_colvars`, `a_coxreg`, and `summarize_coxreg` and replaced it with the `na_str` argument.
+* `strata` and `cohort_id` parameters renamed to `group_var` and `subject_var` respectively in `g_lineplot` and `control_lineplot_vars`  .
+
+# tern 0.9.1
+
+### New Features
+* Added `imputation_rule` function to apply imputation rule to data.
+* Added new format function `format_sigfig` to allow for numeric value formatting by a specified number of significant figures.
+* Added vectors containing default statistic formats and labels as `tern_default_formats` and `tern_default_labels`, respectively.
+* Added function `get_stats` to return methods from given statistical method groups.
+* Added function `get_formats_from_stats` to return formats and `get_labels_from_stats` to return labels for a given set of statistics.
+* Added `"auto"` option for `.formats`. It uses `format_auto` to determine automatically the number of digits.
+* Added `title` argument to `h_grob_tbl_at_risk` and `annot_at_risk_title` argument to `g_km` and `h_km_layout` which allows user to add "Patients at Risk" title to Kaplan-Meier at risk annotation table.
+
+### Enhancements
+* Refactored `tabulate_rsp_subgroups` to pass sanitation checks by preventing creation of degenerate subtables.
+* Updated `analyze_vars_in_cols` to use caching, allow implementation of imputation rule via the `imp_rule` argument, and allow user to specify cell alignment via the `.aligns` argument.
+* Updated `add_rowcounts` to allow addition of row counts from `alt_counts_df` using the `alt_counts` argument.
+* Added `gp` argument to `g_forest` to control graphical parameters such as font size.
+
+### Miscellaneous
+* Grouped functions relating to valid method names and their default formats and labels into new source file `utils_defaults_handling.R`.
+* Started deprecation of `summary_custom()` and `a_summary()` as a `S3` method.
+* Renamed statistical method for `p-value` in the discrete case to `pval_counts`.
+* Removed `a_summary_internal()` in favor of only one main `a_summary()`.
+
 # tern 0.9.0
+
 ### New Features
 * Added `stat_propdiff_ci` function to calculate proportion/risk difference and CI.
 * Added risk difference column functionality via the `riskdiff` argument to functions `count_occurrences`, `count_occurrences_by_grade`, `count_patients_with_event`, `count_patients_with_flags`, `analyze_num_patients`, and `summarize_num_patients`.
@@ -23,7 +98,7 @@
 ### Enhancements
 * Added `ylim` argument to `g_km` to allow the user to set custom limits for the y-axis.
 * Added assertion to `g_km` which checks whether there is one arm present in the data when `annot_coxph` is true.
-* Added `flag_labels` argument to `s_count_patients_with_flags` to enable more label handling options in `count_patients_by_flags`. 
+* Added `flag_labels` argument to `s_count_patients_with_flags` to enable more label handling options in `count_patients_by_flags`.
 * Added the `nested` argument to `analyze` wrapper functions `count_abnormal`, `count_abnormal_by_baseline`, `count_abnormal_by_marked`, `count_abnormal_by_worst_grade`, `count_abnormal_lab_worsen_by_baseline`, `count_cumulative`, `count_missed_doses`, `count_occurrences`, `count_occurrences_by_grade`, `count_patients_with_event`, `count_patients_with_flags`, `count_values`, `estimate_multinomial_response`, `estimate_proportion`, `estimate_incidence_rate`, `estimate_odds_ratio`, `estimate_proportion_diff`, `test_proportion_diff`, `summarize_ancova`, `summarize_change`, `summarize_glm_count`, `analyze_num_patients`, `coxph_pairwise`, `surv_time`, and `surv_timepoint`.
 
 ## Miscellaneous
@@ -97,7 +172,7 @@
 ### Enhancements
 * Added `summarize_glm_count` function to analyze count data using a linear model.
 * Added legend to `g_step`.
-* Added formatting functions `format_fraction_fixed_dp` and 
+* Added formatting functions `format_fraction_fixed_dp` and
   `format_count_fraction_fixed_dp` with fixed single decimal place in percentages.
 * Added `na_level` and `labelstr` arguments to `summarize_vars_in_cols`.
 * Added `analyze_num_patients` to include summary at the beginning that does not
@@ -105,11 +180,11 @@
 * Added `h_row_first_values` function as a more general helper function to retrieve
   first values from specific rows.
 * Added option to remove `"(n)"` suffix from `unique_count` labels for `s_num_patients`.
-* Added options to `g_km` to annotate with statistics (`annot_stats`) and add corresponding 
+* Added options to `g_km` to annotate with statistics (`annot_stats`) and add corresponding
   vertical lines (`annot_stats_lines`).
 
 ### Bug Fixes
-* Fixed bug causing incorrect ordering of numeric grade levels when missing 
+* Fixed bug causing incorrect ordering of numeric grade levels when missing
   grades are present in `s_count_occurrences_by_grade`.
 * Refactored `summarize_vars_in_cols` to work with pagination machinery.
 * Fixed bug to allow passing of `conf_level` argument to `emmeans::contrast()` in `s_ancova`.
@@ -124,11 +199,11 @@
 * Added more tests to increase code coverage.
 * Created separate documentation files for functions in different sections of `pkgdown` reference.
 * Created separate `.R` files for logistic regression and cox regression helper functions.
-* Fixed table tests using `analyze_num_patients` to generate an initial summary so there is no 
+* Fixed table tests using `analyze_num_patients` to generate an initial summary so there is no
   repetition when paginating.
 * Updated tests to use `testthat` 3rd edition and replaced applicable tests with snapshot testing.
 * Updated `summarize_ancova` examples to use `iris` dataset instead of `scda` data.
-* Created vignette which saves cached synthetic `CDISC` dataset files to the `data/` folder and 
+* Created vignette which saves cached synthetic `CDISC` dataset files to the `data/` folder and
   generated cached synthetic datasets.
 * Updated all examples/tests to use datasets from the `data/` folder instead of `scda` datasets.
 * Removed all template tests from `tern`. These tests are in internal repo `scda.test`.
@@ -147,40 +222,40 @@
 ### New Features
 * Added stratified `Newcombe` and stratified Wilson statistics to `estimate_proportion` and
   `estimate_proportion_diff` with relative tests.
-* Added `stat_mean_pval`, a new summary statistic to calculate the p-value of 
+* Added `stat_mean_pval`, a new summary statistic to calculate the p-value of
   the mean.
-* Added statistic `mean_se` (mean with standard error) for `summarize_variables` 
+* Added statistic `mean_se` (mean with standard error) for `summarize_variables`
   and related functions.
 * Introduced again `Rdpack` for references.
 
-### Enhancements 
-* Redesign of data handling in tests by removing repetitive data loads and 
+### Enhancements
+* Redesign of data handling in tests by removing repetitive data loads and
   library calls.
 * Added `DescTools::BinomDiffCI` function within `tern`.
-* Added new parameter to `summarize_logistic` to specify which pivoted value 
+* Added new parameter to `summarize_logistic` to specify which pivoted value
   to use during analysis.
-* Updated `s_coxph_pairwise` to generate log-rank p-value using original 
+* Updated `s_coxph_pairwise` to generate log-rank p-value using original
   log-rank test instead of Cox Proportional-Hazards Model.
-* Implemented `nestcolor` in all examples by adapting `g_km`, `g_ipp`, 
+* Implemented `nestcolor` in all examples by adapting `g_km`, `g_ipp`,
   `g_waterfall`, `g_step`, `g_lineplot`, and `g_forest`.
-* Added parameters `interaction_y` and `interaction_item` in `ANCOVA` to make the 
+* Added parameters `interaction_y` and `interaction_item` in `ANCOVA` to make the
   interaction calculations available.
 * Added new parameter `footnotes` to add footnotes to `g_km`.
 
 ### Migration from `assertthat` to `checkmate`
-* Implemented `checkmate::assert_vector`, `checkmate::assert_set_equal`, and 
+* Implemented `checkmate::assert_vector`, `checkmate::assert_set_equal`, and
   `checkmate::assert_int` to check vector type, length, and values.
 * Replaced with standard assertions from `checkmate` the following functions:
-  `all_elements_in_ref`, `is_df_with_nlevels_factor`, `is_df_with_no_na_level`, 
-  `is_proportion_vector`, `is_quantiles_vector`, `is_character_or_factor`, 
-  `is_nonnegative_count`, `is_valid_character`, `assert_character_or_factor`, 
+  `all_elements_in_ref`, `is_df_with_nlevels_factor`, `is_df_with_no_na_level`,
+  `is_proportion_vector`, `is_quantiles_vector`, `is_character_or_factor`,
+  `is_nonnegative_count`, `is_valid_character`, `assert_character_or_factor`,
   `assert_equal_length` and `has_tabletree_colnames`.
-* Modified `is_proportion`, `is_equal_length`, `is_df_with_no_na_level`, 
-  `is_df_with_nlevels_factor`, `is_variables`, `is_df_with_variables`, 
+* Modified `is_proportion`, `is_equal_length`, `is_df_with_no_na_level`,
+  `is_df_with_nlevels_factor`, `is_variables`, `is_df_with_variables`,
   `is_df_with_factors`, `is_valid_factor` to use assertion logic.
 * Added more verbose warnings from `as_factor_keep_attributes`.
 * Made `assert_df_with_factors` and `assert_proportion_value` internal functions.
-* Renamed `assertthat.R` and `test-assertthat.R` to `utils_checkmate.R` and 
+* Renamed `assertthat.R` and `test-assertthat.R` to `utils_checkmate.R` and
   `test-utils_checkmate.R`.
 
 ### Documentation and NAMESPACE Polishing
@@ -210,7 +285,7 @@
    `estimate_multinomial_rsp`, `decorate_grob_set`, `extreme_format`, `fit_rsp_step`,
    `fit_survival_step`, `footnotes`, `footnotes-set`,
    `format_count_fraction`, `format_fraction_threshold`, `formatting_functions`,
-   `format_fraction`, `combination_function` (S4 method), `compare_variables` (S3 method), 
+   `format_fraction`, `combination_function` (S4 method), `compare_variables` (S3 method),
    `kaplan_meier`.
 * Internal keywords added, export removed, `_pkgdown.yml` updated, and `tern:::` added for
    tests/examples/vignettes where present for the following functions:
@@ -245,24 +320,24 @@
 * Fixed empty vector exception for `cut_quantile_bins`.
 * Fixed exception error when empty strings are present in pivoted columns (`rtables` split
   functions)
-* Fixed bug in `s_ancova` causing an error when the first level of the arm 
-  factor is not the control arm. 
+* Fixed bug in `s_ancova` causing an error when the first level of the arm
+  factor is not the control arm.
 * Fixed bug in `s_abnormal_by_worst_grade` when there is one `PARAM` level.
 * Fixed bug in `prop_diff_wald` when selecting all responders, updated tests accordingly.
 * Fixed bug in `h_ancova` that caused an error when deselecting all covariates.
 
 ### Miscellaneous
 * Added deprecated badge to `g_mmrm`.
-* Removed internal function calls in examples (`tern:::`) and added `dontrun` 
+* Removed internal function calls in examples (`tern:::`) and added `dontrun`
   to internal function examples.
 * Removed warnings and messages to console occurring in examples and tests.
-* Deprecated functions `color_palette` and `h_set_nest_theme` in favor of 
+* Deprecated functions `color_palette` and `h_set_nest_theme` in favor of
   `nestcolor::color_palette` and `nestcolor::theme_nest`, respectively.
-* Removed deprecated functions: `color_palette`, `color_palette_core`, 
+* Removed deprecated functions: `color_palette`, `color_palette_core`,
   `h_set_nest_theme`, `s_cox_univariate`.
-* Removed deprecated `mmrm` functions: `fit_mmrm`, `g_mmrm_diagnostic`, 
-  `g_mmrm_lsmeans`, `as.rtable.mmrm`, `h_mmrm_fixed`, `h_mmrm_cov`, 
-  `h_mmrm_diagnostic`, `tidy.mmrm`, `s_mmrm_lsmeans`, `s_mmrm_lsmeans_single`, 
+* Removed deprecated `mmrm` functions: `fit_mmrm`, `g_mmrm_diagnostic`,
+  `g_mmrm_lsmeans`, `as.rtable.mmrm`, `h_mmrm_fixed`, `h_mmrm_cov`,
+  `h_mmrm_diagnostic`, `tidy.mmrm`, `s_mmrm_lsmeans`, `s_mmrm_lsmeans_single`,
   `summarize_lsmeans`.
 * Renamed functions `arm` to `study_arm` and `extract` to `extract_by_name`.
 * Renamed `rtables.R` to `utils_rtables.R`.

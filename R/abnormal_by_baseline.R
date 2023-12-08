@@ -18,6 +18,8 @@
 #'
 #' @inheritParams argument_convention
 #' @param abnormal (`character`)\cr identifying the abnormal range level(s) in `.var`.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("abnormal_by_baseline")`
+#'   to see available statistics for this function.
 #'
 #' @note
 #' * `df` should be filtered to include only post-baseline records.
@@ -27,6 +29,7 @@
 #' @seealso Relevant description function [d_count_abnormal_by_baseline()].
 #'
 #' @name abnormal_by_baseline
+#' @order 1
 NULL
 
 #' Description Function for [s_count_abnormal_by_baseline()]
@@ -57,23 +60,28 @@ d_count_abnormal_by_baseline <- function(abnormal) {
 
 #' @describeIn abnormal_by_baseline Statistics function for a single `abnormal` level.
 #'
-#' @param na_level (`string`)\cr the explicit `na_level` argument you used in the pre-processing steps (maybe with
+#' @param na_str (`string`)\cr the explicit `na_level` argument you used in the pre-processing steps (maybe with
 #'   [df_explicit_na()]). The default is `"<Missing>"`.
 #'
 #' @return
 #' * `s_count_abnormal_by_baseline()` returns statistic `fraction` which is a named list with 3 labeled elements:
 #'   `not_abnormal`, `abnormal`, and `total`. Each element contains a vector with `num` and `denom` patient counts.
 #'
-#'
 #' @keywords internal
 s_count_abnormal_by_baseline <- function(df,
                                          .var,
                                          abnormal,
-                                         na_level = "<Missing>",
+                                         na_level = lifecycle::deprecated(),
+                                         na_str = "<Missing>",
                                          variables = list(id = "USUBJID", baseline = "BNRIND")) {
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "s_count_abnormal_by_baseline(na_level)", "s_count_abnormal_by_baseline(na_str)")
+    na_str <- na_level
+  }
+
   checkmate::assert_string(.var)
   checkmate::assert_string(abnormal)
-  checkmate::assert_string(na_level)
+  checkmate::assert_string(na_str)
   assert_df_with_variables(df, c(range = .var, variables))
   checkmate::assert_subset(names(variables), c("id", "baseline"))
   checkmate::assert_multi_class(df[[variables$id]], classes = c("factor", "character"))
@@ -81,14 +89,14 @@ s_count_abnormal_by_baseline <- function(df,
   checkmate::assert_multi_class(df[[.var]], classes = c("factor", "character"))
 
   # If input is passed as character, changed to factor
-  df[[.var]] <- as_factor_keep_attributes(df[[.var]], na_level = na_level)
-  df[[variables$baseline]] <- as_factor_keep_attributes(df[[variables$baseline]], na_level = na_level)
+  df[[.var]] <- as_factor_keep_attributes(df[[.var]], na_level = na_str)
+  df[[variables$baseline]] <- as_factor_keep_attributes(df[[variables$baseline]], na_level = na_str)
 
   assert_valid_factor(df[[.var]], any.missing = FALSE)
   assert_valid_factor(df[[variables$baseline]], any.missing = FALSE)
 
   # Keep only records with valid analysis value.
-  df <- df[df[[.var]] != na_level, ]
+  df <- df[df[[.var]] != na_str, ]
 
   anl <- data.frame(
     id = df[[variables$id]],
@@ -104,7 +112,7 @@ s_count_abnormal_by_baseline <- function(df,
   total_num <- length(unique(anl$id[anl$var == abnormal]))
 
   # Baseline NA records are counted only in total rows.
-  anl <- anl[anl$baseline != na_level, ]
+  anl <- anl[anl$baseline != na_str, ]
 
   # Abnormal:
   #   - Patients in denominator: have abnormality at baseline.
@@ -133,7 +141,6 @@ s_count_abnormal_by_baseline <- function(df,
 #'
 #' @return
 #' * `a_count_abnormal_by_baseline()` returns the corresponding list with formatted [rtables::CellValue()].
-#'
 #'
 #' @keywords internal
 a_count_abnormal_by_baseline <- make_afun(
@@ -180,9 +187,12 @@ a_count_abnormal_by_baseline <- make_afun(
 #'   build_table(df2)
 #'
 #' @export
+#' @order 2
 count_abnormal_by_baseline <- function(lyt,
                                        var,
                                        abnormal,
+                                       variables = list(id = "USUBJID", baseline = "BNRIND"),
+                                       na_str = "<Missing>",
                                        nested = TRUE,
                                        ...,
                                        table_names = abnormal,
@@ -192,6 +202,9 @@ count_abnormal_by_baseline <- function(lyt,
                                        .indent_mods = NULL) {
   checkmate::assert_character(abnormal, len = length(table_names), names = "named")
   checkmate::assert_string(var)
+
+  extra_args <- list(abnormal = abnormal, variables = variables, na_str = na_str, ...)
+
   afun <- make_afun(
     a_count_abnormal_by_baseline,
     .stats = .stats,
@@ -201,15 +214,17 @@ count_abnormal_by_baseline <- function(lyt,
     .ungroup_stats = "fraction"
   )
   for (i in seq_along(abnormal)) {
-    abn <- abnormal[i]
+    extra_args[["abnormal"]] <- abnormal[i]
+
     lyt <- analyze(
       lyt = lyt,
       vars = var,
-      var_labels = names(abn),
+      var_labels = names(abnormal[i]),
       afun = afun,
+      na_str = na_str,
       nested = nested,
       table_names = table_names[i],
-      extra_args = c(list(abnormal = abn), list(...)),
+      extra_args = extra_args,
       show_labels = "visible"
     )
   }

@@ -5,10 +5,17 @@
 #' Patient count and fraction for laboratory events (worsen from baseline) shift table.
 #'
 #' @inheritParams argument_convention
+#' @param variables (named `list` of `string`)\cr list of additional analysis variables including:
+#'   * `id` (`string`)\cr subject variable name.
+#'   * `baseline_var` (`string`)\cr name of the data column containing baseline toxicity variable.
+#'   * `direction_var` (`string`)\cr see `direction_var` for more details.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("abnormal_by_worst_grade_worsen")`
+#'   to see all available statistics.
 #'
 #' @seealso Relevant helper functions [h_adlb_worsen()] and [h_worsen_counter()]
 #'
 #' @name abnormal_by_worst_grade_worsen
+#' @order 1
 NULL
 
 #' Helper Function to Prepare `ADLB` with Worst Labs
@@ -263,36 +270,10 @@ h_worsen_counter <- function(df, id, .var, baseline_var, direction_var) {
 #' @describeIn abnormal_by_worst_grade_worsen Statistics function for patients whose worst post-baseline
 #'   lab grades are worse than their baseline grades.
 #'
-#' @param variables (named `list` of `string`)\cr list of additional analysis variables including:
-#'   * `id` (`string`)\cr subject variable name.
-#'   * `baseline_var` (`string`)\cr name of the data column containing baseline toxicity variable.
-#'   * `direction_var` (`string`)\cr see `direction_var` for more details.
-#'
 #' @return
 #' * `s_count_abnormal_lab_worsen_by_baseline()` returns the counts and fraction of patients whose worst
 #'   post-baseline lab grades are worse than their baseline grades, for post-baseline worst grades
 #'   "1", "2", "3", "4" and "Any".
-#'
-#' @examples
-#' library(dplyr)
-#'
-#' # The direction variable, GRADDR, is based on metadata
-#' adlb <- tern_ex_adlb %>%
-#'   mutate(
-#'     GRADDR = case_when(
-#'       PARAMCD == "ALT" ~ "B",
-#'       PARAMCD == "CRP" ~ "L",
-#'       PARAMCD == "IGA" ~ "H"
-#'     )
-#'   ) %>%
-#'   filter(SAFFL == "Y" & ONTRTFL == "Y" & GRADDR != "")
-#'
-#' df <- h_adlb_worsen(
-#'   adlb,
-#'   worst_flag_low = c("WGRLOFL" = "Y"),
-#'   worst_flag_high = c("WGRHIFL" = "Y"),
-#'   direction_var = "GRADDR"
-#' )
 #'
 #' @keywords internal
 s_count_abnormal_lab_worsen_by_baseline <- function(df, # nolint
@@ -337,6 +318,26 @@ a_count_abnormal_lab_worsen_by_baseline <- make_afun( # nolint
 #'   rows containing the statistics from `s_count_abnormal_lab_worsen_by_baseline()` to the table layout.
 #'
 #' @examples
+#' library(dplyr)
+#'
+#' # The direction variable, GRADDR, is based on metadata
+#' adlb <- tern_ex_adlb %>%
+#'   mutate(
+#'     GRADDR = case_when(
+#'       PARAMCD == "ALT" ~ "B",
+#'       PARAMCD == "CRP" ~ "L",
+#'       PARAMCD == "IGA" ~ "H"
+#'     )
+#'   ) %>%
+#'   filter(SAFFL == "Y" & ONTRTFL == "Y" & GRADDR != "")
+#'
+#' df <- h_adlb_worsen(
+#'   adlb,
+#'   worst_flag_low = c("WGRLOFL" = "Y"),
+#'   worst_flag_high = c("WGRHIFL" = "Y"),
+#'   direction_var = "GRADDR"
+#' )
+#'
 #' basic_table() %>%
 #'   split_cols_by("ARMCD") %>%
 #'   add_colcounts() %>%
@@ -354,8 +355,15 @@ a_count_abnormal_lab_worsen_by_baseline <- make_afun( # nolint
 #'   build_table(df = df, alt_counts_df = tern_ex_adsl)
 #'
 #' @export
+#' @order 2
 count_abnormal_lab_worsen_by_baseline <- function(lyt, # nolint
                                                   var,
+                                                  variables = list(
+                                                    id = "USUBJID",
+                                                    baseline_var = "BTOXGR",
+                                                    direction_var = "GRADDR"
+                                                  ),
+                                                  na_str = default_na_str(),
                                                   nested = TRUE,
                                                   ...,
                                                   table_names = NULL,
@@ -364,6 +372,8 @@ count_abnormal_lab_worsen_by_baseline <- function(lyt, # nolint
                                                   .labels = NULL,
                                                   .indent_mods = NULL) {
   checkmate::assert_string(var)
+
+  extra_args <- list(variables = variables, ...)
 
   afun <- make_afun(
     a_count_abnormal_lab_worsen_by_baseline,
@@ -377,8 +387,9 @@ count_abnormal_lab_worsen_by_baseline <- function(lyt, # nolint
     lyt = lyt,
     vars = var,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...),
+    extra_args = extra_args,
     show_labels = "hidden"
   )
 

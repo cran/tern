@@ -22,7 +22,7 @@
       res
     Output
       [1] "n"              "count"          "count_fraction" "n_blq"         
-      [5] "pval"          
+      [5] "pval_counts"   
 
 ---
 
@@ -78,7 +78,7 @@
       $n_blq
       [1] 0
       
-      $pval
+      $pval_counts
       [1] 0.7659283
       
 
@@ -121,7 +121,7 @@
         M                            26.00 (44.83%)   31.00 (44.93%)   33.00 (45.21%)
         p-value (chi-squared test)                        1.0000           1.0000    
 
-# compare_vars 'na_level' argument works as expected
+# compare_vars 'na_str' argument works as expected
 
     Code
       res

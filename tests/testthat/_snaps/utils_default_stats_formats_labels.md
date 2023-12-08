@@ -1,3 +1,82 @@
+# get_stats works as expected for defaults
+
+    Code
+      res
+    Output
+      [1] "count"                   "count_fraction"         
+      [3] "count_fraction_fixed_dp" "fraction"               
+
+---
+
+    Code
+      res
+    Output
+      [1] "unique"       "nonunique"    "unique_count"
+
+---
+
+    Code
+      res
+    Output
+      [1] "n"                       "count"                  
+      [3] "count_fraction"          "count_fraction_fixed_dp"
+      [5] "n_blq"                  
+
+---
+
+    Code
+      res
+    Output
+       [1] "n"            "sum"          "mean"         "sd"           "se"          
+       [6] "mean_sd"      "mean_se"      "mean_ci"      "mean_sei"     "mean_sdi"    
+      [11] "mean_pval"    "median"       "mad"          "median_ci"    "quantiles"   
+      [16] "iqr"          "range"        "min"          "max"          "median_range"
+      [21] "cv"           "geom_mean"    "geom_mean_ci" "geom_cv"     
+
+# get_labels_from_stats works as expected
+
+    Code
+      res
+    Output
+                        count          count_fraction count_fraction_fixed_dp 
+                      "count"        "count_fraction"        "count_fraction" 
+                     fraction 
+                   "fraction" 
+
+# get_indents_from_stats works as expected
+
+    Code
+      res
+    Output
+                        count          count_fraction count_fraction_fixed_dp 
+                            0                       0                       0 
+                     fraction 
+                            0 
+
+# labels_use_control works as expected
+
+    Code
+      res
+    Output
+                               mean_ci                        mean_pval 
+                         "Mean 34% CI" "Mean p-value (H0: mean = 0.47)" 
+                             median_ci                        quantiles 
+                       "Median 34% CI"                "24% and 86%-ile" 
+                          geom_mean_ci 
+               "Geometric Mean 34% CI" 
+
+---
+
+    Code
+      res
+    Output
+                               mean_ci                        mean_pval 
+                             "mean ci" "Mean p-value (H0: mean = 0.47)" 
+                             median_ci                        quantiles 
+                       "Median 34% CI"                   "my quantiles" 
+                          geom_mean_ci 
+               "Geometric Mean 34% CI" 
+
 # summary_formats works as expected
 
     Code
@@ -57,10 +136,10 @@
     Output
                                  n                        count 
                                "n"                      "count" 
-                    count_fraction                        n_blq 
-                  "count_fraction"                      "n_blq" 
-                              pval 
-      "p-value (chi-squared test)" 
+                    count_fraction      count_fraction_fixed_dp 
+                  "count_fraction"             "count_fraction" 
+                             n_blq                  pval_counts 
+                           "n_blq" "p-value (chi-squared test)" 
 
 # summary_custom works as expected
 
@@ -152,23 +231,5 @@
       $indent_mods
           n count 
           2     2 
-      
-
-# control_analyze_vars works with customized parameters
-
-    Code
-      res
-    Output
-      $conf_level
-      [1] 0.9
-      
-      $quantiles
-      [1] 0.1 0.9
-      
-      $quantile_type
-      [1] 2
-      
-      $test_mean
-      [1] 0
       
 

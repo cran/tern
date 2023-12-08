@@ -8,6 +8,17 @@
 #'
 #' @inheritParams argument_convention
 #' @inheritParams rtables::analyze_colvars
+#' @param imp_rule (`character`)\cr imputation rule setting. Defaults to `NULL` for no imputation rule. Can
+#'   also be `"1/3"` to implement 1/3 imputation rule or `"1/2"` to implement 1/2 imputation rule. In order
+#'   to use an imputation rule, the `avalcat_var` argument must be specified. See [imputation_rule()]
+#'   for more details on imputation.
+#' @param avalcat_var (`character`)\cr if `imp_rule` is not `NULL`, name of variable that indicates whether a
+#'   row in the data corresponds to an analysis value in category `"BLQ"`, `"LTR"`, `"<PCLLOQ"`, or none of
+#'   the above (defaults to `"AVALCAT1"`). Variable must be present in the data and should match the variable
+#'   used to calculate the `n_blq` statistic (if included in `.stats`).
+#' @param cache (`flag`)\cr whether to store computed values in a temporary caching environment. This will
+#'   speed up calculations in large tables, but should be set to `FALSE` if the same `rtable` layout is
+#'   used for multiple tables with different data. Defaults to `FALSE`.
 #' @param row_labels (`character`)\cr as this function works in columns space, usual `.labels`
 #'   character vector applies on the column space. You can change the row labels by defining this
 #'   parameter to a named character vector with names corresponding to the split values. It defaults
@@ -143,26 +154,34 @@ analyze_vars_in_cols <- function(lyt,
                                  row_labels = NULL,
                                  do_summarize_row_groups = FALSE,
                                  split_col_vars = TRUE,
+                                 imp_rule = NULL,
+                                 avalcat_var = "AVALCAT1",
+                                 cache = FALSE,
                                  .indent_mods = NULL,
+                                 na_level = lifecycle::deprecated(),
+                                 na_str = default_na_str(),
                                  nested = TRUE,
-                                 na_level = NULL,
-                                 .formats = NULL) {
-  checkmate::assert_string(na_level, null.ok = TRUE)
+                                 .formats = NULL,
+                                 .aligns = NULL) {
+  extra_args <- list(...)
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "analyze_vars_in_cols(na_level)", "analyze_vars_in_cols(na_str)")
+    na_str <- na_level
+  }
+
+  checkmate::assert_string(na_str, na.ok = TRUE, null.ok = TRUE)
   checkmate::assert_character(row_labels, null.ok = TRUE)
   checkmate::assert_int(.indent_mods, null.ok = TRUE)
   checkmate::assert_flag(nested)
   checkmate::assert_flag(split_col_vars)
   checkmate::assert_flag(do_summarize_row_groups)
 
-  # Automatic assignment of formats
-  if (is.null(.formats)) {
-    # General values
-    sf_numeric <- summary_formats("numeric")
-    sf_counts <- summary_formats("counts")[-1]
-    formats_v <- c(sf_numeric, sf_counts)
-  } else {
-    formats_v <- .formats
-  }
+  # Filtering
+  met_grps <- paste0("analyze_vars", c("_numeric", "_counts"))
+  .stats <- get_stats(met_grps, stats_in = .stats)
+  formats_v <- get_formats_from_stats(stats = .stats, formats_in = .formats)
+  labels_v <- get_labels_from_stats(stats = .stats, labels_in = .labels)
+  if ("control" %in% names(extra_args)) labels_v <- labels_v %>% labels_use_control(extra_args[["control"]], .labels)
 
   # Check for vars in the case that one or more are used
   if (length(vars) == 1) {
@@ -181,7 +200,7 @@ analyze_vars_in_cols <- function(lyt,
     dummy_lyt <- split_cols_by_multivar(
       lyt = basic_table(),
       vars = vars,
-      varlabels = .labels[.stats]
+      varlabels = labels_v
     )
 
     if (any(sapply(clyt, identical, y = get_last_col_split(dummy_lyt)))) {
@@ -197,9 +216,11 @@ analyze_vars_in_cols <- function(lyt,
     lyt <- split_cols_by_multivar(
       lyt = lyt,
       vars = vars,
-      varlabels = .labels[.stats]
+      varlabels = labels_v
     )
   }
+
+  env <- new.env() # create caching environment
 
   if (do_summarize_row_groups) {
     if (length(unique(vars)) > 1) {
@@ -208,10 +229,34 @@ analyze_vars_in_cols <- function(lyt,
 
     # Function list for do_summarize_row_groups. Slightly different handling of labels
     cfun_list <- Map(
-      function(stat) {
-        function(u, .spl_context, labelstr, ...) {
+      function(stat, use_cache, cache_env) {
+        function(u, .spl_context, labelstr, .df_row, ...) {
           # Statistic
-          res <- s_summary(u, ...)[[stat]]
+          var_row_val <- paste(
+            gsub("\\._\\[\\[[0-9]+\\]\\]_\\.", "", paste(tail(.spl_context$cur_col_split_val, 1)[[1]], collapse = "_")),
+            paste(.spl_context$value, collapse = "_"),
+            sep = "_"
+          )
+          if (use_cache) {
+            if (is.null(cache_env[[var_row_val]])) cache_env[[var_row_val]] <- s_summary(u, ...)
+            x_stats <- cache_env[[var_row_val]]
+          } else {
+            x_stats <- s_summary(u, ...)
+          }
+
+          if (is.null(imp_rule) || !stat %in% c("mean", "sd", "cv", "geom_mean", "geom_cv", "median", "min", "max")) {
+            res <- x_stats[[stat]]
+          } else {
+            timept <- as.numeric(gsub(".*?([0-9\\.]+).*", "\\1", tail(.spl_context$value, 1)))
+            res_imp <- imputation_rule(
+              .df_row, x_stats, stat,
+              imp_rule = imp_rule,
+              post = grepl("Predose", tail(.spl_context$value, 1)) || timept > 0,
+              avalcat_var = avalcat_var
+            )
+            res <- res_imp[["val"]]
+            na_str <- res_imp[["na_str"]]
+          }
 
           # Label check and replacement
           if (length(row_labels) > 1) {
@@ -233,12 +278,15 @@ analyze_vars_in_cols <- function(lyt,
           rcell(res,
             label = lbl,
             format = formats_v[names(formats_v) == stat][[1]],
-            format_na_str = na_level,
-            indent_mod = ifelse(is.null(.indent_mods), 0L, .indent_mods)
+            format_na_str = na_str,
+            indent_mod = ifelse(is.null(.indent_mods), 0L, .indent_mods),
+            align = .aligns
           )
         }
       },
-      stat = .stats
+      stat = .stats,
+      use_cache = cache,
+      cache_env = replicate(length(.stats), env)
     )
 
     # Main call to rtables
@@ -246,15 +294,40 @@ analyze_vars_in_cols <- function(lyt,
       lyt = lyt,
       var = unique(vars),
       cfun = cfun_list,
-      extra_args = list(...)
+      na_str = na_str,
+      extra_args = extra_args
     )
   } else {
     # Function list for analyze_colvars
     afun_list <- Map(
-      function(stat) {
-        function(u, .spl_context, ...) {
+      function(stat, use_cache, cache_env) {
+        function(u, .spl_context, .df_row, ...) {
           # Main statistics
-          res <- s_summary(u, ...)[[stat]]
+          var_row_val <- paste(
+            gsub("\\._\\[\\[[0-9]+\\]\\]_\\.", "", paste(tail(.spl_context$cur_col_split_val, 1)[[1]], collapse = "_")),
+            paste(.spl_context$value, collapse = "_"),
+            sep = "_"
+          )
+          if (use_cache) {
+            if (is.null(cache_env[[var_row_val]])) cache_env[[var_row_val]] <- s_summary(u, ...)
+            x_stats <- cache_env[[var_row_val]]
+          } else {
+            x_stats <- s_summary(u, ...)
+          }
+
+          if (is.null(imp_rule) || !stat %in% c("mean", "sd", "cv", "geom_mean", "geom_cv", "median", "min", "max")) {
+            res <- x_stats[[stat]]
+          } else {
+            timept <- as.numeric(gsub(".*?([0-9\\.]+).*", "\\1", tail(.spl_context$value, 1)))
+            res_imp <- imputation_rule(
+              .df_row, x_stats, stat,
+              imp_rule = imp_rule,
+              post = grepl("Predose", tail(.spl_context$value, 1)) || timept > 0,
+              avalcat_var = avalcat_var
+            )
+            res <- res_imp[["val"]]
+            na_str <- res_imp[["na_str"]]
+          }
 
           if (is.list(res)) {
             if (length(res) > 1) {
@@ -291,19 +364,23 @@ analyze_vars_in_cols <- function(lyt,
           rcell(res,
             label = lbl,
             format = formats_v[names(formats_v) == stat][[1]],
-            format_na_str = na_level,
-            indent_mod = ifelse(is.null(.indent_mods), 0L, .indent_mods)
+            format_na_str = na_str,
+            indent_mod = ifelse(is.null(.indent_mods), 0L, .indent_mods),
+            align = .aligns
           )
         }
       },
-      stat = .stats
+      stat = .stats,
+      use_cache = cache,
+      cache_env = replicate(length(.stats), env)
     )
 
     # Main call to rtables
     analyze_colvars(lyt,
       afun = afun_list,
+      na_str = na_str,
       nested = nested,
-      extra_args = list(...)
+      extra_args = extra_args
     )
   }
 }

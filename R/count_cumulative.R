@@ -7,10 +7,14 @@
 #'
 #' @inheritParams h_count_cumulative
 #' @inheritParams argument_convention
+#' @param thresholds (`numeric`)\cr vector of cutoff value for the counts.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("count_cumulative")`
+#'   to see available statistics for this function.
 #'
 #' @seealso Relevant helper function [h_count_cumulative()], and descriptive function [d_count_cumulative()].
 #'
 #' @name count_cumulative
+#' @order 1
 NULL
 
 #' Helper Function for [s_count_cumulative()]
@@ -24,7 +28,6 @@ NULL
 #' @param lower_tail (`logical`)\cr whether to count lower tail, default is `TRUE`.
 #' @param include_eq (`logical`)\cr whether to include value equal to the `threshold` in
 #'   count, default is `TRUE`.
-#' @param .N_col (`count`)\cr denominator for fraction calculation.
 #'
 #' @return A named vector with items:
 #'   * `count`: the count of values less than, less or equal to, greater than, or greater or equal to a threshold
@@ -37,6 +40,7 @@ NULL
 #' set.seed(1, kind = "Mersenne-Twister")
 #' x <- c(sample(1:10, 10), NA)
 #' .N_col <- length(x)
+#'
 #' h_count_cumulative(x, 5, .N_col = .N_col)
 #' h_count_cumulative(x, 5, lower_tail = FALSE, include_eq = FALSE, na.rm = FALSE, .N_col = .N_col)
 #' h_count_cumulative(x, 0, lower_tail = FALSE, .N_col = .N_col)
@@ -90,8 +94,6 @@ d_count_cumulative <- function(threshold, lower_tail, include_eq) {
 }
 
 #' @describeIn count_cumulative Statistics function that produces a named list given a numeric vector of thresholds.
-#'
-#' @param thresholds (`numeric`)\cr vector of cutoff value for the counts.
 #'
 #' @return
 #' * `s_count_cumulative()` returns a named list of `count_fraction`s: a list with each `thresholds` value as a
@@ -147,10 +149,15 @@ a_count_cumulative <- make_afun(
 #'   build_table(tern_ex_adsl)
 #'
 #' @export
+#' @order 2
 count_cumulative <- function(lyt,
                              vars,
+                             thresholds,
+                             lower_tail = TRUE,
+                             include_eq = TRUE,
                              var_labels = vars,
                              show_labels = "visible",
+                             na_str = default_na_str(),
                              nested = TRUE,
                              ...,
                              table_names = vars,
@@ -158,6 +165,8 @@ count_cumulative <- function(lyt,
                              .formats = NULL,
                              .labels = NULL,
                              .indent_mods = NULL) {
+  extra_args <- list(thresholds = thresholds, lower_tail = lower_tail, include_eq = include_eq, ...)
+
   afun <- make_afun(
     a_count_cumulative,
     .stats = .stats,
@@ -170,10 +179,11 @@ count_cumulative <- function(lyt,
     lyt,
     vars,
     afun = afun,
+    na_str = na_str,
     table_names = table_names,
     var_labels = var_labels,
     show_labels = show_labels,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }

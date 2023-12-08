@@ -6,12 +6,23 @@
 \arguments{
 \item{...}{additional arguments for the lower level functions.}
 
+\item{.aligns}{(\code{character})\cr alignment for table contents (not including labels). When \code{NULL}, \code{"center"}
+is applied. See \code{\link[formatters:list_formats]{formatters::list_valid_aligns()}} for a list of all currently supported alignments.}
+
 \item{.all_col_counts}{(\code{vector} of \code{integer})\cr each value represents a global count for a column. Values are
 taken from \code{alt_counts_df} if specified (see \code{\link[rtables:build_table]{rtables::build_table()}}).}
 
 \item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
+
 \item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
+
+\item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
+unmodified default behavior. Can be negative.}
+
+\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
 passed by \code{rtables}.}
@@ -21,20 +32,13 @@ passed by \code{rtables}.}
 
 \item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
 
+\item{.spl_context}{(\code{data.frame})\cr gives information about ancestor split states
+that is passed by \code{rtables}.}
+
 \item{.stats}{(\code{character})\cr statistics to select for the table.}
-
-\item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
-unmodified default behavior. Can be negative.}
-
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
-
-\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
 by a statistics function.}
-
-\item{.spl_context}{(\code{data.frame})\cr gives information about ancestor split states
-that is passed by \code{rtables}.}
 
 \item{add_total_level}{(\code{flag})\cr adds a "total" level after the others which includes all the levels
 that constitute the split. A custom label can be set for this level via the \code{custom_label} argument.}
@@ -48,9 +52,6 @@ that constitute the split. A custom label can be set for this level via the \cod
 \item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
 
 \item{draw}{(\code{flag})\cr whether the plot should be drawn.}
-
-\item{drop}{(\code{flag})\cr should non appearing occurrence levels be dropped from the resulting table.
-Note that in that case the remaining occurrence levels in the table are sorted alphabetically.}
 
 \item{groups_lists}{(named \code{list} of \code{list})\cr optionally contains for each \code{subgroups} variable a
 list, which specifies the new group levels via the names and the
@@ -75,7 +76,9 @@ two proportions. For options, see \code{\link[=s_test_proportion_diff]{s_test_pr
 
 \item{na.rm}{(\code{flag})\cr whether \code{NA} values should be removed from \code{x} prior to analysis.}
 
-\item{na_level}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
+\item{na_level}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use the \code{na_str} argument instead.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.

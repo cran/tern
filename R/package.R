@@ -6,13 +6,13 @@
 
 #' @import rtables ggplot2
 #' @importFrom broom tidy
-#' @importFrom formatters propose_column_widths
+#' @importFrom formatters format_value propose_column_widths
 #' @importFrom magrittr %>%
 #' @importFrom methods new
 #' @importFrom Rdpack reprompt
 #' @importFrom rlang .data
 #' @importFrom survival coxph strata Surv
-#' @importFrom stats pchisq
+#' @importFrom stats pchisq setNames
 NULL
 
 # Resolve missing global definitions:

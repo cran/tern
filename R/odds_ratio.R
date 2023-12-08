@@ -5,7 +5,10 @@
 #' Compares bivariate responses between two groups in terms of odds ratios
 #' along with a confidence interval.
 #'
+#' @inheritParams split_cols_by_groups
 #' @inheritParams argument_convention
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("estimate_odds_ratio")`
+#'   to see available statistics for this function.
 #'
 #' @details This function uses either logistic regression for unstratified
 #'   analyses, or conditional logistic regression for stratified analyses.
@@ -20,26 +23,18 @@
 #' @seealso Relevant helper function [h_odds_ratio()].
 #'
 #' @name odds_ratio
+#' @order 1
 NULL
 
 #' @describeIn odds_ratio Statistics function which estimates the odds ratio
 #'   between a treatment and a control. A `variables` list with `arm` and `strata`
 #'   variable names must be passed if a stratified analysis is required.
 #'
-#' @inheritParams split_cols_by_groups
-#'
 #' @return
 #' * `s_odds_ratio()` returns a named list with the statistics `or_ci`
 #'   (containing `est`, `lcl`, and `ucl`) and `n_tot`.
 #'
 #' @examples
-#' set.seed(12)
-#' dta <- data.frame(
-#'   rsp = sample(c(TRUE, FALSE), 100, TRUE),
-#'   grp = factor(rep(c("A", "B"), each = 50), levels = c("B", "A")),
-#'   strata = factor(sample(c("C", "D"), 100, TRUE))
-#' )
-#'
 #' # Unstratified analysis.
 #' s_odds_ratio(
 #'   df = subset(dta, grp == "A"),
@@ -174,9 +169,11 @@ a_odds_ratio <- make_afun(
 #'   the statistics from `s_odds_ratio()` to the table layout.
 #'
 #' @examples
+#' set.seed(12)
 #' dta <- data.frame(
 #'   rsp = sample(c(TRUE, FALSE), 100, TRUE),
-#'   grp = factor(rep(c("A", "B"), each = 50))
+#'   grp = factor(rep(c("A", "B"), each = 50), levels = c("A", "B")),
+#'   strata = factor(sample(c("C", "D"), 100, TRUE))
 #' )
 #'
 #' l <- basic_table() %>%
@@ -186,8 +183,13 @@ a_odds_ratio <- make_afun(
 #' build_table(l, df = dta)
 #'
 #' @export
+#' @order 2
 estimate_odds_ratio <- function(lyt,
                                 vars,
+                                variables = list(arm = NULL, strata = NULL),
+                                conf_level = 0.95,
+                                groups_list = NULL,
+                                na_str = default_na_str(),
                                 nested = TRUE,
                                 ...,
                                 show_labels = "hidden",
@@ -196,6 +198,8 @@ estimate_odds_ratio <- function(lyt,
                                 .formats = NULL,
                                 .labels = NULL,
                                 .indent_mods = NULL) {
+  extra_args <- list(variables = variables, conf_level = conf_level, groups_list = groups_list, ...)
+
   afun <- make_afun(
     a_odds_ratio,
     .stats = .stats,
@@ -208,8 +212,9 @@ estimate_odds_ratio <- function(lyt,
     lyt,
     vars,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...),
+    extra_args = extra_args,
     show_labels = show_labels,
     table_names = table_names
   )

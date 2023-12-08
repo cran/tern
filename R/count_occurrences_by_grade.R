@@ -10,10 +10,13 @@
 #' @param grade_groups (named `list` of `character`)\cr containing groupings of grades.
 #' @param remove_single (`logical`)\cr `TRUE` to not include the elements of one-element grade groups
 #'   in the the output list; in this case only the grade groups names will be included in the output.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("count_occurrences_by_grade")`
+#'   to see available statistics for this function.
 #'
 #' @seealso Relevant helper function [h_append_grade_groups()].
 #'
 #' @name count_occurrences_by_grade
+#' @order 1
 NULL
 
 #' Helper function for [s_count_occurrences_by_grade()]
@@ -118,21 +121,6 @@ h_append_grade_groups <- function(grade_groups, refs, remove_single = TRUE) {
 #'   grade level grouping.
 #'
 #' @examples
-#' library(dplyr)
-#' df <- data.frame(
-#'   USUBJID = as.character(c(1:6, 1)),
-#'   ARM = factor(c("A", "A", "A", "B", "B", "B", "A"), levels = c("A", "B")),
-#'   AETOXGR = factor(c(1, 2, 3, 4, 1, 2, 3), levels = c(1:5)),
-#'   AESEV = factor(
-#'     x = c("MILD", "MODERATE", "SEVERE", "MILD", "MILD", "MODERATE", "SEVERE"),
-#'     levels = c("MILD", "MODERATE", "SEVERE")
-#'   ),
-#'   stringsAsFactors = FALSE
-#' )
-#' df_adsl <- df %>%
-#'   select(USUBJID, ARM) %>%
-#'   unique()
-#'
 #' s_count_occurrences_by_grade(
 #'   df,
 #'   .N_col = 10L,
@@ -229,14 +217,29 @@ a_count_occurrences_by_grade <- make_afun(
 #' @describeIn count_occurrences_by_grade Layout-creating function which can take statistics function
 #'   arguments and additional format arguments. This function is a wrapper for [rtables::analyze()].
 #'
-#' @param var_labels (`character`)\cr labels to show in the result table.
-#'
 #' @return
 #' * `count_occurrences_by_grade()` returns a layout object suitable for passing to further layouting functions,
 #'   or to [rtables::build_table()]. Adding this function to an `rtable` layout will add formatted rows containing
 #'   the statistics from `s_count_occurrences_by_grade()` to the table layout.
 #'
 #' @examples
+#' library(dplyr)
+#'
+#' df <- data.frame(
+#'   USUBJID = as.character(c(1:6, 1)),
+#'   ARM = factor(c("A", "A", "A", "B", "B", "B", "A"), levels = c("A", "B")),
+#'   AETOXGR = factor(c(1, 2, 3, 4, 1, 2, 3), levels = c(1:5)),
+#'   AESEV = factor(
+#'     x = c("MILD", "MODERATE", "SEVERE", "MILD", "MILD", "MODERATE", "SEVERE"),
+#'     levels = c("MILD", "MODERATE", "SEVERE")
+#'   ),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' df_adsl <- df %>%
+#'   select(USUBJID, ARM) %>%
+#'   unique()
+#'
 #' # Layout creating function with custom format.
 #' basic_table() %>%
 #'   split_cols_by("ARM") %>%
@@ -264,11 +267,16 @@ a_count_occurrences_by_grade <- make_afun(
 #'   build_table(df, alt_counts_df = df_adsl)
 #'
 #' @export
+#' @order 2
 count_occurrences_by_grade <- function(lyt,
                                        var,
+                                       id = "USUBJID",
+                                       grade_groups = list(),
+                                       remove_single = TRUE,
                                        var_labels = var,
                                        show_labels = "default",
                                        riskdiff = FALSE,
+                                       na_str = default_na_str(),
                                        nested = TRUE,
                                        ...,
                                        table_names = var,
@@ -277,6 +285,8 @@ count_occurrences_by_grade <- function(lyt,
                                        .indent_mods = NULL,
                                        .labels = NULL) {
   checkmate::assert_flag(riskdiff)
+
+  s_args <- list(id = id, grade_groups = grade_groups, remove_single = remove_single, ...)
 
   afun <- make_afun(
     a_count_occurrences_by_grade,
@@ -287,13 +297,13 @@ count_occurrences_by_grade <- function(lyt,
   )
 
   extra_args <- if (isFALSE(riskdiff)) {
-    list(...)
+    s_args
   } else {
     list(
       afun = list("s_count_occurrences_by_grade" = afun),
       .stats = .stats,
       .indent_mods = .indent_mods,
-      s_args = list(...)
+      s_args = s_args
     )
   }
 
@@ -304,6 +314,7 @@ count_occurrences_by_grade <- function(lyt,
     show_labels = show_labels,
     afun = ifelse(isFALSE(riskdiff), afun, afun_riskdiff),
     table_names = table_names,
+    na_str = na_str,
     nested = nested,
     extra_args = extra_args
   )
@@ -338,13 +349,20 @@ count_occurrences_by_grade <- function(lyt,
 #'   build_table(df, alt_counts_df = df_adsl)
 #'
 #' @export
+#' @order 3
 summarize_occurrences_by_grade <- function(lyt,
                                            var,
+                                           id = "USUBJID",
+                                           grade_groups = list(),
+                                           remove_single = TRUE,
+                                           na_str = default_na_str(),
                                            ...,
                                            .stats = NULL,
                                            .formats = NULL,
                                            .indent_mods = NULL,
                                            .labels = NULL) {
+  extra_args <- list(id = id, grade_groups = grade_groups, remove_single = remove_single, ...)
+
   cfun <- make_afun(
     a_count_occurrences_by_grade,
     .stats = .stats,
@@ -358,6 +376,7 @@ summarize_occurrences_by_grade <- function(lyt,
     lyt = lyt,
     var = var,
     cfun = cfun,
-    extra_args = list(...)
+    na_str = na_str,
+    extra_args = extra_args
   )
 }

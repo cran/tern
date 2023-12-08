@@ -5,6 +5,9 @@
 #' We can count the occurrence of specific values in a variable of interest.
 #'
 #' @inheritParams argument_convention
+#' @param values (`character`)\cr specific values that should be counted.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("count_values")`
+#'   to see available statistics for this function.
 #'
 #' @note
 #' * For `factor` variables, `s_count_values` checks whether `values` are all included in the levels of `x`
@@ -13,12 +16,12 @@
 #'   otherwise they are hidden.
 #'
 #' @name count_values_funs
+#' @order 1
 NULL
 
 #' @describeIn count_values_funs S3 generic function to count values.
 #'
 #' @inheritParams s_summary.logical
-#' @param values (`character`)\cr specific values that should be counted.
 #'
 #' @return
 #' * `s_count_values()` returns output of [s_summary()] for specified values of a non-numeric variable.
@@ -119,9 +122,11 @@ a_count_values <- make_afun(
 #'   build_table(iris)
 #'
 #' @export
+#' @order 2
 count_values <- function(lyt,
                          vars,
                          values,
+                         na_str = default_na_str(),
                          nested = TRUE,
                          ...,
                          table_names = vars,
@@ -129,6 +134,8 @@ count_values <- function(lyt,
                          .formats = NULL,
                          .labels = c(count_fraction = paste(values, collapse = ", ")),
                          .indent_mods = NULL) {
+  extra_args <- list(values = values, ...)
+
   afun <- make_afun(
     a_count_values,
     .stats = .stats,
@@ -140,8 +147,9 @@ count_values <- function(lyt,
     lyt,
     vars,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = c(list(values = values), list(...)),
+    extra_args = extra_args,
     show_labels = ifelse(length(vars) > 1, "visible", "hidden"),
     table_names = table_names
   )

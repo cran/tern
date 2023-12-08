@@ -2,11 +2,44 @@
 % Please edit documentation in R/count_occurrences_by_grade.R
 \name{count_occurrences_by_grade}
 \alias{count_occurrences_by_grade}
+\alias{summarize_occurrences_by_grade}
 \alias{s_count_occurrences_by_grade}
 \alias{a_count_occurrences_by_grade}
-\alias{summarize_occurrences_by_grade}
 \title{Occurrence Counts by Grade}
 \usage{
+count_occurrences_by_grade(
+  lyt,
+  var,
+  id = "USUBJID",
+  grade_groups = list(),
+  remove_single = TRUE,
+  var_labels = var,
+  show_labels = "default",
+  riskdiff = FALSE,
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  table_names = var,
+  .stats = NULL,
+  .formats = NULL,
+  .indent_mods = NULL,
+  .labels = NULL
+)
+
+summarize_occurrences_by_grade(
+  lyt,
+  var,
+  id = "USUBJID",
+  grade_groups = list(),
+  remove_single = TRUE,
+  na_str = default_na_str(),
+  ...,
+  .stats = NULL,
+  .formats = NULL,
+  .indent_mods = NULL,
+  .labels = NULL
+)
+
 s_count_occurrences_by_grade(
   df,
   .var,
@@ -26,40 +59,9 @@ a_count_occurrences_by_grade(
   remove_single = TRUE,
   labelstr = ""
 )
-
-count_occurrences_by_grade(
-  lyt,
-  var,
-  var_labels = var,
-  show_labels = "default",
-  riskdiff = FALSE,
-  nested = TRUE,
-  ...,
-  table_names = var,
-  .stats = NULL,
-  .formats = NULL,
-  .indent_mods = NULL,
-  .labels = NULL
-)
-
-summarize_occurrences_by_grade(
-  lyt,
-  var,
-  ...,
-  .stats = NULL,
-  .formats = NULL,
-  .indent_mods = NULL,
-  .labels = NULL
-)
 }
 \arguments{
-\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
-
-\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
-
-\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
-passed by \code{rtables}.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{id}{(\code{string})\cr subject variable name.}
 
@@ -68,19 +70,15 @@ passed by \code{rtables}.}
 \item{remove_single}{(\code{logical})\cr \code{TRUE} to not include the elements of one-element grade groups
 in the the output list; in this case only the grade groups names will be included in the output.}
 
-\item{labelstr}{(\code{character})\cr label of the level of the parent split currently being summarized
-(must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
-for more information.}
-
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
-
-\item{var_labels}{(\code{character})\cr labels to show in the result table.}
+\item{var_labels}{(\code{character})\cr character for label.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
 
 \item{riskdiff}{(\code{flag})\cr whether a risk difference column is present. When set to \code{TRUE}, \code{\link[=add_riskdiff]{add_riskdiff()}} must be
 used as \code{split_fun} in the prior column split of the table layout, specifying which columns should be compared.
 See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk difference calculation.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -91,25 +89,30 @@ underneath analyses, which is not allowed.}
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("count_occurrences_by_grade")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
+
+\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
+
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
+
+\item{labelstr}{(\code{character})\cr label of the level of the parent split currently being summarized
+(must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
+for more information.}
 }
 \value{
-\itemize{
-\item \code{s_count_occurrences_by_grade()} returns a list of counts and fractions with one element per grade level or
-grade level grouping.
-}
-
-\itemize{
-\item \code{a_count_occurrences_by_grade()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
-}
-
 \itemize{
 \item \code{count_occurrences_by_grade()} returns a layout object suitable for passing to further layouting functions,
 or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
@@ -121,6 +124,15 @@ the statistics from \code{s_count_occurrences_by_grade()} to the table layout.
 or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted content rows
 containing the statistics from \code{s_count_occurrences_by_grade()} to the table layout.
 }
+
+\itemize{
+\item \code{s_count_occurrences_by_grade()} returns a list of counts and fractions with one element per grade level or
+grade level grouping.
+}
+
+\itemize{
+\item \code{a_count_occurrences_by_grade()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
@@ -131,21 +143,22 @@ greatest intensity/highest grade level.
 }
 \section{Functions}{
 \itemize{
-\item \code{s_count_occurrences_by_grade()}: Statistics function which counts the
-number of patients by highest grade.
-
-\item \code{a_count_occurrences_by_grade()}: Formatted analysis function which is used as \code{afun}
-in \code{count_occurrences_by_grade()}.
-
 \item \code{count_occurrences_by_grade()}: Layout-creating function which can take statistics function
 arguments and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
 
 \item \code{summarize_occurrences_by_grade()}: Layout-creating function which can take content function arguments
 and additional format arguments. This function is a wrapper for \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}.
 
+\item \code{s_count_occurrences_by_grade()}: Statistics function which counts the
+number of patients by highest grade.
+
+\item \code{a_count_occurrences_by_grade()}: Formatted analysis function which is used as \code{afun}
+in \code{count_occurrences_by_grade()}.
+
 }}
 \examples{
 library(dplyr)
+
 df <- data.frame(
   USUBJID = as.character(c(1:6, 1)),
   ARM = factor(c("A", "A", "A", "B", "B", "B", "A"), levels = c("A", "B")),
@@ -156,28 +169,10 @@ df <- data.frame(
   ),
   stringsAsFactors = FALSE
 )
+
 df_adsl <- df \%>\%
   select(USUBJID, ARM) \%>\%
   unique()
-
-s_count_occurrences_by_grade(
-  df,
-  .N_col = 10L,
-  .var = "AETOXGR",
-  id = "USUBJID",
-  grade_groups = list("ANY" = levels(df$AETOXGR))
-)
-
-#  We need to ungroup `count_fraction` first so that the `rtables` formatting
-# function `format_count_fraction()` can be applied correctly.
-afun <- make_afun(a_count_occurrences_by_grade, .ungroup_stats = "count_fraction")
-afun(
-  df,
-  .N_col = 10L,
-  .var = "AETOXGR",
-  id = "USUBJID",
-  grade_groups = list("ANY" = levels(df$AETOXGR))
-)
 
 # Layout creating function with custom format.
 basic_table() \%>\%
@@ -223,6 +218,25 @@ basic_table() \%>\%
     grade_groups = grade_groups
   ) \%>\%
   build_table(df, alt_counts_df = df_adsl)
+
+s_count_occurrences_by_grade(
+  df,
+  .N_col = 10L,
+  .var = "AETOXGR",
+  id = "USUBJID",
+  grade_groups = list("ANY" = levels(df$AETOXGR))
+)
+
+#  We need to ungroup `count_fraction` first so that the `rtables` formatting
+# function `format_count_fraction()` can be applied correctly.
+afun <- make_afun(a_count_occurrences_by_grade, .ungroup_stats = "count_fraction")
+afun(
+  df,
+  .N_col = 10L,
+  .var = "AETOXGR",
+  id = "USUBJID",
+  grade_groups = list("ANY" = levels(df$AETOXGR))
+)
 
 }
 \seealso{

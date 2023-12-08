@@ -6,6 +6,25 @@
 \alias{a_ancova}
 \title{Summary for analysis of covariance (\code{ANCOVA}).}
 \usage{
+summarize_ancova(
+  lyt,
+  vars,
+  variables,
+  conf_level,
+  interaction_y = FALSE,
+  interaction_item = NULL,
+  var_labels,
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  show_labels = "visible",
+  table_names = vars,
+  .stats = NULL,
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_ancova(
   df,
   .var,
@@ -29,36 +48,19 @@ a_ancova(
   interaction_y = FALSE,
   interaction_item = NULL
 )
-
-summarize_ancova(
-  lyt,
-  vars,
-  var_labels,
-  nested = TRUE,
-  ...,
-  show_labels = "visible",
-  table_names = vars,
-  .stats = NULL,
-  .formats = NULL,
-  .labels = NULL,
-  .indent_mods = NULL,
-  interaction_y = FALSE,
-  interaction_item = NULL
-)
 }
 \arguments{
-\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
-\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
-by a statistics function.}
+\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
 
-\item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
-
-\item{variables}{(named \code{list} of \code{string})\cr list of additional analysis variables.}
-
-\item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
-
-\item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
+\item{variables}{(named \code{list} of \code{strings})\cr list of additional analysis variables, with expected elements:
+\itemize{
+\item \code{arm} (\code{string})\cr group variable, for which the covariate adjusted means of multiple groups will be
+summarized. Specifically, the first level of \code{arm} variable is taken as the reference group.
+\item \code{covariates} (\code{character})\cr a vector that can contain single variable names (such as \code{"X1"}), and/or
+interaction terms indicated by \code{"X1 * X2"}.
+}}
 
 \item{conf_level}{(\code{proportion})\cr confidence level of the interval.}
 
@@ -68,11 +70,9 @@ to select the specific \code{ANCOVA} results. if the interaction is not needed, 
 \item{interaction_item}{(\code{character})\cr name of the variable that should have interactions
 with arm. if the interaction is not needed, the default option is \code{NULL}.}
 
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
-
-\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
-
 \item{var_labels}{(\code{character})\cr character for label.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -85,16 +85,35 @@ underneath analyses, which is not allowed.}
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("summarize_ancova")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
+by a statistics function.}
+
+\item{.df_row}{(\code{data.frame})\cr data set that includes all the variables that are called in \code{.var} and \code{variables}.}
+
+\item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
+
+\item{.in_ref_col}{(\code{logical})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
 }
 \value{
+\itemize{
+\item \code{summarize_ancova()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_ancova()} to the table layout.
+}
+
 \itemize{
 \item \code{s_ancova()} returns a named list of 5 statistics:
 \itemize{
@@ -111,12 +130,6 @@ to the reference group.
 \itemize{
 \item \code{a_ancova()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
 }
-
-\itemize{
-\item \code{summarize_ancova()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_ancova()} to the table layout.
-}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
@@ -126,25 +139,16 @@ multiple timepoints within the same response variable \code{.var}.
 }
 \section{Functions}{
 \itemize{
+\item \code{summarize_ancova()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_ancova()}: Statistics function that produces a named list of results
 of the investigated linear model.
 
 \item \code{a_ancova()}: Formatted analysis function which is used as \code{afun} in \code{summarize_ancova()}.
 
-\item \code{summarize_ancova()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
-
 }}
 \examples{
-library(dplyr)
-
-df <- iris \%>\% filter(Species == "virginica")
-.df_row <- iris
-.var <- "Petal.Length"
-variables <- list(arm = "Species", covariates = "Sepal.Length * Sepal.Width")
-.ref_group <- iris \%>\% filter(Species == "setosa")
-conf_level <- 0.95
-
 basic_table() \%>\%
   split_cols_by("Species", ref_group = "setosa") \%>\%
   add_colcounts() \%>\%

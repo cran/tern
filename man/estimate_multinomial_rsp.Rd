@@ -2,18 +2,15 @@
 % Please edit documentation in R/estimate_multinomial_rsp.R
 \name{estimate_multinomial_rsp}
 \alias{estimate_multinomial_rsp}
+\alias{estimate_multinomial_response}
 \alias{s_length_proportion}
 \alias{a_length_proportion}
-\alias{estimate_multinomial_response}
 \title{Estimation of Proportions per Level of Factor}
 \usage{
-s_length_proportion(x, .N_col, ...)
-
-a_length_proportion(x, .N_col, ...)
-
 estimate_multinomial_response(
   lyt,
   var,
+  na_str = default_na_str(),
   nested = TRUE,
   ...,
   show_labels = "hidden",
@@ -23,51 +20,59 @@ estimate_multinomial_response(
   .labels = NULL,
   .indent_mods = NULL
 )
+
+s_length_proportion(x, .N_col, ...)
+
+a_length_proportion(x, .N_col, ...)
 }
 \arguments{
-\item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
-
-\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
-passed by \code{rtables}.}
-
-\item{...}{additional arguments for the lower level functions.}
-
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
 by a statistics function.}
 
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
+
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
 possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
 underneath analyses, which is not allowed.}
+
+\item{...}{additional arguments for the lower level functions.}
 
 \item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
 
 \item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
 to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("estimate_multinomial_response")}
+to see available statistics for this function.}
 
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 
 \item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
+
+\item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
+
+\item{.N_col}{(\code{integer})\cr column-wise N (column count) for the full column being analyzed that is typically
+passed by \code{rtables}.}
 }
 \value{
+\itemize{
+\item \code{estimate_multinomial_response()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_length_proportion()} to the table layout.
+}
+
 \itemize{
 \item \code{s_length_proportion()} returns statistics from \code{\link[=s_proportion]{s_proportion()}}.
 }
 
 \itemize{
 \item \code{a_length_proportion()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
-}
-
-\itemize{
-\item \code{estimate_multinomial_response()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_length_proportion()} to the table layout.
 }
 }
 \description{
@@ -78,24 +83,18 @@ regarding the level of a factor.
 }
 \section{Functions}{
 \itemize{
+\item \code{estimate_multinomial_response()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}} and
+\code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}.
+
 \item \code{s_length_proportion()}: Statistics function which feeds the length of \code{x} as number
 of successes, and \code{.N_col} as total number of successes and failures into \code{\link[=s_proportion]{s_proportion()}}.
 
 \item \code{a_length_proportion()}: Formatted analysis function which is used as \code{afun}
 in \code{estimate_multinomial_response()}.
 
-\item \code{estimate_multinomial_response()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}} and
-\code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}.
-
 }}
 \examples{
-s_length_proportion(rep("CR", 10), .N_col = 100)
-s_length_proportion(factor(character(0)), .N_col = 100)
-
-a_length_proportion(rep("CR", 10), .N_col = 100)
-a_length_proportion(factor(character(0)), .N_col = 100)
-
 library(dplyr)
 
 # Use of the layout creating function.
@@ -116,11 +115,13 @@ lyt <- basic_table() \%>\%
 
 tbl <- build_table(lyt, dta_test)
 
-html <- as_html(tbl)
-html
-\donttest{
-Viewer(html)
-}
+tbl
+
+s_length_proportion(rep("CR", 10), .N_col = 100)
+s_length_proportion(factor(character(0)), .N_col = 100)
+
+a_length_proportion(rep("CR", 10), .N_col = 100)
+a_length_proportion(factor(character(0)), .N_col = 100)
 
 }
 \seealso{

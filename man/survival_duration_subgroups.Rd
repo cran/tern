@@ -2,26 +2,28 @@
 % Please edit documentation in R/survival_duration_subgroups.R
 \name{survival_duration_subgroups}
 \alias{survival_duration_subgroups}
-\alias{a_survival_subgroups}
 \alias{tabulate_survival_subgroups}
+\alias{a_survival_subgroups}
 \title{Tabulate Survival Duration by Subgroup}
 \usage{
-a_survival_subgroups(
-  .formats = list(n = "xx", n_events = "xx", n_tot_events = "xx", median = "xx.x", n_tot
-    = "xx", hr = list(format_extreme_values(2L)), ci =
-    list(format_extreme_values_ci(2L)), pval = "x.xxxx | (<0.0001)")
-)
-
 tabulate_survival_subgroups(
   lyt,
   df,
   vars = c("n_tot_events", "n_events", "median", "hr", "ci"),
-  time_unit = NULL
+  groups_lists = list(),
+  label_all = "All Patients",
+  time_unit = NULL,
+  na_str = default_na_str()
+)
+
+a_survival_subgroups(
+  .formats = list(n = "xx", n_events = "xx", n_tot_events = "xx", median = "xx.x", n_tot
+    = "xx", hr = list(format_extreme_values(2L)), ci =
+    list(format_extreme_values_ci(2L)), pval = "x.xxxx | (<0.0001)"),
+  na_str = default_na_str()
 )
 }
 \arguments{
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
-
 \item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
 
 \item{df}{(\code{list})\cr of data frames containing all analysis variables. List should be
@@ -41,14 +43,25 @@ Note, one of the statistics \code{n_tot} and \code{n_tot_events}, as well as bot
 are required.
 }}
 
+\item{groups_lists}{(named \code{list} of \code{list})\cr optionally contains for each \code{subgroups} variable a
+list, which specifies the new group levels via the names and the
+levels that belong to it in the character vectors that are elements of the list.}
+
+\item{label_all}{(\code{string})\cr label for the total population analysis.}
+
 \item{time_unit}{(\code{string})\cr label with unit of median survival time. Default \code{NULL} skips displaying unit.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
+
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
 }
 \value{
+An \code{rtables} table summarizing survival by subgroup.
+
 \itemize{
 \item \code{a_survival_subgroups()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
 }
-
-An \code{rtables} table summarizing survival by subgroup.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
@@ -61,12 +74,12 @@ the required statistics. Tables typically used as part of forest plot.
 }
 \section{Functions}{
 \itemize{
-\item \code{a_survival_subgroups()}: Formatted analysis function which is used as
-\code{afun} in \code{tabulate_survival_subgroups()}.
-
 \item \code{tabulate_survival_subgroups()}: Table-creating function which creates a table
 summarizing survival by subgroup. This function is a wrapper for \code{\link[rtables:analyze_colvars]{rtables::analyze_colvars()}}
 and \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}.
+
+\item \code{a_survival_subgroups()}: Formatted analysis function which is used as
+\code{afun} in \code{tabulate_survival_subgroups()}.
 
 }}
 \examples{
@@ -108,6 +121,23 @@ df <- extract_survival_subgroups(
   data = adtte_f
 )
 df
+
+df_grouped <- extract_survival_subgroups(
+  variables = list(
+    tte = "AVAL",
+    is_event = "is_event",
+    arm = "ARM", subgroups = c("SEX", "BMRKR2")
+  ),
+  data = adtte_f,
+  groups_lists = list(
+    BMRKR2 = list(
+      "low" = "LOW",
+      "low/medium" = c("LOW", "MEDIUM"),
+      "low/medium/high" = c("LOW", "MEDIUM", "HIGH")
+    )
+  )
+)
+df_grouped
 
 ## Table with default columns.
 basic_table() \%>\%

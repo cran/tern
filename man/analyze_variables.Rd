@@ -2,18 +2,34 @@
 % Please edit documentation in R/analyze_variables.R
 \name{analyze_variables}
 \alias{analyze_variables}
+\alias{analyze_vars}
 \alias{s_summary}
 \alias{s_summary.numeric}
 \alias{s_summary.factor}
 \alias{s_summary.character}
 \alias{s_summary.logical}
 \alias{a_summary}
-\alias{a_summary.default}
-\alias{a_summary.numeric}
-\alias{analyze_vars}
 \alias{summarize_vars}
 \title{Analyze Variables}
 \usage{
+analyze_vars(
+  lyt,
+  vars,
+  var_labels = vars,
+  na_level = lifecycle::deprecated(),
+  na_str = default_na_str(),
+  nested = TRUE,
+  ...,
+  na.rm = TRUE,
+  show_labels = "default",
+  table_names = vars,
+  section_div = NA_character_,
+  .stats = c("n", "mean_sd", "median", "range", "count_fraction"),
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
+)
+
 s_summary(x, na.rm = TRUE, denom, .N_row, .N_col, .var, ...)
 
 \method{s_summary}{numeric}(
@@ -56,9 +72,7 @@ s_summary(x, na.rm = TRUE, denom, .N_row, .N_col, .var, ...)
   ...
 )
 
-a_summary(x, .N_col, .N_row, .var, .df_row, .ref_group, .in_ref_col, ...)
-
-\method{a_summary}{default}(
+a_summary(
   x,
   .N_col,
   .N_row,
@@ -67,56 +81,59 @@ a_summary(x, .N_col, .N_row, .var, .df_row, .ref_group, .in_ref_col, ...)
   .ref_group = NULL,
   .in_ref_col = FALSE,
   compare = FALSE,
-  .stats = summary_custom(type = "counts", include_pval = compare)$stats,
-  .formats = summary_custom(type = "counts", include_pval = compare)$formats,
-  .labels = summary_custom(type = "counts", include_pval = compare)$labels,
-  .indent_mods = summary_custom(type = "counts", include_pval = compare)$indent_mods,
-  na.rm = TRUE,
-  na_level = NA_character_,
-  ...
-)
-
-\method{a_summary}{numeric}(
-  x,
-  .N_col,
-  .N_row,
-  .var = NULL,
-  .df_row = NULL,
-  .ref_group = NULL,
-  .in_ref_col = FALSE,
-  compare = FALSE,
-  .stats = summary_custom(include_pval = compare)$stats,
-  .formats = summary_custom(include_pval = compare)$formats,
-  .labels = summary_custom(include_pval = compare)$labels,
-  .indent_mods = summary_custom(include_pval = compare)$indent_mods,
-  na.rm = TRUE,
-  na_level = NA_character_,
-  ...
-)
-
-analyze_vars(
-  lyt,
-  vars,
-  var_labels = vars,
-  nested = TRUE,
-  ...,
-  na.rm = TRUE,
-  na_level = NA_character_,
-  show_labels = "default",
-  table_names = vars,
-  section_div = NA_character_,
-  .stats = c("n", "mean_sd", "median", "range", "count_fraction"),
+  .stats = NULL,
   .formats = NULL,
   .labels = NULL,
-  .indent_mods = NULL
+  .indent_mods = NULL,
+  na.rm = TRUE,
+  na_level = lifecycle::deprecated(),
+  na_str = default_na_str(),
+  ...
 )
 
 summarize_vars(...)
 }
 \arguments{
-\item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
+\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
+
+\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
+
+\item{var_labels}{(\code{character})\cr character for label.}
+
+\item{na_level}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Please use the \code{na_str} argument instead.}
+
+\item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
+
+\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
+possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
+underneath analyses, which is not allowed.}
+
+\item{...}{arguments passed to \code{s_summary()}.}
 
 \item{na.rm}{(\code{flag})\cr whether \code{NA} values should be removed from \code{x} prior to analysis.}
+
+\item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
+
+\item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
+to avoid warnings from \code{rtables}.}
+
+\item{section_div}{(\code{string})\cr string which should be repeated as a section divider after each group
+defined by this split instruction, or \code{NA_character_} (the default) for no section divider.}
+
+\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("analyze_vars_numeric")} to see
+statistics available for numeric variables, and \code{get_stats("analyze_vars_counts")} for statistics available
+for non-numeric variables.}
+
+\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
+information on the \code{"auto"} setting.}
+
+\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
+
+\item{.indent_mods}{(named \code{vector} of \code{integer})\cr indent modifiers for the labels. Each element of the vector
+should be a name-value pair with name corresponding to a statistic specified in \code{.stats} and value the indentation
+for that statistic's row label.}
+
+\item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
 
 \item{denom}{(\code{string})\cr choice of denominator for proportion. Options are:
 \itemize{
@@ -133,8 +150,6 @@ passed by \code{rtables}.}
 
 \item{.var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
 by a statistics function.}
-
-\item{...}{arguments passed to \code{s_summary()}.}
 
 \item{control}{(\code{list})\cr parameters for descriptive statistics details, specified by using
 the helper function \code{\link[=control_analyze_vars]{control_analyze_vars()}}. Some possible parameter options are:
@@ -157,41 +172,14 @@ to print out information about factor casting.}
 
 \item{compare}{(\code{logical})\cr Whether comparison statistics should be analyzed instead of summary statistics
 (\code{compare = TRUE} adds \code{pval} statistic comparing against reference group).}
-
-\item{.stats}{(\code{character})\cr statistics to select for the table.}
-
-\item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics.}
-
-\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
-
-\item{.indent_mods}{(named \code{vector} of \code{integer})\cr indent modifiers for the labels. Each element of the vector
-should be a name-value pair with name corresponding to a statistic specified in \code{.stats} and value the indentation
-for that statistic's row label.}
-
-\item{na_level}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
-
-\item{lyt}{(\code{layout})\cr input layout where analyses will be added to.}
-
-\item{vars}{(\code{character})\cr variable names for the primary analysis variable to be iterated over.}
-
-\item{var_labels}{(\code{character})\cr character for label.}
-
-\item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure \emph{if
-possible} (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
-underneath analyses, which is not allowed.}
-
-\item{show_labels}{(\code{string})\cr label visibility: one of "default", "visible" and "hidden".}
-
-\item{table_names}{(\code{character})\cr this can be customized in case that the same \code{vars} are analyzed multiple times,
-to avoid warnings from \code{rtables}.}
-
-\item{section_div}{(\code{string})\cr string which should be repeated as a section divider after each group
-defined by this split instruction, or \code{NA_character_} (the default) for no section divider.}
-
-\item{type}{(\code{character})\cr type of statistics to calculate given \code{x}. If \code{x} is numeric \code{type} should be
-\code{"numeric"}, otherwise type should be \code{"counts"}.}
 }
 \value{
+\itemize{
+\item \code{analyze_vars()} returns a layout object suitable for passing to further layouting functions,
+or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
+the statistics from \code{s_summary()} to the table layout.
+}
+
 \itemize{
 \item \code{s_summary()} returns different statistics depending on the class of \code{x}.
 }
@@ -249,24 +237,27 @@ denominator is zero. Note that \code{NA}s in \code{x} are never counted or leadi
 \itemize{
 \item \code{a_summary()} returns the corresponding list with formatted \code{\link[rtables:CellValue]{rtables::CellValue()}}.
 }
-
-\itemize{
-\item \code{analyze_vars()} returns a layout object suitable for passing to further layouting functions,
-or to \code{\link[rtables:build_table]{rtables::build_table()}}. Adding this function to an \code{rtable} layout will add formatted rows containing
-the statistics from \code{s_summary()} to the table layout.
-}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
-We use the S3 generic function \code{\link[=s_summary]{s_summary()}} to implement summaries for different \code{x} objects. This
-is used as a statistics function in combination with the analyze function \code{\link[=analyze_vars]{analyze_vars()}}.
-Deprecation cycle started for \code{summarize_vars} as it is going to renamed into
-\code{analyze_vars}. Intention is to reflect better the core underlying \code{rtables}
-functions; in this case \code{\link[rtables:analyze]{rtables::analyze()}}.
+The analyze function \code{\link[=analyze_vars]{analyze_vars()}} generates a summary of one or more variables, using the S3 generic function
+\code{\link[=s_summary]{s_summary()}} to calculate a list of summary statistics. A list of all available statistics for numeric
+variables can be viewed by running \code{get_stats("analyze_vars_numeric")} and for non-numeric variables by running
+\code{get_stats("analyze_vars_counts")}. Use the \code{.stats} parameter to specify the statistics to include in your output
+summary table.
+}
+\details{
+\strong{Automatic digit formatting:} The number of digits to display can be automatically determined from the analyzed
+variable(s) (\code{vars}) for certain statistics by setting the statistic format to \code{"auto"} in \code{.formats}.
+This utilizes the \code{\link[=format_auto]{format_auto()}} formatting function. Note that only data for the current row & variable (for all
+columns) will be considered (\code{.df_row[[.var]]}, see \code{\link[rtables:additional_fun_params]{rtables::additional_fun_params}}) and not the whole dataset.
 }
 \section{Functions}{
 \itemize{
+\item \code{analyze_vars()}: Layout-creating function which can take statistics function arguments
+and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
+
 \item \code{s_summary()}: S3 generic function to produces a variable summary.
 
 \item \code{s_summary(numeric)}: Method for \code{numeric} class.
@@ -281,17 +272,15 @@ conversion to factor (with a warning) and then forwards to the method for factor
 \item \code{a_summary()}: Formatted analysis function which is used as \code{afun} in \code{analyze_vars()} and
 \code{compare_vars()} and as \code{cfun} in \code{summarize_colvars()}.
 
-\item \code{a_summary(default)}: Formatted analysis function \code{default} method for non-numeric classes.
-
-\item \code{a_summary(numeric)}: Formatted analysis function method for \code{numeric} class.
-
-\item \code{analyze_vars()}: Layout-creating function which can take statistics function arguments
-and additional format arguments. This function is a wrapper for \code{\link[rtables:analyze]{rtables::analyze()}}.
-
 \item \code{summarize_vars()}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{analyze_vars} instead.
 
 }}
 \note{
+\itemize{
+\item Deprecation cycle started for \code{summarize_vars} which has been renamed to \code{analyze_vars}. This renaming is intended
+to better reflect its core underlying \code{rtables} functions - in this case \code{\link[rtables:analyze]{rtables::analyze()}}.
+}
+
 \itemize{
 \item If \code{x} is an empty vector, \code{NA} is returned. This is the expected feature so as to return \code{rcell} content in
 \code{rtables} when the intersection of a column and a row delimits an empty data selection.
@@ -321,98 +310,6 @@ created from character variables before passing the dataset to \code{\link[rtabl
 }
 }
 \examples{
-# `s_summary.numeric`
-
-## Basic usage: empty numeric returns NA-filled items.
-s_summary(numeric())
-
-## Management of NA values.
-x <- c(NA_real_, 1)
-s_summary(x, na.rm = TRUE)
-s_summary(x, na.rm = FALSE)
-
-x <- c(NA_real_, 1, 2)
-s_summary(x, stats = NULL)
-
-## Benefits in `rtables` contructions:
-require(rtables)
-dta_test <- data.frame(
-  Group = rep(LETTERS[1:3], each = 2),
-  sub_group = rep(letters[1:2], each = 3),
-  x = 1:6
-)
-
-## The summary obtained in with `rtables`:
-basic_table() \%>\%
-  split_cols_by(var = "Group") \%>\%
-  split_rows_by(var = "sub_group") \%>\%
-  analyze(vars = "x", afun = s_summary) \%>\%
-  build_table(df = dta_test)
-
-## By comparison with `lapply`:
-X <- split(dta_test, f = with(dta_test, interaction(Group, sub_group)))
-lapply(X, function(x) s_summary(x$x))
-
-# `s_summary.factor`
-
-## Basic usage:
-s_summary(factor(c("a", "a", "b", "c", "a")))
-# Empty factor returns NA-filled items.
-s_summary(factor(levels = c("a", "b", "c")))
-
-## Management of NA values.
-x <- factor(c(NA, "Female"))
-x <- explicit_na(x)
-s_summary(x, na.rm = TRUE)
-s_summary(x, na.rm = FALSE)
-
-## Different denominators.
-x <- factor(c("a", "a", "b", "c", "a"))
-s_summary(x, denom = "N_row", .N_row = 10L)
-s_summary(x, denom = "N_col", .N_col = 20L)
-
-# `s_summary.character`
-
-## Basic usage:
-s_summary(c("a", "a", "b", "c", "a"), .var = "x", verbose = FALSE)
-s_summary(c("a", "a", "b", "c", "a", ""), .var = "x", na.rm = FALSE, verbose = FALSE)
-
-# `s_summary.logical`
-
-## Basic usage:
-s_summary(c(TRUE, FALSE, TRUE, TRUE))
-
-## Management of NA values.
-x <- c(NA, TRUE, FALSE)
-s_summary(x, na.rm = TRUE)
-s_summary(x, na.rm = FALSE)
-
-## Different denominators.
-x <- c(TRUE, FALSE, TRUE, TRUE)
-s_summary(x, denom = "N_row", .N_row = 10L)
-s_summary(x, denom = "N_col", .N_col = 20L)
-
-a_summary(factor(c("a", "a", "b", "c", "a")), .N_row = 10, .N_col = 10)
-a_summary(
-  factor(c("a", "a", "b", "c", "a")),
-  .ref_group = factor(c("a", "a", "b", "c")), compare = TRUE
-)
-
-a_summary(c("A", "B", "A", "C"), .var = "x", .N_col = 10, .N_row = 10, verbose = FALSE)
-a_summary(
-  c("A", "B", "A", "C"),
-  .ref_group = c("B", "A", "C"), .var = "x", compare = TRUE, verbose = FALSE
-)
-
-a_summary(c(TRUE, FALSE, FALSE, TRUE, TRUE), .N_row = 10, .N_col = 10)
-a_summary(
-  c(TRUE, FALSE, FALSE, TRUE, TRUE),
-  .ref_group = c(TRUE, FALSE), .in_ref_col = TRUE, compare = TRUE
-)
-
-a_summary(rnorm(10), .N_col = 10, .N_row = 20, .var = "bla")
-a_summary(rnorm(10, 5, 1), .ref_group = rnorm(20, -5, 1), .var = "bla", compare = TRUE)
-
 ## Fabricated dataset.
 dta_test <- data.frame(
   USUBJID = rep(1:6, each = 3),
@@ -460,5 +357,111 @@ l <- basic_table() \%>\%
   analyze_vars(vars = "AVISIT", na.rm = FALSE)
 
 build_table(l, df = dta_test)
+
+# auto format
+dt <- data.frame("VAR" = c(0.001, 0.2, 0.0011000, 3, 4))
+basic_table() \%>\%
+  analyze_vars(
+    vars = "VAR",
+    .stats = c("n", "mean", "mean_sd", "range"),
+    .formats = c("mean_sd" = "auto", "range" = "auto")
+  ) \%>\%
+  build_table(dt)
+
+# `s_summary.numeric`
+
+## Basic usage: empty numeric returns NA-filled items.
+s_summary(numeric())
+
+## Management of NA values.
+x <- c(NA_real_, 1)
+s_summary(x, na.rm = TRUE)
+s_summary(x, na.rm = FALSE)
+
+x <- c(NA_real_, 1, 2)
+s_summary(x, stats = NULL)
+
+## Benefits in `rtables` contructions:
+require(rtables)
+dta_test <- data.frame(
+  Group = rep(LETTERS[1:3], each = 2),
+  sub_group = rep(letters[1:2], each = 3),
+  x = 1:6
+)
+
+## The summary obtained in with `rtables`:
+basic_table() \%>\%
+  split_cols_by(var = "Group") \%>\%
+  split_rows_by(var = "sub_group") \%>\%
+  analyze(vars = "x", afun = s_summary) \%>\%
+  build_table(df = dta_test)
+
+## By comparison with `lapply`:
+X <- split(dta_test, f = with(dta_test, interaction(Group, sub_group)))
+lapply(X, function(x) s_summary(x$x))
+
+# `s_summary.factor`
+
+## Basic usage:
+s_summary(factor(c("a", "a", "b", "c", "a")))
+
+# Empty factor returns zero-filled items.
+s_summary(factor(levels = c("a", "b", "c")))
+
+## Management of NA values.
+x <- factor(c(NA, "Female"))
+x <- explicit_na(x)
+s_summary(x, na.rm = TRUE)
+s_summary(x, na.rm = FALSE)
+
+## Different denominators.
+x <- factor(c("a", "a", "b", "c", "a"))
+s_summary(x, denom = "N_row", .N_row = 10L)
+s_summary(x, denom = "N_col", .N_col = 20L)
+
+# `s_summary.character`
+
+## Basic usage:
+s_summary(c("a", "a", "b", "c", "a"), .var = "x", verbose = FALSE)
+s_summary(c("a", "a", "b", "c", "a", ""), .var = "x", na.rm = FALSE, verbose = FALSE)
+
+# `s_summary.logical`
+
+## Basic usage:
+s_summary(c(TRUE, FALSE, TRUE, TRUE))
+
+# Empty factor returns zero-filled items.
+s_summary(as.logical(c()))
+
+## Management of NA values.
+x <- c(NA, TRUE, FALSE)
+s_summary(x, na.rm = TRUE)
+s_summary(x, na.rm = FALSE)
+
+## Different denominators.
+x <- c(TRUE, FALSE, TRUE, TRUE)
+s_summary(x, denom = "N_row", .N_row = 10L)
+s_summary(x, denom = "N_col", .N_col = 20L)
+
+a_summary(factor(c("a", "a", "b", "c", "a")), .N_row = 10, .N_col = 10)
+a_summary(
+  factor(c("a", "a", "b", "c", "a")),
+  .ref_group = factor(c("a", "a", "b", "c")), compare = TRUE
+)
+
+a_summary(c("A", "B", "A", "C"), .var = "x", .N_col = 10, .N_row = 10, verbose = FALSE)
+a_summary(
+  c("A", "B", "A", "C"),
+  .ref_group = c("B", "A", "C"), .var = "x", compare = TRUE, verbose = FALSE
+)
+
+a_summary(c(TRUE, FALSE, FALSE, TRUE, TRUE), .N_row = 10, .N_col = 10)
+a_summary(
+  c(TRUE, FALSE, FALSE, TRUE, TRUE),
+  .ref_group = c(TRUE, FALSE), .in_ref_col = TRUE, compare = TRUE
+)
+
+a_summary(rnorm(10), .N_col = 10, .N_row = 20, .var = "bla")
+a_summary(rnorm(10, 5, 1), .ref_group = rnorm(20, -5, 1), .var = "bla", compare = TRUE)
 
 }

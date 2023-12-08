@@ -5,18 +5,22 @@
 #' Count the number of unique and non-unique patients in a column (variable).
 #'
 #' @inheritParams argument_convention
-#' @param x (`character` or `factor`)\cr vector of patient IDs.
-#' @param count_by (`character` or `factor`)\cr optional vector to be combined with `x` when counting
-#'   `nonunique` records.
+#' @param count_by (`vector`)\cr optional vector of any type to be combined with `x` when counting `nonunique`
+#'   records.
 #' @param unique_count_suffix (`logical`)\cr should `"(n)"` suffix be added to `unique_count` labels.
 #'   Defaults to `TRUE`.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("summarize_num_patients")`
+#'   to see available statistics for this function.
 #'
 #' @name summarize_num_patients
+#' @order 1
 NULL
 
 #' @describeIn summarize_num_patients Statistics function which counts the number of
 #'   unique patients, the corresponding percentage taken with respect to the
 #'   total number of patients, and the number of non-unique patients.
+#'
+#' @param x (`character` or `factor`)\cr vector of patient IDs.
 #'
 #' @return
 #' * `s_num_patients()` returns a named `list` of 3 statistics:
@@ -31,7 +35,7 @@ NULL
 #'   x = as.character(c(1, 1, 1, 2, 4, NA)),
 #'   labelstr = "",
 #'   .N_col = 6L,
-#'   count_by = as.character(c(1, 1, 2, 1, 1, 1))
+#'   count_by = c(1, 1, 2, 1, 1, 1)
 #' )
 #'
 #' @export
@@ -47,14 +51,15 @@ s_num_patients <- function(x, labelstr, .N_col, count_by = NULL, unique_count_su
 
   if (!is.null(count_by)) {
     checkmate::assert_vector(count_by, len = length(x))
-    checkmate::assert_multi_class(count_by, classes = c("factor", "character"))
     count2 <- n_available(unique(interaction(x, count_by)))
   }
 
   out <- list(
     unique = formatters::with_label(c(count1, ifelse(count1 == 0 && .N_col == 0, 0, count1 / .N_col)), labelstr),
     nonunique = formatters::with_label(count2, labelstr),
-    unique_count = formatters::with_label(count1, ifelse(unique_count_suffix, paste(labelstr, "(n)"), labelstr))
+    unique_count = formatters::with_label(
+      count1, ifelse(unique_count_suffix, paste0(labelstr, if (nzchar(labelstr)) " ", "(n)"), labelstr)
+    )
   )
 
   out
@@ -71,6 +76,7 @@ s_num_patients <- function(x, labelstr, .N_col, count_by = NULL, unique_count_su
 #'
 #' @examples
 #' # Count number of unique and non-unique patients.
+#'
 #' df <- data.frame(
 #'   USUBJID = as.character(c(1, 2, 1, 4, NA)),
 #'   EVENT = as.character(c(10, 15, 10, 17, 8))
@@ -79,9 +85,8 @@ s_num_patients <- function(x, labelstr, .N_col, count_by = NULL, unique_count_su
 #'
 #' df_by_event <- data.frame(
 #'   USUBJID = as.character(c(1, 2, 1, 4, NA)),
-#'   EVENT = as.character(c(10, 15, 10, 17, 8))
+#'   EVENT = c(10, 15, 10, 17, 8)
 #' )
-#' s_num_patients_content(df_by_event, .N_col = 5, .var = "USUBJID")
 #' s_num_patients_content(df_by_event, .N_col = 5, .var = "USUBJID", count_by = "EVENT")
 #'
 #' @export
@@ -106,10 +111,7 @@ s_num_patients_content <- function(df,
   }
 
   x <- df[[.var]]
-  y <- switch(as.numeric(!is.null(count_by)) + 1,
-    NULL,
-    df[[count_by]]
-  )
+  y <- if (is.null(count_by)) NULL else df[[count_by]]
 
   s_num_patients(
     x = x,
@@ -135,8 +137,13 @@ c_num_patients <- make_afun(
 #'   the statistics from `s_num_patients_content()` to the table layout.
 #'
 #' @export
+#' @order 3
 summarize_num_patients <- function(lyt,
                                    var,
+                                   required = NULL,
+                                   count_by = NULL,
+                                   unique_count_suffix = TRUE,
+                                   na_str = default_na_str(),
                                    .stats = NULL,
                                    .formats = NULL,
                                    .labels = c(
@@ -157,6 +164,8 @@ summarize_num_patients <- function(lyt,
   if (is.null(.stats)) .stats <- c("unique", "nonunique", "unique_count")
   if (length(.labels) > length(.stats)) .labels <- .labels[names(.labels) %in% .stats]
 
+  s_args <- list(required = required, count_by = count_by, unique_count_suffix = unique_count_suffix, ...)
+
   cfun <- make_afun(
     c_num_patients,
     .stats = .stats,
@@ -165,13 +174,13 @@ summarize_num_patients <- function(lyt,
   )
 
   extra_args <- if (isFALSE(riskdiff)) {
-    list(...)
+    s_args
   } else {
     list(
       afun = list("s_num_patients_content" = cfun),
       .stats = .stats,
       .indent_mods = .indent_mods,
-      s_args = list(...)
+      s_args = s_args
     )
   }
 
@@ -179,6 +188,7 @@ summarize_num_patients <- function(lyt,
     lyt = lyt,
     var = var,
     cfun = ifelse(isFALSE(riskdiff), cfun, afun_riskdiff),
+    na_str = na_str,
     extra_args = extra_args,
     indent_mod = .indent_mods
   )
@@ -202,21 +212,28 @@ summarize_num_patients <- function(lyt,
 #' @note As opposed to [summarize_num_patients()], this function does not repeat the produced rows.
 #'
 #' @examples
-#' df_tmp <- data.frame(
+#' df <- data.frame(
 #'   USUBJID = as.character(c(1, 2, 1, 4, NA, 6, 6, 8, 9)),
 #'   ARM = c("A", "A", "A", "A", "A", "B", "B", "B", "B"),
 #'   AGE = c(10, 15, 10, 17, 8, 11, 11, 19, 17)
 #' )
+#'
 #' tbl <- basic_table() %>%
 #'   split_cols_by("ARM") %>%
 #'   add_colcounts() %>%
 #'   analyze_num_patients("USUBJID", .stats = c("unique")) %>%
-#'   build_table(df_tmp)
+#'   build_table(df)
+#'
 #' tbl
 #'
 #' @export
+#' @order 2
 analyze_num_patients <- function(lyt,
                                  vars,
+                                 required = NULL,
+                                 count_by = NULL,
+                                 unique_count_suffix = TRUE,
+                                 na_str = default_na_str(),
                                  nested = TRUE,
                                  .stats = NULL,
                                  .formats = NULL,
@@ -239,6 +256,8 @@ analyze_num_patients <- function(lyt,
   if (is.null(.stats)) .stats <- c("unique", "nonunique", "unique_count")
   if (length(.labels) > length(.stats)) .labels <- .labels[names(.labels) %in% .stats]
 
+  s_args <- list(required = required, count_by = count_by, unique_count_suffix = unique_count_suffix, ...)
+
   afun <- make_afun(
     c_num_patients,
     .stats = .stats,
@@ -247,13 +266,13 @@ analyze_num_patients <- function(lyt,
   )
 
   extra_args <- if (isFALSE(riskdiff)) {
-    list(...)
+    s_args
   } else {
     list(
       afun = list("s_num_patients_content" = afun),
       .stats = .stats,
       .indent_mods = .indent_mods,
-      s_args = list(...)
+      s_args = s_args
     )
   }
 
@@ -261,6 +280,7 @@ analyze_num_patients <- function(lyt,
     afun = ifelse(isFALSE(riskdiff), afun, afun_riskdiff),
     lyt = lyt,
     vars = vars,
+    na_str = na_str,
     nested = nested,
     extra_args = extra_args,
     show_labels = show_labels,

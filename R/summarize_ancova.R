@@ -5,9 +5,15 @@
 #' Summarize results of `ANCOVA`. This can be used to analyze multiple endpoints and/or
 #' multiple timepoints within the same response variable `.var`.
 #'
+#' @inheritParams h_ancova
 #' @inheritParams argument_convention
+#' @param interaction_y (`character`)\cr a selected item inside of the interaction_item column which will be used
+#'   to select the specific `ANCOVA` results. if the interaction is not needed, the default option is `FALSE`.
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("summarize_ancova")`
+#'   to see available statistics for this function.
 #'
 #' @name summarize_ancova
+#' @order 1
 NULL
 
 #' Helper Function to Return Results of a Linear Model
@@ -82,10 +88,6 @@ h_ancova <- function(.var,
 #' @describeIn summarize_ancova Statistics function that produces a named list of results
 #'   of the investigated linear model.
 #'
-#' @inheritParams h_ancova
-#' @param interaction_y (`character`)\cr a selected item inside of the interaction_item column which will be used
-#'   to select the specific `ANCOVA` results. if the interaction is not needed, the default option is `FALSE`.
-#'
 #' @return
 #' * `s_ancova()` returns a named list of 5 statistics:
 #'   * `n`: Count of complete sample size for the group.
@@ -95,16 +97,6 @@ h_ancova <- function(.var,
 #'   * `lsmean_diff_ci`: Confidence level for difference in estimated marginal means in comparison
 #'     to the reference group.
 #'   * `pval`: p-value (not adjusted for multiple comparisons).
-#'
-#' @examples
-#' library(dplyr)
-#'
-#' df <- iris %>% filter(Species == "virginica")
-#' .df_row <- iris
-#' .var <- "Petal.Length"
-#' variables <- list(arm = "Species", covariates = "Sepal.Length * Sepal.Width")
-#' .ref_group <- iris %>% filter(Species == "setosa")
-#' conf_level <- 0.95
 #'
 #' @keywords internal
 s_ancova <- function(df,
@@ -198,7 +190,6 @@ s_ancova <- function(df,
 #' @return
 #' * `a_ancova()` returns the corresponding list with formatted [rtables::CellValue()].
 #'
-#'
 #' @keywords internal
 a_ancova <- make_afun(
   s_ancova,
@@ -241,9 +232,15 @@ a_ancova <- make_afun(
 #'   build_table(iris)
 #'
 #' @export
+#' @order 2
 summarize_ancova <- function(lyt,
                              vars,
+                             variables,
+                             conf_level,
+                             interaction_y = FALSE,
+                             interaction_item = NULL,
                              var_labels,
+                             na_str = default_na_str(),
                              nested = TRUE,
                              ...,
                              show_labels = "visible",
@@ -251,9 +248,12 @@ summarize_ancova <- function(lyt,
                              .stats = NULL,
                              .formats = NULL,
                              .labels = NULL,
-                             .indent_mods = NULL,
-                             interaction_y = FALSE,
-                             interaction_item = NULL) {
+                             .indent_mods = NULL) {
+  extra_args <- list(
+    variables = variables, conf_level = conf_level, interaction_y = interaction_y,
+    interaction_item = interaction_item, ...
+  )
+
   afun <- make_afun(
     a_ancova,
     interaction_y = interaction_y,
@@ -271,7 +271,8 @@ summarize_ancova <- function(lyt,
     show_labels = show_labels,
     table_names = table_names,
     afun = afun,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }

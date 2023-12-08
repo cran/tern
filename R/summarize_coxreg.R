@@ -5,6 +5,8 @@
 #' Fits a Cox regression model and estimates hazard ratio to describe the effect size in a survival analysis.
 #'
 #' @inheritParams argument_convention
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("summarize_coxreg")`
+#'   to see available statistics for this function.
 #'
 #' @details Cox models are the most commonly used methods to estimate the magnitude of
 #'   the effect in survival analysis. It assumes proportional hazards: the ratio
@@ -37,14 +39,20 @@
 #' dta_bladder$AGE <- sample(20:60, size = nrow(dta_bladder), replace = TRUE)
 #' dta_bladder$STUDYID <- factor("X")
 #'
-#' plot(
-#'   survfit(Surv(TIME, STATUS) ~ ARM + COVAR1, data = dta_bladder),
-#'   lty = 2:4,
-#'   xlab = "Months",
-#'   col = c("blue1", "blue2", "blue3", "blue4", "red1", "red2", "red3", "red4")
+#' u1_variables <- list(
+#'   time = "TIME", event = "STATUS", arm = "ARM", covariates = c("COVAR1", "COVAR2")
 #' )
 #'
+#' u2_variables <- list(time = "TIME", event = "STATUS", covariates = c("COVAR1", "COVAR2"))
+#'
+#' m1_variables <- list(
+#'   time = "TIME", event = "STATUS", arm = "ARM", covariates = c("COVAR1", "COVAR2")
+#' )
+#'
+#' m2_variables <- list(time = "TIME", event = "STATUS", covariates = c("COVAR1", "COVAR2"))
+#'
 #' @name cox_regression
+#' @order 1
 NULL
 
 #' @describeIn cox_regression Statistics function that transforms results tabulated
@@ -74,11 +82,9 @@ NULL
 #' # s_coxreg
 #'
 #' # Univariate
-#' u1_variables <- list(
-#'   time = "TIME", event = "STATUS", arm = "ARM", covariates = c("COVAR1", "COVAR2")
-#' )
 #' univar_model <- fit_coxreg_univar(variables = u1_variables, data = dta_bladder)
 #' df1 <- broom::tidy(univar_model)
+#'
 #' s_coxreg(model_df = df1, .stats = "hr")
 #'
 #' # Univariate with interactions
@@ -86,20 +92,19 @@ NULL
 #'   variables = u1_variables, control = control_coxreg(interaction = TRUE), data = dta_bladder
 #' )
 #' df1_inter <- broom::tidy(univar_model_inter)
+#'
 #' s_coxreg(model_df = df1_inter, .stats = "hr", .which_vars = "inter", .var_nms = "COVAR1")
 #'
 #' # Univariate without treatment arm - only "COVAR2" covariate effects
-#' u2_variables <- list(time = "TIME", event = "STATUS", covariates = c("COVAR1", "COVAR2"))
 #' univar_covs_model <- fit_coxreg_univar(variables = u2_variables, data = dta_bladder)
 #' df1_covs <- broom::tidy(univar_covs_model)
+#'
 #' s_coxreg(model_df = df1_covs, .stats = "hr", .var_nms = c("COVAR2", "Sex (F/M)"))
 #'
 #' # Multivariate.
-#' m1_variables <- list(
-#'   time = "TIME", event = "STATUS", arm = "ARM", covariates = c("COVAR1", "COVAR2")
-#' )
 #' multivar_model <- fit_coxreg_multivar(variables = m1_variables, data = dta_bladder)
 #' df2 <- broom::tidy(multivar_model)
+#'
 #' s_coxreg(model_df = df2, .stats = "pval", .which_vars = "var_main", .var_nms = "COVAR1")
 #' s_coxreg(
 #'   model_df = df2, .stats = "pval", .which_vars = "multi_lvl",
@@ -107,9 +112,9 @@ NULL
 #' )
 #'
 #' # Multivariate without treatment arm - only "COVAR1" main effect
-#' m2_variables <- list(time = "TIME", event = "STATUS", covariates = c("COVAR1", "COVAR2"))
 #' multivar_covs_model <- fit_coxreg_multivar(variables = m2_variables, data = dta_bladder)
 #' df2_covs <- broom::tidy(multivar_covs_model)
+#'
 #' s_coxreg(model_df = df2_covs, .stats = "hr")
 #'
 #' @export
@@ -146,7 +151,7 @@ s_coxreg <- function(model_df, .stats, .which_vars = "all", .var_nms = NULL) {
 #'
 #' @param eff (`flag`)\cr whether treatment effect should be calculated. Defaults to `FALSE`.
 #' @param var_main (`flag`)\cr whether main effects should be calculated. Defaults to `FALSE`.
-#' @param na_level (`string`)\cr custom string to replace all `NA` values with. Defaults to `""`.
+#' @param na_str (`string`)\cr custom string to replace all `NA` values with. Defaults to `""`.
 #' @param cache_env (`environment`)\cr an environment object used to cache the regression model in order to
 #'   avoid repeatedly fitting the same model for every row in the table. Defaults to `NULL` (no caching).
 #' @param varlabels (`list`)\cr a named list corresponds to the names of variables found in data, passed
@@ -189,8 +194,14 @@ a_coxreg <- function(df,
                      .stats,
                      .formats,
                      .indent_mods = NULL,
-                     na_level = "",
+                     na_level = lifecycle::deprecated(),
+                     na_str = "",
                      cache_env = NULL) {
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "a_coxreg(na_level)", "a_coxreg(na_str)")
+    na_str <- na_level
+  }
+
   cov_no_arm <- !multivar && !"arm" %in% names(variables) && control$interaction # special case: univar no arm
   cov <- tail(.spl_context$value, 1) # current variable/covariate
   var_lbl <- formatters::var_labels(df)[cov] # check for df labels
@@ -245,7 +256,7 @@ a_coxreg <- function(df,
   var_names <- if (all(grepl("\\(reference = ", names(var_vals))) && labelstr != tail(.spl_context$value, 1)) {
     paste(c(labelstr, tail(strsplit(names(var_vals), " ")[[1]], 3)), collapse = " ") # "reference" main effect labels
   } else if ((!multivar && !eff && !(!var_main && control$interaction) && nchar(labelstr) > 0) ||
-    (multivar && var_main && is.numeric(df[[cov]]))) {
+    (multivar && var_main && is.numeric(df[[cov]]))) { # nolint
     labelstr # other main effect labels
   } else if (multivar && !eff && !var_main && is.numeric(df[[cov]])) {
     "All" # multivar numeric covariate
@@ -255,7 +266,7 @@ a_coxreg <- function(df,
   in_rows(
     .list = var_vals, .names = var_names, .labels = var_names, .indent_mods = .indent_mods,
     .formats = stats::setNames(rep(.formats, length(var_names)), var_names),
-    .format_na_strs = stats::setNames(rep(na_level, length(var_names)), var_names)
+    .format_na_strs = stats::setNames(rep(na_str, length(var_names)), var_names)
   )
 }
 
@@ -289,6 +300,13 @@ a_coxreg <- function(df,
 #'   build_table(dta_bladder)
 #' result_univar
 #'
+#' result_univar_covs <- basic_table() %>%
+#'   summarize_coxreg(
+#'     variables = u2_variables,
+#'   ) %>%
+#'   build_table(dta_bladder)
+#' result_univar_covs
+#'
 #' result_multivar <- basic_table() %>%
 #'   summarize_coxreg(
 #'     variables = m1_variables,
@@ -296,13 +314,6 @@ a_coxreg <- function(df,
 #'   ) %>%
 #'   build_table(dta_bladder)
 #' result_multivar
-#'
-#' result_univar_covs <- basic_table() %>%
-#'   summarize_coxreg(
-#'     variables = u2_variables,
-#'   ) %>%
-#'   build_table(dta_bladder)
-#' result_univar_covs
 #'
 #' result_multivar_covs <- basic_table() %>%
 #'   summarize_coxreg(
@@ -314,6 +325,7 @@ a_coxreg <- function(df,
 #' result_multivar_covs
 #'
 #' @export
+#' @order 2
 summarize_coxreg <- function(lyt,
                              variables,
                              control = control_coxreg(),
@@ -327,8 +339,14 @@ summarize_coxreg <- function(lyt,
                              ),
                              varlabels = NULL,
                              .indent_mods = NULL,
-                             na_level = "",
+                             na_level = lifecycle::deprecated(),
+                             na_str = "",
                              .section_div = NA_character_) {
+  if (lifecycle::is_present(na_level)) {
+    lifecycle::deprecate_warn("0.9.1", "summarize_coxreg(na_level)", "summarize_coxreg(na_str)")
+    na_str <- na_level
+  }
+
   if (multivar && control$interaction) {
     warning(paste(
       "Interactions are not available for multivariate cox regression using summarize_coxreg.",
@@ -359,7 +377,7 @@ summarize_coxreg <- function(lyt,
       vars = rep(common_var, length(.stats)),
       varlabels = stat_labels,
       extra_args = list(
-        .stats = .stats, .formats = .formats, .indent_mods = .indent_mods, na_level = rep(na_level, length(.stats)),
+        .stats = .stats, .formats = .formats, .indent_mods = .indent_mods, na_str = rep(na_str, length(.stats)),
         cache_env = replicate(length(.stats), list(env))
       )
     )
@@ -377,6 +395,7 @@ summarize_coxreg <- function(lyt,
       lyt <- lyt %>%
         analyze_colvars(
           afun = a_coxreg,
+          na_str = na_str,
           extra_args = list(
             variables = variables, control = control, multivar = multivar, eff = TRUE, var_main = multivar,
             labelstr = ""
@@ -386,12 +405,14 @@ summarize_coxreg <- function(lyt,
       lyt <- lyt %>%
         summarize_row_groups(
           cfun = a_coxreg,
+          na_str = na_str,
           extra_args = list(
             variables = variables, control = control, multivar = multivar, eff = TRUE, var_main = multivar
           )
         ) %>%
         analyze_colvars(
           afun = a_coxreg,
+          na_str = na_str,
           extra_args = list(eff = TRUE, control = control, variables = variables, multivar = multivar, labelstr = "")
         )
     }
@@ -411,6 +432,7 @@ summarize_coxreg <- function(lyt,
       lyt <- lyt %>%
         summarize_row_groups(
           cfun = a_coxreg,
+          na_str = na_str,
           extra_args = list(
             variables = variables, at = at, control = control, multivar = multivar,
             var_main = if (multivar) multivar else control$interaction
@@ -421,6 +443,7 @@ summarize_coxreg <- function(lyt,
       lyt <- lyt %>%
         analyze_colvars(
           afun = a_coxreg,
+          na_str = na_str,
           extra_args = list(
             variables = variables, at = at, control = control, multivar = multivar,
             var_main = if (multivar) multivar else control$interaction,
@@ -434,7 +457,9 @@ summarize_coxreg <- function(lyt,
       lyt <- lyt %>%
         analyze_colvars(
           afun = a_coxreg,
-          extra_args = list(variables = variables, at = at, control = control, multivar = multivar, labelstr = "")
+          na_str = na_str,
+          extra_args = list(variables = variables, at = at, control = control, multivar = multivar, labelstr = ""),
+          indent_mod = if (!"arm" %in% names(variables) || multivar) 0L else -1L
         )
     }
   }

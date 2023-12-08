@@ -6,10 +6,13 @@
 #' regarding the level of a factor.
 #'
 #' @inheritParams argument_convention
+#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("estimate_multinomial_response")`
+#'   to see available statistics for this function.
 #'
 #' @seealso Relevant description function [d_onco_rsp_label()].
 #'
 #' @name estimate_multinomial_rsp
+#' @order 1
 NULL
 
 #' Description of Standard Oncology Response
@@ -137,15 +140,13 @@ a_length_proportion <- make_afun(
 #'
 #' tbl <- build_table(lyt, dta_test)
 #'
-#' html <- as_html(tbl)
-#' html
-#' \donttest{
-#' Viewer(html)
-#' }
+#' tbl
 #'
 #' @export
+#' @order 2
 estimate_multinomial_response <- function(lyt,
                                           var,
+                                          na_str = default_na_str(),
                                           nested = TRUE,
                                           ...,
                                           show_labels = "hidden",
@@ -154,6 +155,8 @@ estimate_multinomial_response <- function(lyt,
                                           .formats = NULL,
                                           .labels = NULL,
                                           .indent_mods = NULL) {
+  extra_args <- list(...)
+
   afun <- make_afun(
     a_length_proportion,
     .stats = .stats,
@@ -162,7 +165,7 @@ estimate_multinomial_response <- function(lyt,
     .indent_mods = .indent_mods
   )
   lyt <- split_rows_by(lyt, var = var)
-  lyt <- summarize_row_groups(lyt)
+  lyt <- summarize_row_groups(lyt, na_str = na_str)
 
   analyze(
     lyt,
@@ -170,7 +173,8 @@ estimate_multinomial_response <- function(lyt,
     afun = afun,
     show_labels = show_labels,
     table_names = table_names,
+    na_str = na_str,
     nested = nested,
-    extra_args = list(...)
+    extra_args = extra_args
   )
 }

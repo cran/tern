@@ -16,7 +16,11 @@
 h_tab_one_biomarker <- function(df,
                                 afuns,
                                 colvars,
-                                .indent_mods = 0L) {
+                                na_str = default_na_str(),
+                                .indent_mods = 0L,
+                                ...) {
+  extra_args <- list(...)
+
   lyt <- basic_table()
 
   # Row split by row type - only keep the content rows here.
@@ -32,7 +36,9 @@ h_tab_one_biomarker <- function(df,
     lyt = lyt,
     var = "var_label",
     cfun = afuns,
-    indent_mod = .indent_mods
+    na_str = na_str,
+    indent_mod = .indent_mods,
+    extra_args = extra_args
   )
 
   # Split cols by the multiple variables to populate into columns.
@@ -67,7 +73,9 @@ h_tab_one_biomarker <- function(df,
     lyt <- summarize_row_groups(
       lyt = lyt,
       cfun = afuns,
-      var = "subgroup"
+      var = "subgroup",
+      na_str = na_str,
+      extra_args = extra_args
     )
   }
   build_table(lyt, df = df)
