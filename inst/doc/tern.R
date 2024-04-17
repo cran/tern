@@ -1,10 +1,10 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(tern)
 library(dplyr)
 
@@ -20,7 +20,7 @@ lyt <- rtables::basic_table() %>%
 lyt2 <- rtables::basic_table() %>%
   rtables::split_cols_by(var = "ARM") %>%
   rtables::split_rows_by(var = "AVISIT") %>%
-  tern::analyze_vars(vars = "AVAL", .formats = c("mean_sd" = "(xx.xx, xx.xx)"))
+  analyze_vars(vars = "AVAL", .formats = c("mean_sd" = "(xx.xx, xx.xx)"))
 
 ## -----------------------------------------------------------------------------
 # Apply table layout to data and produce `rtables` object
@@ -40,11 +40,11 @@ library(nestcolor)
 
 ## -----------------------------------------------------------------------------
 # Mean with CI
-tern::g_lineplot(adlb, adsl, subtitle = "Laboratory Test:")
+g_lineplot(adlb, adsl, subtitle = "Laboratory Test:")
 
-## ---- fig.height=10, fig.width=8----------------------------------------------
+## ----fig.height=10, fig.width=8-----------------------------------------------
 # Mean with CI, table and customized confidence level
-tern::g_lineplot(
+g_lineplot(
   adlb,
   adsl,
   table = c("n", "mean", "mean_ci"),

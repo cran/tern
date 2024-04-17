@@ -1613,17 +1613,16 @@ data.</p>
 useful from the perspective of clinical trials and other statistical
 projects.</p>
 <p>Examples of the <code>tern</code> analyze functions are
-<code>tern::count_occurrences</code>,
-<code>tern::summarize_ancova</code> or <code>tern::analyze_vars</code>.
-As there is no one prefix to identify all <code>tern</code> analyze
-functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/main/reference/index.html">the
+<code>count_occurrences</code>, <code>summarize_ancova</code> or
+<code>analyze_vars</code>. As there is no one prefix to identify all
+<code>tern</code> analyze functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/main/reference/index.html">the
 tern website functions reference</a>.</p>
 <div id="internals-of-tern-analyze-functions" class="section level3">
 <h3>Internals of <code>tern</code> Analyze Functions</h3>
 <p><strong>Please skip this subsection if you are not interested in the
 internals of <code>tern</code> analyze functions.</strong></p>
 <p>Internally <code>tern</code> analyze functions like
-<code>tern::summarize_ancova</code> are mainly built in the 4 elements
+<code>summarize_ancova</code> are mainly built in the 4 elements
 chain:</p>
 <pre><code>h_ancova() -&gt; tern:::s_ancova() -&gt; tern:::a_ancova() -&gt; summarize_ancova()</code></pre>
 <p>The descriptions for each function type:</p>
@@ -1746,10 +1745,10 @@ case for the display order in columns and rows. Note that the
 <code>forcats</code> package has many useful functions to help with
 these types of data processing steps (not used below).</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Reorder the levels in the ARM variable.</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>adsl<span class="sc">$</span>ARM <span class="ot">&lt;-</span> <span class="fu">factor</span>(adsl<span class="sc">$</span>ARM, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;B: Placebo&quot;</span>, <span class="st">&quot;A: Drug X&quot;</span>, <span class="st">&quot;C: Combination&quot;</span>)) <span class="co"># nolint</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>adsl<span class="sc">$</span>ARM <span class="ot">&lt;-</span> <span class="fu">factor</span>(adsl<span class="sc">$</span>ARM, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;B: Placebo&quot;</span>, <span class="st">&quot;A: Drug X&quot;</span>, <span class="st">&quot;C: Combination&quot;</span>))</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Reorder the levels in the SEX variable.</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>adsl<span class="sc">$</span>SEX <span class="ot">&lt;-</span> <span class="fu">factor</span>(adsl<span class="sc">$</span>SEX, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;U&quot;</span>, <span class="st">&quot;UNDIFFERENTIATED&quot;</span>)) <span class="co"># nolint</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>adsl<span class="sc">$</span>SEX <span class="ot">&lt;-</span> <span class="fu">factor</span>(adsl<span class="sc">$</span>SEX, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;U&quot;</span>, <span class="st">&quot;UNDIFFERENTIATED&quot;</span>))</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -1870,8 +1869,8 @@ China subgroups, respectively:</p>
 <h3>Adverse Event Table</h3>
 <p>The standard table of adverse events is a summary by system organ
 class and preferred term. For frequency counts by preferred term, if
-there are multiple occurrences of the same <code>AE</code> in an
-individual we count them only once.</p>
+there are multiple occurrences of the same AE in an individual we count
+them only once.</p>
 <p>To create this table we will need to use a combination of several
 layout creating functions in a tabulation pipeline.</p>
 <p>We start by creating the high-level summary. The layout creating
@@ -1908,14 +1907,14 @@ multiple records per patient as <code>df</code>, such as
 <code>adae</code> here.</p>
 <div id="statistics-functions" class="section level4">
 <h4>Statistics Functions</h4>
-<p>Before building out the rest of the <code>AE</code> table it is
-helpful to introduce some more <code>tern</code> package design
-conventions. Each layout creating function in <code>tern</code> is a
-wrapper for a Statistics function. Statistics functions are the ones
-that do the actual computation of numbers in a table. These functions
-always return named lists whose elements are the statistics available to
-include in a layout via the <code>.stats</code> argument at the layout
-creating function level.</p>
+<p>Before building out the rest of the AE table it is helpful to
+introduce some more <code>tern</code> package design conventions. Each
+layout creating function in <code>tern</code> is a wrapper for a
+Statistics function. Statistics functions are the ones that do the
+actual computation of numbers in a table. These functions always return
+named lists whose elements are the statistics available to include in a
+layout via the <code>.stats</code> argument at the layout creating
+function level.</p>
 <p>Statistics functions follow a naming convention to always begin with
 <code>s_*</code> and for ease of use are documented on the same page as
 their layout creating function counterpart. It is helpful to review a
@@ -1944,9 +1943,9 @@ The results of this Statistics function is a list with the elements
 <span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;(n)&quot;</span></span></code></pre></div>
 <p>From these results you can see that the <code>unique</code> and
 <code>nonunique</code> statistics are those displayed in the “All
-Patients” column in the initial <code>AE</code> table output above. Also
-you can see that these are raw numbers and are not formatted in any way.
-All formatting functionality is handled at the layout creating function
+Patients” column in the initial AE table output above. Also you can see
+that these are raw numbers and are not formatted in any way. All
+formatting functionality is handled at the layout creating function
 level with the <code>.formats</code> argument.</p>
 <p>Now that we know what types of statistics can be derived by
 <code>s_num_patients()</code>, we can try modifying the default layout
@@ -2064,8 +2063,7 @@ a simpler layout without row splits:</p>
 <span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; dcd D.1.1.1.1   50 (37.3%)   42 (31.3%)     51 (38.6%)     143 (35.8%) </span></span>
 <span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; dcd D.1.1.4.2   48 (35.8%)   42 (31.3%)     50 (37.9%)     140 (35.0%) </span></span>
 <span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt; dcd D.2.1.5.3   47 (35.1%)   58 (43.3%)     57 (43.2%)     162 (40.5%)</span></span></code></pre></div>
-<p>Putting everything together, the final <code>AE</code> table looks
-like this:</p>
+<p>Putting everything together, the final AE table looks like this:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ACTARM&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">add_colcounts</span>() <span class="sc">%&gt;%</span></span>
@@ -2148,9 +2146,8 @@ vs. control group</li>
 groups vs. control group</li>
 </ul>
 <p>We can build a table layout like this by following the same approach
-we used for the <code>AE</code> table: each table section will be
-produced using a different layout creating function from
-<code>tern</code>.</p>
+we used for the AE table: each table section will be produced using a
+different layout creating function from <code>tern</code>.</p>
 <p>First we start with some data preparation steps to set up the
 analysis dataset. We select the endpoint to analyze from
 <code>PARAMCD</code> and define the logical variable <code>is_rsp</code>

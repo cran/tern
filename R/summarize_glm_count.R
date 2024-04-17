@@ -1,8 +1,8 @@
-#' Summary for Poisson Negative Binomial.
+#' Summarize Poisson negative binomial regression
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#' Summarize results of a Poisson Negative Binomial Regression.
+#' Summarize results of a Poisson negative binomial regression.
 #' This can be used to analyze count and/or frequency data using a linear model.
 #'
 #' @inheritParams h_glm_count
@@ -14,7 +14,7 @@
 #' @order 1
 NULL
 
-#' Helper Functions for Poisson Models.
+#' Helper functions for Poisson models
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
@@ -27,11 +27,11 @@ NULL
 #' @name h_glm_count
 NULL
 
-#' @describeIn h_glm_count Helper function to return results of a poisson model.
+#' @describeIn h_glm_count Helper function to return results of a Poisson model.
 #'
 #' @param .df_row (`data.frame`)\cr data set that includes all the variables that are called
 #'   in `.var` and `variables`.
-#' @param variables (named `list` of `strings`)\cr list of additional analysis variables, with
+#' @param variables (named `list` of `string`)\cr list of additional analysis variables, with
 #'   expected elements:
 #'   * `arm` (`string`)\cr group variable, for which the covariate adjusted means of multiple
 #'     groups will be summarized. Specifically, the first level of `arm` variable is taken as the
@@ -85,7 +85,7 @@ h_glm_poisson <- function(.var,
   )
 }
 
-#' @describeIn h_glm_count Helper function to return results of a quasipoisson model.
+#' @describeIn h_glm_count Helper function to return results of a Quasi-Poisson model.
 #'
 #' @inheritParams summarize_glm_count
 #'
@@ -131,12 +131,56 @@ h_glm_quasipoisson <- function(.var,
   )
 }
 
-#' @describeIn h_glm_count Helper function to return the results of the
-#'   selected model (poisson, quasipoisson, negative binomial).
+#' @describeIn h_glm_count Helper function to return results of a negative binomial model.
 #'
-#' @param .df_row (`data.frame`)\cr data set that includes all the variables that are called
+#' @inheritParams summarize_glm_count
+#'
+#' @return
+#' * `h_glm_negbin()` returns the results of a negative binomial model.
+#'
+#' @keywords internal
+h_glm_negbin <- function(.var,
+                         .df_row,
+                         variables,
+                         weights) {
+  arm <- variables$arm
+  covariates <- variables$covariates
+
+  formula <- stats::as.formula(paste0(
+    .var, " ~ ",
+    " + ",
+    paste(covariates, collapse = " + "),
+    " + ",
+    arm
+  ))
+
+  glm_fit <- MASS::glm.nb(
+    formula = formula,
+    data = .df_row,
+    link = "log"
+  )
+
+  emmeans_fit <- emmeans::emmeans(
+    glm_fit,
+    specs = arm,
+    data = .df_row,
+    type = "response",
+    offset = 0,
+    weights = weights
+  )
+
+  list(
+    glm_fit = glm_fit,
+    emmeans_fit = emmeans_fit
+  )
+}
+
+#' @describeIn h_glm_count Helper function to return the results of the
+#'   selected model (Poisson, Quasi-Poisson, negative binomial).
+#'
+#' @param .df_row (`data.frame`)\cr dataset that includes all the variables that are called
 #'   in `.var` and `variables`.
-#' @param variables (named `list` of `strings`)\cr list of additional analysis variables, with
+#' @param variables (named `list` of `string`)\cr list of additional analysis variables, with
 #'   expected elements:
 #'   * `arm` (`string`)\cr group variable, for which the covariate adjusted means of multiple
 #'     groups will be summarized. Specifically, the first level of `arm` variable is taken as the
@@ -145,7 +189,7 @@ h_glm_quasipoisson <- function(.var,
 #'     `"X1"`), and/or interaction terms indicated by `"X1 * X2"`.
 #'   * `offset` (`numeric`)\cr a numeric vector or scalar adding an offset.
 #' @param distribution (`character`)\cr a character value specifying the distribution
-#'   used in the regression (poisson, quasipoisson).
+#'   used in the regression (Poisson, Quasi-Poisson, negative binomial).
 #'
 #' @return
 #' * `h_glm_count()` returns the results of the selected model.
@@ -156,20 +200,18 @@ h_glm_count <- function(.var,
                         variables,
                         distribution,
                         weights) {
-  if (distribution == "negbin") {
-    stop("negative binomial distribution is not currently available.")
-  }
+  checkmate::assert_subset(distribution, c("poisson", "quasipoisson", "negbin"), empty.ok = FALSE)
   switch(distribution,
     poisson = h_glm_poisson(.var, .df_row, variables, weights),
     quasipoisson = h_glm_quasipoisson(.var, .df_row, variables, weights),
-    negbin = list() # h_glm_negbin(.var, .df_row, variables, weights) # nolint
+    negbin = h_glm_negbin(.var, .df_row, variables, weights)
   )
 }
 
 #' @describeIn h_glm_count Helper function to return the estimated means.
 #'
-#' @param .df_row (`data.frame`)\cr data set that includes all the variables that are called in `.var` and `variables`.
-#' @param conf_level (`numeric`)\cr value used to derive the confidence interval for the rate.
+#' @param .df_row (`data.frame`)\cr dataset that includes all the variables that are called in `.var` and `variables`.
+#' @param conf_level (`proportion`)\cr value used to derive the confidence interval for the rate.
 #' @param obj (`glm.fit`)\cr fitted model object used to derive the mean rate estimates in each treatment arm.
 #' @param arm (`string`)\cr group variable, for which the covariate adjusted means of multiple groups will be
 #'   summarized. Specifically, the first level of `arm` variable is taken as the reference group.
@@ -364,7 +406,7 @@ a_glm_count <- make_afun(
 #'     var_labels = "Number of exacerbations per patient",
 #'     .stats = c("count_fraction"),
 #'     .formats = c("count_fraction" = "xx (xx.xx%)"),
-#'     .label = c("Number of exacerbations per patient")
+#'     .labels = c("Number of exacerbations per patient")
 #'   ) %>%
 #'   summarize_glm_count(
 #'     vars = "AVAL",

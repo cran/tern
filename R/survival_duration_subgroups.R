@@ -1,4 +1,4 @@
-#' Tabulate Survival Duration by Subgroup
+#' Tabulate survival duration by subgroup
 #'
 #' @description `r lifecycle::badge("stable")`
 #'
@@ -6,9 +6,9 @@
 #'
 #' @inheritParams argument_convention
 #' @inheritParams survival_coxph_pairwise
-#' @param df (`list`)\cr of data frames containing all analysis variables. List should be
+#' @param df (`list`)\cr list of data frames containing all analysis variables. List should be
 #'   created using [extract_survival_subgroups()].
-#' @param vars (`character`)\cr the name of statistics to be reported among:
+#' @param vars (`character`)\cr the names of statistics to be reported among:
 #'   * `n_tot_events`: Total number of events per group.
 #'   * `n_events`: Number of events per group.
 #'   * `n_tot`: Total number of observations per group.
@@ -87,14 +87,14 @@
 #' @order 1
 NULL
 
-#' Prepares Survival Data for Population Subgroups in Data Frames
+#' Prepare survival data for population subgroups in data frames
 #'
 #' @description `r lifecycle::badge("stable")`
 #'
 #' Prepares estimates of median survival times and treatment hazard ratios for population subgroups in
 #' data frames. Simple wrapper for [h_survtime_subgroups_df()] and [h_coxph_subgroups_df()]. Result is a `list`
 #' of two `data.frame`s: `survtime` and `hr`. `variables` corresponds to the names of variables found in `data`,
-#' passed as a named `list` and requires elements `tte`, `is_event`, `arm` and optionally `subgroups` and `strat`.
+#' passed as a named `list` and requires elements `tte`, `is_event`, `arm` and optionally `subgroups` and `strata`.
 #' `groups_lists` optionally specifies groupings for `subgroups` variables.
 #'
 #' @inheritParams argument_convention
@@ -115,6 +115,15 @@ extract_survival_subgroups <- function(variables,
                                        groups_lists = list(),
                                        control = control_coxph(),
                                        label_all = "All Patients") {
+  if ("strat" %in% names(variables)) {
+    warning(
+      "Warning: the `strat` element name of the `variables` list argument to `extract_survival_subgroups() ",
+      "was deprecated in tern 0.9.3.\n  ",
+      "Please use the name `strata` instead of `strat` in the `variables` argument."
+    )
+    variables[["strata"]] <- variables[["strat"]]
+  }
+
   df_survtime <- h_survtime_subgroups_df(
     variables,
     data,
@@ -347,7 +356,7 @@ tabulate_survival_subgroups <- function(lyt,
   )
 }
 
-#' Labels for Column Variables in Survival Duration by Subgroup Table
+#' Labels for column variables in survival duration by subgroup table
 #'
 #' @description `r lifecycle::badge("stable")`
 #'
@@ -355,7 +364,7 @@ tabulate_survival_subgroups <- function(lyt,
 #'
 #' @inheritParams tabulate_survival_subgroups
 #' @inheritParams argument_convention
-#' @param method (`character`)\cr p-value method for testing hazard ratio = 1.
+#' @param method (`string`)\cr p-value method for testing hazard ratio = 1.
 #'
 #' @return A `list` of variables and their labels to tabulate.
 #'

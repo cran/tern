@@ -1,15 +1,15 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(rtables)
 library(tern)
 library(dplyr)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 adsl <- ex_adsl
 adae <- ex_adae
 adrs <- ex_adrs
@@ -31,10 +31,10 @@ basic_table() %>%
 
 ## -----------------------------------------------------------------------------
 # Reorder the levels in the ARM variable.
-adsl$ARM <- factor(adsl$ARM, levels = c("B: Placebo", "A: Drug X", "C: Combination")) # nolint
+adsl$ARM <- factor(adsl$ARM, levels = c("B: Placebo", "A: Drug X", "C: Combination"))
 
 # Reorder the levels in the SEX variable.
-adsl$SEX <- factor(adsl$SEX, levels = c("M", "F", "U", "UNDIFFERENTIATED")) # nolint
+adsl$SEX <- factor(adsl$SEX, levels = c("M", "F", "U", "UNDIFFERENTIATED"))
 
 basic_table() %>%
   split_cols_by(var = "ARM") %>%
