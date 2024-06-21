@@ -1,3 +1,18 @@
+# tern 0.9.5
+
+### Enhancements
+* Added `facet_var` to `g_lineplot` to allow plot faceting by a factor variable.
+* Added examples and tests for `label_all` parameter to `extract_survival_biomarkers` and `extract_survival_subgroups`.
+* Added the `xticks`, `xlim`, and `ylim` arguments to `g_lineplot` to allow for customization of the x and y axes.
+* Updated `g_lineplot` legend to follow factor levels set by users.
+
+### Bug Fixes
+* Fixed a bug in `s_ancova` that prevented statistics from being printed when arm levels include special characters.
+* Fixed a bug in `decorate_grob` that prevented the right margins to be respected when adding title and footers decorations.
+
+### Miscellaneous
+* Began deprecation of the unused `label_all` parameter to `tabulate_survival_biomarkers` and `tabulate_survival_subgroups`, with redirection to the same parameter in their associated `extract_*` functions.
+
 # tern 0.9.4
 
 ### New Features

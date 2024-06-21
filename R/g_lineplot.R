@@ -4,7 +4,7 @@
 #'
 #' Line plot with the optional table.
 #'
-#' @param df (`data.frame`)\cr data set containing all analysis variables.
+#' @inheritParams argument_convention
 #' @param alt_counts_df (`data.frame` or `NULL`)\cr data set that will be used (only)
 #'   to counts objects in groups for stratification.
 #' @param variables (named `character`) vector of variable names in `df` which should include:
@@ -46,6 +46,9 @@
 #' @param legend_position (`string`)\cr the position of the plot legend (`"none"`, `"left"`, `"right"`, `"bottom"`,
 #'   `"top"`, or a two-element numeric vector).
 #' @param ggtheme (`theme`)\cr a graphical theme as provided by `ggplot2` to control styling of the plot.
+#' @param xticks (`numeric` or `NULL`)\cr numeric vector of tick positions or a single number with spacing
+#'   between ticks on the x-axis, for use when `variables$x` is numeric. If `NULL` (default), [labeling::extended()] is
+#'   used to determine optimal tick positions on the x-axis. If `variables$x` is not numeric, this argument is ignored.
 #' @param x_lab (`string` or `NULL`)\cr x-axis label. If `NULL` then no label will be added.
 #' @param y_lab (`string` or `NULL`)\cr y-axis label. If `NULL` then no label will be added.
 #' @param y_lab_add_paramcd (`flag`)\cr whether `paramcd`, i.e. `unique(df[[variables["paramcd"]]])` should be added
@@ -140,6 +143,9 @@ g_lineplot <- function(df,
                        legend_title = NULL,
                        legend_position = "bottom",
                        ggtheme = nestcolor::theme_nest(),
+                       xticks = NULL,
+                       xlim = NULL,
+                       ylim = NULL,
                        x_lab = obj_label(df[[variables[["x"]]]]),
                        y_lab = NULL,
                        y_lab_add_paramcd = TRUE,
@@ -158,7 +164,9 @@ g_lineplot <- function(df,
   checkmate::assert_character(mid, null.ok = TRUE)
   checkmate::assert_character(interval, null.ok = TRUE)
   checkmate::assert_character(col, null.ok = TRUE)
-
+  checkmate::assert_numeric(xticks, null.ok = TRUE)
+  checkmate::assert_numeric(xlim, finite = TRUE, any.missing = FALSE, len = 2, sorted = TRUE, null.ok = TRUE)
+  checkmate::assert_numeric(ylim, finite = TRUE, any.missing = FALSE, len = 2, sorted = TRUE, null.ok = TRUE)
   checkmate::assert_string(title, null.ok = TRUE)
   checkmate::assert_string(subtitle, null.ok = TRUE)
 
@@ -244,11 +252,15 @@ g_lineplot <- function(df,
     df_N[[strata_N]] <- paste0(df_N[[group_var]], " (N = ", df_N$N, ")") # nolint
 
     # keep strata factor levels
-    matches <- sapply(unique(df_N[[group_var]]),
-                      function(x) unique(df_N[[paste0(group_var, "_N")]]) #nolint
-                      [grepl(paste0("^", x), unique(df_N[[paste0(group_var, "_N")]]))])
-    df_N[[paste0(group_var, "_N")]] <- factor(df_N[[group_var]]) #nolint
-    levels(df_N[[paste0(group_var, "_N")]]) <- unlist(matches) #nolint
+    matches <- sapply(unique(df_N[[group_var]]), function(x) {
+      regex_pattern <- gsub("([][(){}^$.|*+?\\\\])", "\\\\\\1", x)
+      unique(df_N[[paste0(group_var, "_N")]])[grepl(
+        paste0("^", regex_pattern),
+        unique(df_N[[paste0(group_var, "_N")]])
+      )]
+    })
+    df_N[[paste0(group_var, "_N")]] <- factor(df_N[[group_var]]) # nolint
+    levels(df_N[[paste0(group_var, "_N")]]) <- unlist(matches) # nolint
 
     # strata_N should not be in colnames(df_stats)
     checkmate::assert_disjunct(strata_N, colnames(df_stats))
@@ -308,6 +320,11 @@ g_lineplot <- function(df,
     )
   )
 
+  if (!is.null(group_var) && nlevels(df_stats[[strata_N]]) > 6) {
+    p <- p +
+      scale_shape_manual(values = seq(15, 15 + nlevels(df_stats[[strata_N]])))
+  }
+
   if (!is.null(mid)) {
     # points
     if (grepl("p", mid_type, fixed = TRUE)) {
@@ -344,8 +361,13 @@ g_lineplot <- function(df,
     }
   }
 
+  if (is.numeric(df_stats[[x]])) {
+    if (length(xticks) == 1) xticks <- seq(from = min(df_stats[[x]]), to = max(df_stats[[x]]), by = xticks)
+    p <- p + ggplot2::scale_x_continuous(breaks = if (!is.null(xticks)) xticks else waiver(), limits = xlim)
+  }
+
   p <- p +
-    ggplot2::scale_y_continuous(labels = scales::comma) +
+    ggplot2::scale_y_continuous(labels = scales::comma, limits = ylim) +
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
@@ -546,7 +568,9 @@ control_lineplot_vars <- function(x = "AVISIT",
   checkmate::assert_string(paramcd, na.ok = TRUE, null.ok = TRUE)
   checkmate::assert_string(y_unit, na.ok = TRUE, null.ok = TRUE)
 
-  variables <- c(x = x, y = y, group_var = group_var, paramcd = paramcd,
-                 y_unit = y_unit, subject_var = subject_var, facet_var = facet_var)
+  variables <- c(
+    x = x, y = y, group_var = group_var, paramcd = paramcd,
+    y_unit = y_unit, subject_var = subject_var, facet_var = facet_var
+  )
   return(variables)
 }
