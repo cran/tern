@@ -2,8 +2,10 @@
 #'
 #' @description `r lifecycle::badge("stable")`
 #'
-#' Summarize median survival time and CIs, percentiles of survival times, survival
-#' time range of censored/event patients.
+#' The analyze function [surv_time()] creates a layout element to analyze survival time by calculating survival time
+#' median, median confidence interval, quantiles, and range (for all, censored, or event patients). The primary
+#' analysis variable `vars` is the time variable and the secondary analysis variable `is_event` indicates whether or
+#' not an event has occurred.
 #'
 #' @inheritParams argument_convention
 #' @param control (`list`)\cr parameters for comparison details, specified by using the helper function
@@ -138,11 +140,11 @@ a_surv_time <- function(df,
 
   cell_fns <- setNames(vector("list", length = length(x_stats)), .labels)
   if ("range" %in% names(x_stats) && ref_fn_censor) {
-    if (x_stats[["range"]][1] == rng_censor_lwr && x_stats[["range"]][2] == rng_censor_upr) {
+    if (identical(x_stats[["range"]][1], rng_censor_lwr) && identical(x_stats[["range"]][2], rng_censor_upr)) {
       cell_fns[[.labels[["range"]]]] <- "Censored observations: range minimum & maximum"
-    } else if (x_stats[["range"]][1] == rng_censor_lwr) {
+    } else if (identical(x_stats[["range"]][1], rng_censor_lwr)) {
       cell_fns[[.labels[["range"]]]] <- "Censored observation: range minimum"
-    } else if (x_stats[["range"]][2] == rng_censor_upr) {
+    } else if (identical(x_stats[["range"]][2], rng_censor_upr)) {
       cell_fns[[.labels[["range"]]]] <- "Censored observation: range maximum"
     }
   }

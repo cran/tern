@@ -306,6 +306,8 @@ split_text_grob <- function(text,
                             name = NULL,
                             gp = grid::gpar(),
                             vp = NULL) {
+  text <- gsub("\\\\n", "\n", text) # fixing cases of mixed behavior (\n and \\n)
+
   if (!grid::is.unit(x)) x <- grid::unit(x, default.units)
   if (!grid::is.unit(y)) y <- grid::unit(y, default.units)
   if (!grid::is.unit(width)) width <- grid::unit(width, default.units)
@@ -313,9 +315,24 @@ split_text_grob <- function(text,
   if (grid::unitType(y) %in% c("sum", "min", "max")) y <- grid::convertUnit(y, default.units)
   if (grid::unitType(width) %in% c("sum", "min", "max")) width <- grid::convertUnit(width, default.units)
 
-  if (length(gp) > 0) { # account for effect of gp on text width
-    width <- width * grid::convertWidth(grid::grobWidth(grid::textGrob(text)), "npc", valueOnly = TRUE) /
-      grid::convertWidth(grid::grobWidth(grid::textGrob(text, gp = gp)), "npc", valueOnly = TRUE)
+  if (length(gp) > 0) { # account for effect of gp on text width -> it was bugging when text was empty
+    horizontal_npc_width_no_gp <- grid::convertWidth(
+      grid::grobWidth(
+        grid::textGrob(
+          paste0(text, collapse = "\n")
+        )
+      ), "npc",
+      valueOnly = TRUE
+    )
+    horizontal_npc_width_with_gp <- grid::convertWidth(grid::grobWidth(
+      grid::textGrob(
+        paste0(text, collapse = "\n"),
+        gp = gp
+      )
+    ), "npc", valueOnly = TRUE)
+
+    # Adapting width to the input gpar (it is normalized so does not matter what is text)
+    width <- width * horizontal_npc_width_no_gp / horizontal_npc_width_with_gp
   }
 
   ## if it is a fixed unit then we do not need to recalculate when viewport resized
@@ -324,8 +341,17 @@ split_text_grob <- function(text,
     attr(text, "fixed_text") <- paste(vapply(text, split_string, character(1), width = width), collapse = "\n")
   }
 
+  # Fix for split_string in case of residual \n (otherwise is counted as character)
+  text2 <- unlist(
+    strsplit(
+      paste0(text, collapse = "\n"), # for "" cases
+      "\n"
+    )
+  )
+
+  # Final grid text with cat-friendly split_string
   grid::grid.text(
-    label = split_string(text, width),
+    label = split_string(text2, width),
     x = x, y = y,
     just = just,
     hjust = hjust,

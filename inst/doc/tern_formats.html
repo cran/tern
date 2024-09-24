@@ -1609,6 +1609,7 @@ Formats</h2>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(formatters)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tern)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<p>tern_formats.R</p>
 <p>The example below demonstrates the use of <code>tern</code>
 formatting in the <code>count_abnormal()</code> function. The example
 “low” category has a non-zero numerator value so both a fraction and a
@@ -1639,6 +1640,7 @@ displaying the redundant zero percentage value.</p>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; —————————————————</span></span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; low    2/2 (100%)</span></span>
 <span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; high      0/2</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>In the following example the <code>count_abnormal()</code> function
 is utilized again. This time both “low” values and “high” values have a
 non-zero numerator and so both show a percentage.</p>
@@ -1666,6 +1668,7 @@ non-zero numerator and so both show a percentage.</p>
 <span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; ————————————————</span></span>
 <span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; low    1/2 (50%)</span></span>
 <span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; high   1/2 (50%)</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>The following example demonstrates the difference when
 <code>formatters</code> is used instead to format the output. Here we
 choose to use <code>&quot;xx / xx&quot;</code> as our value format. The “high”
@@ -1694,6 +1697,7 @@ numerator, yet both are displayed in the same format.</p>
 <span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; ——————————————</span></span>
 <span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; low     2 / 2 </span></span>
 <span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; high    0 / 2</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>The same concept occurs when using any of the available formats from
 the <code>formatters</code> package. The following example displays the
 same result using the <code>&quot;xx.x / xx.x&quot;</code> format instead. Use
@@ -1722,6 +1726,7 @@ of available formats in <code>formatters</code>.</p>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; ————————————————</span></span>
 <span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; low    2.0 / 2.0</span></span>
 <span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; high   0.0 / 2.0</span></span></code></pre></div>
+<p>tern_formats.R</p>
 </div>
 <div id="formatting-function-basics" class="section level2">
 <h2>Formatting Function Basics</h2>
@@ -1754,6 +1759,7 @@ a zero. See the following example:</p>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;2 (66.7%)&quot;</span></span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">format_count_fraction_fixed_dp</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">0.25</span>))</span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;2 (25.0%)&quot;</span></span></code></pre></div>
+<p>tern_formats.R</p>
 </div>
 <div id="value-thresholds" class="section level4">
 <h4>Value Thresholds</h4>
@@ -1771,6 +1777,7 @@ value. For example:</p>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;&lt;0.01&quot;</span></span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">extreme_format</span>(<span class="cn">Inf</span>)</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;&gt;999.99&quot;</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>The <code>format_fraction_threshold()</code> function allows the user
 to specify a lower percentage threshold, below which values are instead
 assigned a special string value. For example:</p>
@@ -1779,6 +1786,7 @@ assigned a special string value. For example:</p>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; [1] 10</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">fraction_format</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">0.01</span>))</span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;&lt;5&quot;</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>See the documentation on each function for specific details on their
 behavior and how to customize them.</p>
 </div>
@@ -1812,6 +1820,7 @@ it.</p>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  }</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>}</span></code></pre></div>
+<p>tern_formats.R</p>
 <p>Here we see that if the numerator value is greater than 0, the
 fraction and percentage is displayed. If the numerator is 0, only the
 fraction is shown. Percent values always display 1 decimal place. Below
@@ -1839,6 +1848,7 @@ behavior when this formatting function is applied.</p>
 <span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; ———————————————————</span></span>
 <span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; low    2/2 (100.0%)</span></span>
 <span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; high       0/2</span></span></code></pre></div>
+<p>tern_formats.R</p>
 <p>Now we will modify this function to make our custom formatting
 function, <code>custom_format</code>. We want to display 3 decimal
 places in the percent value, and if the numerator value is 0 we only
@@ -1873,6 +1883,7 @@ want to display a 0 value (without the denominator).</p>
 <span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt; —————————————————————</span></span>
 <span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="co">#&gt; low    2/2 (100.000%)</span></span>
 <span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a><span class="co">#&gt; high         0</span></span></code></pre></div>
+<p>tern_formats.R</p>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>

@@ -1589,16 +1589,18 @@ border-radius: 0px;
 analyses from clinical trials in <code>R</code>. The core functionality
 for tabulation is built on the more general purpose <code>rtables</code>
 package. New users should first begin by reading the <a href="https://insightsengineering.github.io/tern/main/articles/tern.html">“Introduction
-to tern”</a> and <a href="https://insightsengineering.github.io/rtables/main/articles/introduction.html">“Introduction
+to tern”</a> and <a href="https://insightsengineering.github.io/rtables/latest-tag/articles/rtables.html">“Introduction
 to <code>rtables</code>”</a> vignettes.</p>
 <p>The packages used in this vignette are:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(rtables)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tern)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<p>tables.R</p>
 <p>The datasets used in this vignette are:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>adsl <span class="ot">&lt;-</span> ex_adsl</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>adae <span class="ot">&lt;-</span> ex_adae</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>adrs <span class="ot">&lt;-</span> ex_adrs</span></code></pre></div>
+<p>tables.R</p>
 </div>
 <div id="tern-analyze-functions" class="section level2">
 <h2><code>tern</code> Analyze Functions</h2>
@@ -1615,7 +1617,7 @@ projects.</p>
 <p>Examples of the <code>tern</code> analyze functions are
 <code>count_occurrences</code>, <code>summarize_ancova</code> or
 <code>analyze_vars</code>. As there is no one prefix to identify all
-<code>tern</code> analyze functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/main/reference/index.html">the
+<code>tern</code> analyze functions it is recommended to use the <a href="https://insightsengineering.github.io/tern/latest-tag/reference/index.html">the
 tern website functions reference</a>.</p>
 <div id="internals-of-tern-analyze-functions" class="section level3">
 <h3>Internals of <code>tern</code> Analyze Functions</h3>
@@ -1739,6 +1741,7 @@ demographic properties such as age, sex, race, etc.</p>
 <span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;   M                  51 (38.1%)     55 (41%)       60 (45.5%)     166 (41.5%) </span></span>
 <span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;   U                   3 (2.2%)      2 (1.5%)         4 (3%)         9 (2.2%)  </span></span>
 <span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;   UNDIFFERENTIATED    1 (0.7%)          0           2 (1.5%)        3 (0.8%)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>To change the display order of categorical variables in a table use
 factor variables and explicitly set the order of the levels. This is the
 case for the display order in columns and rows. Note that the
@@ -1773,6 +1776,7 @@ these types of data processing steps (not used below).</p>
 <span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt;   F                  77 (57.5%)     79 (59%)        66 (50%)      222 (55.5%) </span></span>
 <span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt;   U                   2 (1.5%)      3 (2.2%)         4 (3%)         9 (2.2%)  </span></span>
 <span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;   UNDIFFERENTIATED        0         1 (0.7%)        2 (1.5%)        3 (0.8%)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>The <code>tern</code> package includes many functions similar to
 <code>analyze_vars()</code>. These functions are called layout creating
 functions and are used in combination with other <code>rtables</code>
@@ -1820,6 +1824,7 @@ of just one.</p>
 <span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt;   F                       77             79              66             222     </span></span>
 <span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt;   U                       2              3               4               9      </span></span>
 <span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt;   UNDIFFERENTIATED        0              1               2               3</span></span></code></pre></div>
+<p>tables.R</p>
 <p>One feature of a <code>layout</code> is that it can be used with
 different datasets to create different summaries. For example, here we
 can easily create the same summary of demographics for the Brazil and
@@ -1864,6 +1869,7 @@ China subgroups, respectively:</p>
 <span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt;   F                  45 (55.6%)    44 (59.5%)      29 (45.3%)     118 (53.9%) </span></span>
 <span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt;   U                   1 (1.2%)      2 (2.7%)        3 (4.7%)        6 (2.7%)  </span></span>
 <span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt;   UNDIFFERENTIATED        0         1 (1.4%)        2 (3.1%)        3 (1.4%)</span></span></code></pre></div>
+<p>tables.R</p>
 </div>
 <div id="adverse-event-table" class="section level3">
 <h3>Adverse Event Table</h3>
@@ -1897,6 +1903,7 @@ function in <code>tern</code> that can do this is
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; Total number of patients with at least one AE   122 (91.0%)   123 (91.8%)    120 (90.9%)     365 (91.2%) </span></span>
 <span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; Overall total number of events                      609           622            703             1934</span></span></code></pre></div>
+<p>tables.R</p>
 <p>Note that for this table, the denominator used for percentages and
 shown in the header of the table <code>(N = xx)</code> is defined based
 on the subject-level dataset <code>adsl</code>. This is done by using
@@ -1941,6 +1948,7 @@ The results of this Statistics function is a list with the elements
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; [1] 365</span></span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;label&quot;)</span></span>
 <span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;(n)&quot;</span></span></code></pre></div>
+<p>tables.R</p>
 <p>From these results you can see that the <code>unique</code> and
 <code>nonunique</code> statistics are those displayed in the “All
 Patients” column in the initial AE table output above. Also you can see
@@ -1973,6 +1981,7 @@ we make this update in both the <code>.stats</code> and
 <span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt;                                                  (N=134)     (N=134)        (N=132)         (N=400)   </span></span>
 <span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; ——————————————————————————————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt; Total number of patients with at least one AE      122         123            120             365</span></span></code></pre></div>
+<p>tables.R</p>
 <p>Let’s now continue building on the layout for the adverse event
 table.</p>
 <p>After we have the top-level summary, we can repeat the same summary
@@ -2036,6 +2045,7 @@ with <code>split_rows_by()</code> before calling again
 <span id="cb13-55"><a href="#cb13-55" tabindex="-1"></a><span class="co">#&gt; cl D.2                                                                                                     </span></span>
 <span id="cb13-56"><a href="#cb13-56" tabindex="-1"></a><span class="co">#&gt;   Total number of patients with at least one AE   47 (35.1%)    58 (43.3%)      57 (43.2%)     162 (40.5%) </span></span>
 <span id="cb13-57"><a href="#cb13-57" tabindex="-1"></a><span class="co">#&gt;   Overall total number of events                      62            72              74             208</span></span></code></pre></div>
+<p>tables.R</p>
 <p>The table looks almost ready. For the final step, we need a layout
 creating function that can produce a count table of event frequencies.
 The layout creating function for this is
@@ -2063,6 +2073,7 @@ a simpler layout without row splits:</p>
 <span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; dcd D.1.1.1.1   50 (37.3%)   42 (31.3%)     51 (38.6%)     143 (35.8%) </span></span>
 <span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; dcd D.1.1.4.2   48 (35.8%)   42 (31.3%)     50 (37.9%)     140 (35.0%) </span></span>
 <span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt; dcd D.2.1.5.3   47 (35.1%)   58 (43.3%)     57 (43.2%)     162 (40.5%)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>Putting everything together, the final AE table looks like this:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ACTARM&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -2132,6 +2143,7 @@ a simpler layout without row splits:</p>
 <span id="cb15-66"><a href="#cb15-66" tabindex="-1"></a><span class="co">#&gt;   Total number of patients with at least one AE   47 (35.1%)    58 (43.3%)      57 (43.2%)     162 (40.5%) </span></span>
 <span id="cb15-67"><a href="#cb15-67" tabindex="-1"></a><span class="co">#&gt;   Overall total number of events                      62            72              74             208     </span></span>
 <span id="cb15-68"><a href="#cb15-68" tabindex="-1"></a><span class="co">#&gt;     dcd D.2.1.5.3                                 47 (35.1%)    58 (43.3%)      57 (43.2%)     162 (40.5%)</span></span></code></pre></div>
+<p>tables.R</p>
 </div>
 </div>
 <div id="response-table" class="section level3">
@@ -2157,6 +2169,7 @@ not.</p>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>anl <span class="ot">&lt;-</span> adrs <span class="sc">%&gt;%</span></span>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(PARAMCD <span class="sc">==</span> <span class="st">&quot;BESRSPI&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">is_rsp =</span> AVALC <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;CR&quot;</span>, <span class="st">&quot;PR&quot;</span>))</span></code></pre></div>
+<p>tables.R</p>
 <p>To create a summary of the proportion of responders in each treatment
 group, use the <code>estimate_proportion()</code> layout creating
 function:</p>
@@ -2173,6 +2186,7 @@ function:</p>
 <span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; Responders                       114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
 <span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; 95% CI (Wald, with correction)   (78.7, 91.5)   (58.8, 75.5)    (85.6, 96.2)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>To specify which arm in the table should be used as the reference,
 use the argument <code>ref_group</code> from
 <code>split_cols_by()</code>. Below we change the reference arm to “B:
@@ -2189,6 +2203,7 @@ Placebo” and so this arm is displayed as the first column:</p>
 <span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; Responders                       114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
 <span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; 95% CI (Wald, with correction)   (78.7, 91.5)   (58.8, 75.5)    (85.6, 96.2)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>To further customize the analysis, we can use the <code>method</code>
 and <code>conf_level</code> arguments to modify the type of confidence
 interval that is calculated:</p>
@@ -2206,6 +2221,7 @@ interval that is calculated:</p>
 <span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; Responders                 114 (85.1%)     90 (67.2%)     120 (90.9%)  </span></span>
 <span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; 90% CI (Clopper-Pearson)   (79.1, 89.9)   (59.9, 73.9)    (85.7, 94.7)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>The next table section needed should summarize the difference in
 response rates between the reference arm each comparison arm. Use
 <code>estimate_proportion_diff()</code> layout creating function for
@@ -2225,6 +2241,7 @@ this:</p>
 <span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; Unstratified Analysis                                                         </span></span>
 <span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)       17.9                         23.7     </span></span>
 <span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)   (7.2, 28.6)                 (13.7, 33.8)</span></span></code></pre></div>
+<p>tables.R</p>
 <p>The final section needed to complete the table includes a statistical
 test for the difference in response rates. Use the
 <code>test_proportion_diff()</code> layout creating function for
@@ -2238,6 +2255,7 @@ this:</p>
 <span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt;                                 (N=134)     (N=134)        (N=132)    </span></span>
 <span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; ——————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test)    0.0006                     &lt;0.0001</span></span></code></pre></div>
+<p>tables.R</p>
 <p>To customize the output, we use the <code>method</code> argument to
 select a Chi-Squared test with Schouten correction.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
@@ -2252,6 +2270,7 @@ select a Chi-Squared test with Schouten correction.</p>
 <span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt;                                                          (N=134)     (N=134)        (N=132)    </span></span>
 <span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————————————————————————————</span></span>
 <span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)    0.0008                     &lt;0.0001</span></span></code></pre></div>
+<p>tables.R</p>
 <p>Now we can put all the table sections together in one layout
 pipeline. Note there is one more small change needed. Since the primary
 analysis variable in all table sections is the same
@@ -2288,6 +2307,7 @@ providing unique names through that:</p>
 <span id="cb23-28"><a href="#cb23-28" tabindex="-1"></a><span class="co">#&gt;   Difference in Response rate (%)                           17.9                           23.7     </span></span>
 <span id="cb23-29"><a href="#cb23-29" tabindex="-1"></a><span class="co">#&gt;     95% CI (Wald, with correction)                      (7.2, 28.6)                    (13.7, 33.8) </span></span>
 <span id="cb23-30"><a href="#cb23-30" tabindex="-1"></a><span class="co">#&gt;   p-value (Chi-Squared Test with Schouten Correction)      0.0008                        &lt;0.0001</span></span></code></pre></div>
+<p>tables.R</p>
 </div>
 </div>
 <div id="summary" class="section level2">

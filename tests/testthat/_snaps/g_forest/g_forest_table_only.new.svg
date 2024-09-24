@@ -36,11 +36,11 @@
 <text x='22.45' y='47.57' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='126.42px' lengthAdjust='spacingAndGlyphs'>Baseline Risk Factors</text>
 <text x='22.45' y='69.17' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='66.75px' lengthAdjust='spacingAndGlyphs'>All Patients</text>
 <text x='22.45' y='90.77' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='21.90px' lengthAdjust='spacingAndGlyphs'>Sex</text>
-<text x='22.45' y='112.37' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='22.17px' lengthAdjust='spacingAndGlyphs'>    F</text>
-<text x='22.45' y='133.97' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='25.62px' lengthAdjust='spacingAndGlyphs'>    M</text>
+<text x='22.45' y='112.37' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='6.90px' lengthAdjust='spacingAndGlyphs'>F</text>
+<text x='22.45' y='133.97' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='10.35px' lengthAdjust='spacingAndGlyphs'>M</text>
 <text x='22.45' y='155.57' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='129.20px' lengthAdjust='spacingAndGlyphs'>Stratification Factor 2</text>
-<text x='22.45' y='177.17' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='30.52px' lengthAdjust='spacingAndGlyphs'>    S1</text>
-<text x='22.45' y='198.77' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='30.52px' lengthAdjust='spacingAndGlyphs'>    S2</text>
+<text x='22.45' y='177.17' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='15.26px' lengthAdjust='spacingAndGlyphs'>S1</text>
+<text x='22.45' y='198.77' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='15.26px' lengthAdjust='spacingAndGlyphs'>S2</text>
 <text x='186.04' y='47.57' text-anchor='middle' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='39.46px' lengthAdjust='spacingAndGlyphs'>Total n</text>
 <text x='186.04' y='69.17' text-anchor='middle' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='15.28px' lengthAdjust='spacingAndGlyphs'>20</text>
 <text x='186.04' y='112.37' text-anchor='middle' style='font-size: 12.00px; font-family: "Liberation Sans";' textLength='15.28px' lengthAdjust='spacingAndGlyphs'>11</text>

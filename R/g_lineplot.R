@@ -69,7 +69,9 @@
 #'   appended to the plot. Names of `table_labels` must match the names of statistics returned by `sfun` function.
 #' @param table_font_size (`numeric(1)`)\cr font size of the text in the table.
 #' @param newpage `r lifecycle::badge("deprecated")` not used.
-#' @param col (`character`)\cr color(s).
+#' @param col (`character`)\cr color(s). See `?ggplot2::aes_colour_fill_alpha` for example values.
+#' @param linetype (`character`)\cr line type(s). See `?ggplot2::aes_linetype_size_shape` for example values.
+#' @param errorbar_width (`numeric(1)`)\cr width of the error bars.
 #'
 #' @return A `ggplot` line plot (and statistics table if applicable).
 #'
@@ -155,24 +157,35 @@ g_lineplot <- function(df,
                        subtitle_add_paramcd = TRUE,
                        subtitle_add_unit = TRUE,
                        caption = NULL,
-                       table_format = get_formats_from_stats(table),
-                       table_labels = get_labels_from_stats(table),
+                       table_format = NULL,
+                       table_labels = NULL,
                        table_font_size = 3,
+                       errorbar_width = 0.45,
                        newpage = lifecycle::deprecated(),
-                       col = NULL) {
+                       col = NULL,
+                       linetype = NULL) {
   checkmate::assert_character(variables, any.missing = TRUE)
   checkmate::assert_character(mid, null.ok = TRUE)
   checkmate::assert_character(interval, null.ok = TRUE)
   checkmate::assert_character(col, null.ok = TRUE)
+  checkmate::assert_character(linetype, null.ok = TRUE)
   checkmate::assert_numeric(xticks, null.ok = TRUE)
   checkmate::assert_numeric(xlim, finite = TRUE, any.missing = FALSE, len = 2, sorted = TRUE, null.ok = TRUE)
   checkmate::assert_numeric(ylim, finite = TRUE, any.missing = FALSE, len = 2, sorted = TRUE, null.ok = TRUE)
+  checkmate::assert_number(errorbar_width, lower = 0)
   checkmate::assert_string(title, null.ok = TRUE)
   checkmate::assert_string(subtitle, null.ok = TRUE)
 
+  if (!is.null(table)) {
+    table_format <- get_formats_from_stats(table)
+    table_labels <- get_labels_from_stats(table)
+  }
+
   extra_args <- list(...)
-  if ("control" %in% names(extra_args) && all(table_labels == get_labels_from_stats(table))) {
-    table_labels <- table_labels %>% labels_use_control(extra_args[["control"]])
+  if ("control" %in% names(extra_args)) {
+    if (!is.null(table) && all(table_labels == get_labels_from_stats(table))) {
+      table_labels <- table_labels %>% labels_use_control(extra_args[["control"]])
+    }
   }
 
   if (is.character(interval)) {
@@ -224,6 +237,11 @@ g_lineplot <- function(df,
   ####################################### |
   # ---- Compute required statistics ----
   ####################################### |
+  # Remove unused levels for x-axis
+  if (is.factor(df[[x]])) {
+    df[[x]] <- droplevels(df[[x]])
+  }
+
   if (!is.null(facet_var) && !is.null(group_var)) {
     df_grp <- tidyr::expand(df, .data[[facet_var]], .data[[group_var]], .data[[x]]) # expand based on levels of factors
   } else if (!is.null(group_var)) {
@@ -231,6 +249,7 @@ g_lineplot <- function(df,
   } else {
     df_grp <- tidyr::expand(df, NULL, .data[[x]])
   }
+
   df_grp <- df_grp %>%
     dplyr::full_join(y = df[, c(facet_var, group_var, x, y)], by = c(facet_var, group_var, x), multiple = "all") %>%
     dplyr::group_by_at(c(facet_var, group_var, x))
@@ -331,10 +350,8 @@ g_lineplot <- function(df,
       p <- p + ggplot2::geom_point(position = position, size = mid_point_size, na.rm = TRUE)
     }
 
-    # lines
-    # further conditions in if are to ensure that not all of the groups consist of only one observation
-    if (grepl("l", mid_type, fixed = TRUE) && !is.null(group_var) &&
-      !all(dplyr::summarise(df_grp, count_n = dplyr::n())[["count_n"]] == 1L)) { # nolint
+    # lines - plotted only if there is a strata grouping (group_var)
+    if (grepl("l", mid_type, fixed = TRUE) && !is.null(strata_N)) { # nolint
       p <- p + ggplot2::geom_line(position = position, na.rm = TRUE)
     }
   }
@@ -344,7 +361,7 @@ g_lineplot <- function(df,
     p <- p +
       ggplot2::geom_errorbar(
         ggplot2::aes(ymin = .data[[whiskers[1]]], ymax = .data[[whiskers[max(1, length(whiskers))]]]),
-        width = 0.45,
+        width = errorbar_width,
         position = position
       )
 
@@ -382,6 +399,10 @@ g_lineplot <- function(df,
   if (!is.null(col)) {
     p <- p +
       ggplot2::scale_color_manual(values = col)
+  }
+  if (!is.null(linetype)) {
+    p <- p +
+      ggplot2::scale_linetype_manual(values = linetype)
   }
 
   if (!is.null(facet_var)) {
@@ -527,9 +548,7 @@ h_format_row <- function(x, format, labels = NULL) {
 #' @param x (`string`)\cr x-variable name.
 #' @param y (`string`)\cr y-variable name.
 #' @param group_var (`string` or `NA`)\cr group variable name.
-#' @param strata `r lifecycle::badge("deprecated")` use the `group_var` parameter instead.
 #' @param subject_var (`string` or `NA`)\cr subject variable name.
-#' @param cohort_id `r lifecycle::badge("deprecated")` use the `subject_var` parameter instead.
 #' @param facet_var (`string` or `NA`)\cr faceting variable name.
 #' @param paramcd (`string` or `NA`)\cr parameter code variable name.
 #' @param y_unit (`string` or `NA`)\cr y-axis unit variable name.
@@ -547,19 +566,7 @@ control_lineplot_vars <- function(x = "AVISIT",
                                   facet_var = NA,
                                   paramcd = "PARAMCD",
                                   y_unit = "AVALU",
-                                  subject_var = "USUBJID",
-                                  strata = lifecycle::deprecated(),
-                                  cohort_id = lifecycle::deprecated()) {
-  if (lifecycle::is_present(strata)) {
-    lifecycle::deprecate_warn("0.9.2", "control_lineplot_vars(strata)", "control_lineplot_vars(group_var)")
-    group_var <- strata
-  }
-
-  if (lifecycle::is_present(cohort_id)) {
-    lifecycle::deprecate_warn("0.9.2", "control_lineplot_vars(cohort_id)", "control_lineplot_vars(subject_id)")
-    subject_id <- cohort_id
-  }
-
+                                  subject_var = "USUBJID") {
   checkmate::assert_string(x)
   checkmate::assert_string(y)
   checkmate::assert_string(group_var, na.ok = TRUE, null.ok = TRUE)

@@ -13,7 +13,11 @@ tabulate_survival_subgroups(
   groups_lists = list(),
   label_all = lifecycle::deprecated(),
   time_unit = NULL,
-  na_str = default_na_str()
+  riskdiff = NULL,
+  na_str = default_na_str(),
+  .formats = c(n = "xx", n_events = "xx", n_tot_events = "xx", median = "xx.x", n_tot =
+    "xx", hr = list(format_extreme_values(2L)), ci = list(format_extreme_values_ci(2L)),
+    pval = "x.xxxx | (<0.0001)")
 )
 
 a_survival_subgroups(
@@ -52,6 +56,11 @@ levels that belong to it in the character vectors that are elements of the list.
 
 \item{time_unit}{(\code{string})\cr label with unit of median survival time. Default \code{NULL} skips displaying unit.}
 
+\item{riskdiff}{(\code{list})\cr if a risk (proportion) difference column should be added, a list of settings to apply
+within the column. See \code{\link[=control_riskdiff]{control_riskdiff()}} for details. If \code{NULL}, no risk difference column will be added. If
+\code{riskdiff$arm_x} and \code{riskdiff$arm_y} are \code{NULL}, the first level of \code{df$survtime$arm} will be used as \code{arm_x}
+and the second level as \code{arm_y}.}
+
 \item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
@@ -67,7 +76,12 @@ An \code{rtables} table summarizing survival by subgroup.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
-Tabulate statistics such as median survival time and hazard ratio for population subgroups.
+The \code{\link[=tabulate_survival_subgroups]{tabulate_survival_subgroups()}} function creates a layout element to tabulate survival duration by subgroup,
+returning statistics including median survival time and hazard ratio for each population subgroup. The table is
+created from \code{df}, a list of data frames returned by \code{\link[=extract_survival_subgroups]{extract_survival_subgroups()}}, with the statistics to include
+specified via the \code{vars} parameter.
+
+A forest plot can be created from the resulting table using the \code{\link[=g_forest]{g_forest()}} function.
 }
 \details{
 These functions create a layout starting from a data frame which contains
