@@ -1322,7 +1322,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -1333,7 +1333,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -1588,7 +1588,6 @@ border-radius: 0px;
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(formatters)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tern)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
-<p>missing_values.R</p>
 <div id="variable-class-conversion" class="section level2">
 <h2>Variable Class Conversion</h2>
 <p><code>rtables</code> requires that split variables to be factors.
@@ -1598,7 +1597,7 @@ demonstrate what happens when we try splitting the rows by this
 variable. To fix this, <code>df_explict_na</code> will convert this to a
 factor resulting in the table being generated.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>adsl <span class="ot">&lt;-</span> tern_ex_adsl</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>adsl<span class="sc">$</span>SEX <span class="ot">&lt;-</span> <span class="fu">as.character</span>(adsl<span class="sc">$</span>SEX)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>adsl<span class="sc">$</span>SEX <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(adsl<span class="sc">$</span>SEX)</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;AGE&quot;</span>, <span class="st">&quot;SEX&quot;</span>, <span class="st">&quot;RACE&quot;</span>, <span class="st">&quot;BMRKR1&quot;</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>var_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
@@ -1616,50 +1615,34 @@ factor resulting in the table being generated.</p>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; Warning in as_factor_keep_attributes(x, verbose = verbose): automatically</span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; converting character variable x to factor, better manually convert to factor to</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; avoid failures</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>result</span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;                                                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;                                                 (N=69)        (N=73)          (N=58)         (N=200)   </span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————————————————————————————————————</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; Age (yr)                                                                                               </span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)                                   34.1 (6.8)    35.8 (7.1)      36.1 (7.4)      35.3 (7.1) </span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;   Median                                         32.8          35.4            36.2            34.8    </span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;   Min - Max                                   22.4 - 48.0   23.3 - 57.5    23.0 - 58.3     22.4 - 58.3 </span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; Sex                                                                                                    </span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt;   F                                           38 (55.1%)    40 (54.8%)      32 (55.2%)      110 (55%)  </span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt;   M                                           31 (44.9%)    33 (45.2%)      26 (44.8%)       90 (45%)  </span></span>
-<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; Race                                                                                                   </span></span>
-<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
-<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a><span class="co">#&gt;   ASIAN                                       38 (55.1%)    43 (58.9%)       29 (50%)       110 (55%)  </span></span>
-<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a><span class="co">#&gt;   BLACK OR AFRICAN AMERICAN                   15 (21.7%)    13 (17.8%)      12 (20.7%)       40 (20%)  </span></span>
-<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a><span class="co">#&gt;   WHITE                                       11 (15.9%)    12 (16.4%)       11 (19%)        34 (17%)  </span></span>
-<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a><span class="co">#&gt;   AMERICAN INDIAN OR ALASKA NATIVE             4 (5.8%)      3 (4.1%)       6 (10.3%)       13 (6.5%)  </span></span>
-<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a><span class="co">#&gt;   MULTIPLE                                     1 (1.4%)      1 (1.4%)           0             2 (1%)   </span></span>
-<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a><span class="co">#&gt;   NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER        0         1 (1.4%)           0            1 (0.5%)  </span></span>
-<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a><span class="co">#&gt;   OTHER                                            0             0              0               0      </span></span>
-<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a><span class="co">#&gt;   UNKNOWN                                          0             0              0               0      </span></span>
-<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a><span class="co">#&gt; Continous Level Biomarker 1                                                                            </span></span>
-<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
-<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)                                    6.3 (3.6)     6.7 (3.5)      6.2 (3.3)       6.4 (3.5)  </span></span>
-<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a><span class="co">#&gt;   Median                                          5.4           6.3            5.4             5.6     </span></span>
-<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a><span class="co">#&gt;   Min - Max                                   0.4 - 17.8    1.0 - 18.5      2.4 - 19.1      0.4 - 19.1</span></span></code></pre></div>
-<p>missing_values.R</p>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>result</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;                                                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;                                                 (N=69)        (N=73)          (N=58)         (N=200)   </span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————————————————————————————————————————————————————————</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Age (yr)                                                                                               </span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)                                   34.1 (6.8)    35.8 (7.1)      36.1 (7.4)      35.3 (7.1) </span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;   Median                                         32.8          35.4            36.2            34.8    </span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;   Min - Max                                   22.4 - 48.0   23.3 - 57.5    23.0 - 58.3     22.4 - 58.3 </span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Sex                                                                                                    </span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;   F                                           38 (55.1%)    40 (54.8%)      32 (55.2%)      110 (55%)  </span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;   M                                           31 (44.9%)    33 (45.2%)      26 (44.8%)       90 (45%)  </span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; Race                                                                                                   </span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;   ASIAN                                       38 (55.1%)    43 (58.9%)       29 (50%)       110 (55%)  </span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;   BLACK OR AFRICAN AMERICAN                   15 (21.7%)    13 (17.8%)      12 (20.7%)       40 (20%)  </span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;   WHITE                                       11 (15.9%)    12 (16.4%)       11 (19%)        34 (17%)  </span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;   AMERICAN INDIAN OR ALASKA NATIVE             4 (5.8%)      3 (4.1%)       6 (10.3%)       13 (6.5%)  </span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;   MULTIPLE                                     1 (1.4%)      1 (1.4%)           0             2 (1%)   </span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;   NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER        0         1 (1.4%)           0            1 (0.5%)  </span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;   OTHER                                            0             0              0               0      </span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;   UNKNOWN                                          0             0              0               0      </span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; Continous Level Biomarker 1                                                                            </span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt;   n                                               69            73              58             200     </span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)                                    6.3 (3.6)     6.7 (3.5)      6.2 (3.3)       6.4 (3.5)  </span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt;   Median                                          5.4           6.3            5.4             5.6     </span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt;   Min - Max                                   0.4 - 17.8    1.0 - 18.5      2.4 - 19.1      0.4 - 19.1</span></span></code></pre></div>
 </div>
 <div id="including-missing-values-in-rtables" class="section level2">
 <h2>Including Missing Values in <code>rtables</code></h2>
@@ -1701,7 +1684,6 @@ percent values.</p>
 <span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt;   n               38            40              32             110     </span></span>
 <span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt;   F            38 (100%)     40 (100%)      32 (100%)       110 (100%) </span></span>
 <span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt;   M                0             0              0               0</span></span></code></pre></div>
-<p>missing_values.R</p>
 <p>If you want the <code>Na</code> values to be displayed in the table
 and included in the <code>n</code> count and as the denominator for
 calculating percent values, use the <code>na_level</code> argument.</p>
@@ -1731,7 +1713,6 @@ calculating percent values, use the <code>na_level</code> argument.</p>
 <span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;   F                38 (55.1%)    40 (54.8%)      32 (55.2%)      110 (55%)  </span></span>
 <span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt;   M                     0             0              0               0      </span></span>
 <span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt;   Missing Values   31 (44.9%)    33 (45.2%)      26 (44.8%)       90 (45%)</span></span></code></pre></div>
-<p>missing_values.R</p>
 </div>
 <div id="missing-values-in-numeric-variables" class="section level2">
 <h2>Missing Values in Numeric Variables</h2>
@@ -1772,7 +1753,6 @@ valued greater than 30 are included in the table below.</p>
 <span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;   n               69            73              58             200     </span></span>
 <span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt;   F           38 (55.1%)    40 (54.8%)      32 (55.2%)      110 (55%)  </span></span>
 <span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt;   M           31 (44.9%)    33 (45.2%)      26 (44.8%)       90 (45%)</span></span></code></pre></div>
-<p>missing_values.R</p>
 </div>
 
 

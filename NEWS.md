@@ -1,6 +1,36 @@
+# tern 0.9.7
+
+### Enhancements
+* Added the `denom` parameter to `s_count_cumulative()`, `s_count_missed_doses()`, and `s_count_occurrences_by_grade()`.
+* Added `"N_row"` as an optional input to `denom` in `s_count_occurrences()`.
+* Added `rel_height_plot` parameter to `g_lineplot()` to control the line plot height relative to annotation table height.
+* Added `as_list` parameter to `g_lineplot()` to allow users to return the line plot and annotation table elements as a list instead of stacked for more complex customization.
+* Added vignette "Understanding `tern` functions" for future reference.
+* Added to `analyze_vars()` statistical names that are used by `rtables::as_result_df()`.
+* Added the possibility to integrate custom statistical functions to default ones in `analyze_vars()`.
+* Refactored `analyze_vars()` and `a_summary()` to take all options from `?rtables::additional_fun_params`.
+* Refactored `summarize_change()` and `count_values()` to work without `make_afun()`.
+* Refactored `a_count_occurrences_by_grade()`, `a_count_patients_with_event()`, and `a_count_patients_with_flags()` to no longer use `make_afun()`.
+* Refactored `get_labels_from_stats()` to use a named list of levels for each statistic instead of row names.
+* Updated the `table_font_size` parameter of `g_lineplot()` to control the size of all text in the annotation table, including labels.
+* Merged `compare_vars()` into `analyze_vars()` as overlap was significant.
+
+### Bug Fixes
+* Fixed bug in `a_summary()` causing non-unique `row_name` values to occur when multiple statistics are selected for count variables.
+
+### Miscellaneous
+* Reverted deprecation of quick get functions `summary_formats()` and `summary_labels()`. Added disclaimer about underlying use of `get_stats`.
+* Corrected handling of extra arguments and `NA` for `summarize_change()`.
+* Removed `count_fraction_fixed_dp` exception by assigning it to the result of `count_fraction` with a different format output.
+
 # tern 0.9.6
 
 ### Enhancements
+* Added `median_ci_3d` to `s_summary` which includes estimate and confidence interval in one statistic.
+* Added `median_ci_3d`, `quantiles_lower` and `quantiles_upper` to `s_surv_time` which includes estimate and confidence interval in one statistic.
+* Added `hr_ci_3d` to `s_coxph_pairwise` which includes estimate and confidence interval in one statistic.
+* Added `event_free_rate_3d` to `s_surv_timepoint` which includes estimate and confidence interval in one statistic.
+* Added `rate_diff_ci_3d` to `s_surv_timepoint_diff` which includes estimate and confidence interval in one statistic.
 * Added `errorbar_width` and `linetype` parameters to `g_lineplot`.
 * Added the `.formats` argument to `tabulate_rsp_subgroups` and `tabulate_survival_subgroups` to allow users to specify formats.
 * Added the `riskdiff` argument to `tabulate_rsp_subgroups` and `tabulate_survival_subgroups` to allow users to add a risk difference table column, and function `control_riskdiff` to specify settings for the risk difference column.
@@ -10,6 +40,7 @@
 * Refactored `estimate_incidence_rate` to work as both an analyze function and a summarize function, controlled by the added `summarize` parameter. When `summarize = TRUE`, labels can be fine-tuned via the new `label_fmt` argument to the same function.
 * Added `fraction` statistic to the `analyze_var_count` method group.
 * Improved `summarize_glm_count()` documentation and all its associated functions to better describe the results and the functions' purpose.
+* Added `method` argument to `s_odds_ratio()` and `estimate_odds_ratio()` to control whether exact or approximate conditional likelihood calculations are used.
 
 ### Bug Fixes
 * Added defaults for `d_count_cumulative` parameters as described in the documentation.
@@ -66,7 +97,7 @@
 ### Miscellaneous
 * Added function `expect_snapshot_ggplot` to test setup file to process plot snapshot tests and allow plot dimensions to be set.
 * Adapted to argument renames introduced in `ggplot2` 3.5.0.
-* Renamed `individual_patient_plot.R` to `g_ipp.R`. 
+* Renamed `individual_patient_plot.R` to `g_ipp.R`.
 * Removed all instances of deprecated parameters `time_unit_input`, `time_unit_output`, `na_level` and `indent_mod`.
 * Removed deprecated functions `summarize_vars`, `control_summarize_vars`, `a_compare`, `create_afun_summary`, `create_afun_compare`, and `summary_custom`.
 * Removed `vdiffr` package from Suggests in DESCRIPTION file.

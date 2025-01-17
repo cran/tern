@@ -38,12 +38,12 @@ adlb <- dplyr::filter(adlb, PARAMCD == "ALT", AVISIT != "SCREENING")
 ## -----------------------------------------------------------------------------
 library(nestcolor)
 
-## -----------------------------------------------------------------------------
+## ----fig.alt='Basic line plot'------------------------------------------------
 # Mean with CI
 g_lineplot(adlb, adsl, subtitle = "Laboratory Test:")
 
-## ----fig.height=10, fig.width=8-----------------------------------------------
-# Mean with CI, table and customized confidence level
+## ----fig.height=10, fig.width=8, fig.alt='Line plot with table'---------------
+# Mean with CI, table, and customized confidence level
 g_lineplot(
   adlb,
   adsl,

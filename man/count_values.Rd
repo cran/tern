@@ -14,23 +14,17 @@ count_values(
   vars,
   values,
   na_str = default_na_str(),
+  na_rm = TRUE,
   nested = TRUE,
   ...,
   table_names = vars,
   .stats = "count_fraction",
-  .formats = NULL,
+  .formats = c(count_fraction = "xx (xx.xx\%)", count = "xx"),
   .labels = c(count_fraction = paste(values, collapse = ", ")),
   .indent_mods = NULL
 )
 
-s_count_values(
-  x,
-  values,
-  na.rm = TRUE,
-  .N_col,
-  .N_row,
-  denom = c("n", "N_row", "N_col")
-)
+s_count_values(x, values, na.rm = TRUE, denom = c("n", "N_col", "N_row"), ...)
 
 \method{s_count_values}{character}(x, values = "Y", na.rm = TRUE, ...)
 
@@ -40,11 +34,11 @@ s_count_values(
 
 a_count_values(
   x,
-  values,
-  na.rm = TRUE,
-  .N_col,
-  .N_row,
-  denom = c("n", "N_row", "N_col")
+  ...,
+  .stats = NULL,
+  .formats = NULL,
+  .labels = NULL,
+  .indent_mods = NULL
 )
 }
 \arguments{
@@ -56,6 +50,8 @@ a_count_values(
 
 \item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
 
+\item{na_rm}{(\code{flag})\cr whether \code{NA} values should be removed from \code{x} prior to analysis.}
+
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure _if
 possible (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
 underneath analyses, which is not allowed.}
@@ -65,8 +61,9 @@ underneath analyses, which is not allowed.}
 \item{table_names}{(\code{character})\cr this can be customized in the case that the same \code{vars} are analyzed multiple
 times, to avoid warnings from \code{rtables}.}
 
-\item{.stats}{(\code{character})\cr statistics to select for the table. Run \code{get_stats("count_values")}
-to see available statistics for this function.}
+\item{.stats}{(\code{character})\cr statistics to select for the table.
+
+Options are: \verb{'n', 'count', 'count_fraction', 'count_fraction_fixed_dp', 'n_blq'}}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -79,12 +76,6 @@ unmodified default behavior. Can be negative.}
 \item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
 
 \item{na.rm}{(\code{flag})\cr whether \code{NA} values should be removed from \code{x} prior to analysis.}
-
-\item{.N_col}{(\code{integer(1)})\cr column-wise N (column count) for the full column being analyzed that is typically
-passed by \code{rtables}.}
-
-\item{.N_row}{(\code{integer(1)})\cr row-wise N (row group count) for the group of observations being analyzed
-(i.e. with no column-based subsetting) that is typically passed by \code{rtables}.}
 
 \item{denom}{(\code{string})\cr choice of denominator for proportion. Options are:
 \itemize{

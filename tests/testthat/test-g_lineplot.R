@@ -23,7 +23,9 @@ testthat::test_that("g_lineplot works with custom settings and statistics table"
       x_lab = "Time",
       y_lab = "Lab Test",
       subtitle = "Laboratory Test:",
-      caption = "caption"
+      caption = "caption",
+      table_font_size = 5.5,
+      rel_height_plot = 0.35
     )
   ))
 
@@ -65,9 +67,9 @@ testthat::test_that("g_lineplot maintains factor levels in legend", {
       caption = "caption"
     )
   ))
-
   expect_snapshot_ggplot(title = "g_lineplot_factor_levels", fig = g_lineplot_factor_levels, width = 10, height = 8)
 })
+
 testthat::test_that("g_lineplot does not produce a warning if group_var has >6 levels", {
   set.seed(1)
   adlb$FACTOR7 <- as.factor(sample(1:7, nrow(adlb), replace = TRUE))
@@ -82,7 +84,7 @@ testthat::test_that("g_lineplot does not produce a warning if group_var has >6 l
 })
 
 testthat::test_that("g_lineplot works with facet_var specified", {
-  g_lineplot_facets <- withr::with_options(
+  testthat::expect_silent(g_lineplot_facets <- withr::with_options(
     opts_partial_match_old,
     g_lineplot(
       adlb,
@@ -95,12 +97,12 @@ testthat::test_that("g_lineplot works with facet_var specified", {
       subtitle = "Laboratory Test:",
       caption = "caption"
     )
-  )
+  ))
   expect_snapshot_ggplot(title = "g_lineplot_facets", fig = g_lineplot_facets, width = 10, height = 8)
 })
 
 testthat::test_that("g_lineplot xticks, xlim, and ylim arguments work", {
-  g_lineplot_xticks_by <- withr::with_options(
+  testthat::expect_silent(g_lineplot_xticks_by <- withr::with_options(
     opts_partial_match_old,
     g_lineplot(
       adlb,
@@ -108,10 +110,10 @@ testthat::test_that("g_lineplot xticks, xlim, and ylim arguments work", {
       variables = control_lineplot_vars(x = "AVISITN"),
       xticks = 1
     )
-  )
+  ))
   expect_snapshot_ggplot(title = "g_lineplot_xticks_by", fig = g_lineplot_xticks_by, width = 10, height = 8)
 
-  g_lineplot_xticks <- withr::with_options(
+  testthat::expect_silent(g_lineplot_xticks <- withr::with_options(
     opts_partial_match_old,
     g_lineplot(
       adlb,
@@ -119,10 +121,10 @@ testthat::test_that("g_lineplot xticks, xlim, and ylim arguments work", {
       variables = control_lineplot_vars(x = "AVISITN"),
       xticks = c(0, 2.5, 5)
     )
-  )
+  ))
   expect_snapshot_ggplot(title = "g_lineplot_xticks", fig = g_lineplot_xticks, width = 10, height = 8)
 
-  g_lineplot_xlim_ylim <- withr::with_options(
+  testthat::expect_silent(g_lineplot_xlim_ylim <- withr::with_options(
     opts_partial_match_old,
     g_lineplot(
       adlb,
@@ -132,7 +134,7 @@ testthat::test_that("g_lineplot xticks, xlim, and ylim arguments work", {
       ylim = c(17, 21),
       xticks = 1:6
     )
-  )
+  ))
   expect_snapshot_ggplot(title = "g_lineplot_xlim_ylim", fig = g_lineplot_xlim_ylim, width = 10, height = 8)
 })
 
@@ -141,10 +143,10 @@ testthat::test_that("control_lineplot_vars works", {
 })
 
 testthat::test_that("g_lineplot works with no strata (group_var) and allows points when only one strata is provided", {
-  adlb2 <- adlb |>
+  adlb2 <- adlb %>%
     dplyr::filter(USUBJID == "AB12345-BRA-1-id-105")
 
-  adsl2 <- adsl |>
+  adsl2 <- adsl %>%
     dplyr::filter(USUBJID == "AB12345-BRA-1-id-105")
 
   g_lineplot_no_strata <- withr::with_options(
@@ -229,4 +231,21 @@ testthat::test_that("NA values are removed also from the table plot", {
       )
     )
   )
+})
+
+testthat::test_that("g_lineplot as_list argument works", {
+  testthat::expect_silent(g_lineplot_list <- withr::with_options(
+    opts_partial_match_old,
+    g_lineplot(
+      adlb,
+      adsl,
+      table = c("n", "mean", "mean_ci"),
+      as_list = TRUE
+    )
+  ))
+  g_lineplot_plot_only <- g_lineplot_list$plot
+  g_lineplot_table_only <- g_lineplot_list$table
+
+  expect_snapshot_ggplot("g_lineplot_plot_only", g_lineplot_plot_only, width = 10, height = 4)
+  expect_snapshot_ggplot("g_lineplot_table_only", g_lineplot_table_only, width = 9, height = 3)
 })

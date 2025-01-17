@@ -12,7 +12,7 @@ library(dplyr)
 
 ## -----------------------------------------------------------------------------
 adsl <- tern_ex_adsl
-adsl$SEX <- as.character(adsl$SEX)
+adsl$SEX <- as.factor(adsl$SEX)
 
 vars <- c("AGE", "SEX", "RACE", "BMRKR1")
 var_labels <- c(

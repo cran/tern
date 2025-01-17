@@ -14,8 +14,9 @@
 #' @param rate_mean_method (`character(1)`)\cr method used to estimate the mean odds ratio. Defaults to `emmeans`.
 #'   see details for more information.
 #' @param scale (`numeric(1)`)\cr linear scaling factor for rate and confidence intervals. Defaults to `1`.
-#' @param .stats (`character`)\cr statistics to select for the table. Run `get_stats("summarize_glm_count")`
-#'   to see available statistics for this function.
+#' @param .stats (`character`)\cr statistics to select for the table.
+#'
+#'   Options are: ``r shQuote(get_stats("summarize_glm_count"))``
 #'
 #' @details
 #' `summarize_glm_count()` uses `s_glm_count()` to calculate the statistics for the table. This
@@ -78,6 +79,20 @@ NULL
 #'     rate_mean_method = "ppmeans",
 #'     var_labels = "Adjusted (QP) exacerbation rate (per year)",
 #'     table_names = "adjQP",
+#'     .stats = c("rate", "rate_ci", "rate_ratio", "rate_ratio_ci", "pval"),
+#'     .labels = c(
+#'       rate = "Rate", rate_ci = "Rate CI", rate_ratio = "Rate Ratio",
+#'       rate_ratio_ci = "Rate Ratio CI", pval = "p value"
+#'     )
+#'   ) %>%
+#'   summarize_glm_count(
+#'     vars = "AVAL",
+#'     variables = list(arm = "ARM", offset = "lgTMATRSK", covariates = c("REGION1")),
+#'     conf_level = 0.95,
+#'     distribution = "negbin",
+#'     rate_mean_method = "emmeans",
+#'     var_labels = "Adjusted (NB) exacerbation rate (per year)",
+#'     table_names = "adjNB",
 #'     .stats = c("rate", "rate_ci", "rate_ratio", "rate_ratio_ci", "pval"),
 #'     .labels = c(
 #'       rate = "Rate", rate_ci = "Rate CI", rate_ratio = "Rate Ratio",
@@ -321,7 +336,6 @@ h_glm_poisson <- function(.var,
                           weights) {
   arm <- variables$arm
   covariates <- variables$covariates
-  offset <- .df_row[[variables$offset]]
 
   formula <- stats::as.formula(paste0(
     .var, " ~ ",
@@ -331,12 +345,21 @@ h_glm_poisson <- function(.var,
     arm
   ))
 
-  glm_fit <- stats::glm(
-    formula = formula,
-    offset = offset,
-    data = .df_row,
-    family = stats::poisson(link = "log")
-  )
+  if (is.null(variables$offset)) {
+    glm_fit <- stats::glm(
+      formula = formula,
+      data = .df_row,
+      family = stats::poisson(link = "log")
+    )
+  } else {
+    offset <- .df_row[[variables$offset]]
+    glm_fit <- stats::glm(
+      formula = formula,
+      offset = offset,
+      data = .df_row,
+      family = stats::poisson(link = "log")
+    )
+  }
 
   emmeans_fit <- emmeans::emmeans(
     glm_fit,
@@ -365,7 +388,6 @@ h_glm_quasipoisson <- function(.var,
                                weights) {
   arm <- variables$arm
   covariates <- variables$covariates
-  offset <- .df_row[[variables$offset]]
 
   formula <- stats::as.formula(paste0(
     .var, " ~ ",
@@ -375,13 +397,21 @@ h_glm_quasipoisson <- function(.var,
     arm
   ))
 
-  glm_fit <- stats::glm(
-    formula = formula,
-    offset = offset,
-    data = .df_row,
-    family = stats::quasipoisson(link = "log")
-  )
-
+  if (is.null(variables$offset)) {
+    glm_fit <- stats::glm(
+      formula = formula,
+      data = .df_row,
+      family = stats::quasipoisson(link = "log")
+    )
+  } else {
+    offset <- .df_row[[variables$offset]]
+    glm_fit <- stats::glm(
+      formula = formula,
+      offset = offset,
+      data = .df_row,
+      family = stats::quasipoisson(link = "log")
+    )
+  }
   emmeans_fit <- emmeans::emmeans(
     glm_fit,
     specs = arm,
@@ -409,7 +439,6 @@ h_glm_negbin <- function(.var,
                          weights) {
   arm <- variables$arm
   covariates <- variables$covariates
-
   formula <- stats::as.formula(paste0(
     .var, " ~ ",
     " + ",
@@ -417,6 +446,26 @@ h_glm_negbin <- function(.var,
     " + ",
     arm
   ))
+
+  if (is.null(variables$offset)) {
+    formula <- stats::as.formula(paste0(
+      .var, " ~ ",
+      " + ",
+      paste(covariates, collapse = " + "),
+      " + ",
+      arm
+    ))
+  } else {
+    offset <- variables$offset
+    formula_txt <- sprintf(
+      "%s ~ %s + %s + offset(%s)",
+      .var,
+      arm, paste0(covariates, collapse = " + "), offset
+    )
+    formula <- stats::as.formula(
+      formula_txt
+    )
+  }
 
   glm_fit <- MASS::glm.nb(
     formula = formula,

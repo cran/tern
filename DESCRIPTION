@@ -1,7 +1,7 @@
 Package: tern
 Title: Create Common TLGs Used in Clinical Trials
-Version: 0.9.6
-Date: 2024-09-20
+Version: 0.9.7
+Date: 2025-01-17
 Authors@R: c(
     person("Joe", "Zhu", , "joe.zhu@roche.com", role = c("aut", "cre")),
     person("Daniel", "Sabanés Bové", , "daniel.sabanes_bove@roche.com", role = "aut"),
@@ -23,18 +23,18 @@ License: Apache License 2.0
 URL: https://insightsengineering.github.io/tern/,
         https://github.com/insightsengineering/tern/
 BugReports: https://github.com/insightsengineering/tern/issues
-Depends: R (>= 3.6), rtables (>= 0.6.8)
+Depends: R (>= 3.6), rtables (>= 0.6.11)
 Imports: broom (>= 0.5.4), car (>= 3.0-13), checkmate (>= 2.1.0),
         cowplot (>= 1.0.0), dplyr (>= 1.0.0), emmeans (>= 1.10.4),
-        forcats (>= 1.0.0), formatters (>= 0.5.8), ggplot2 (>= 3.5.0),
+        forcats (>= 1.0.0), formatters (>= 0.5.10), ggplot2 (>= 3.5.0),
         grid, gridExtra (>= 2.0.0), gtable (>= 0.3.0), labeling,
         lifecycle (>= 0.2.0), magrittr (>= 1.5), MASS (>= 7.3-60),
-        methods, Rdpack (>= 2.4), rlang (>= 1.1.0), scales (>= 1.2.0),
-        stats, survival (>= 3.2-13), tibble (>= 2.0.0), tidyr (>=
-        0.8.3), utils
+        methods, nestcolor (>= 0.1.1), Rdpack (>= 2.4), rlang (>=
+        1.1.0), scales (>= 1.2.0), stats, survival (>= 3.6-4), tibble
+        (>= 2.0.0), tidyr (>= 0.8.3), utils
 Suggests: knitr (>= 1.42), lattice (>= 0.18-4), lubridate (>= 1.7.9),
-        nestcolor (>= 0.1.1), rmarkdown (>= 2.23), stringr (>= 1.4.1),
-        svglite (>= 2.1.2), testthat (>= 3.1.9), withr (>= 2.0.0)
+        rmarkdown (>= 2.23), stringr (>= 1.4.1), svglite (>= 2.1.2),
+        testthat (>= 3.1.9), withr (>= 2.0.0)
 VignetteBuilder: knitr, rmarkdown
 RdMacros: lifecycle, Rdpack
 Config/Needs/verdepcheck: insightsengineering/rtables,
@@ -96,7 +96,7 @@ Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'utils_ggplot.R' 'utils_grid.R' 'utils_rtables.R'
         'utils_split_funs.R'
 NeedsCompilation: no
-Packaged: 2024-09-24 02:13:19 UTC; rstudio
+Packaged: 2025-01-17 05:08:01 UTC; rstudio
 Author: Joe Zhu [aut, cre],
   Daniel Sabanés Bové [aut],
   Jana Stoilova [aut],
@@ -112,4 +112,4 @@ Author: Joe Zhu [aut, cre],
   F. Hoffmann-La Roche AG [cph, fnd]
 Maintainer: Joe Zhu <joe.zhu@roche.com>
 Repository: CRAN
-Date/Publication: 2024-09-24 05:30:02 UTC
+Date/Publication: 2025-01-17 06:00:01 UTC

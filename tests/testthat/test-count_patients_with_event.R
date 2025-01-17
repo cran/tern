@@ -7,7 +7,9 @@ testthat::test_that("s_count_patients_with_event handles NA", {
   result <- s_count_patients_with_event(
     test_data,
     .var = "SUBJID",
-    filters = c("TRTEMFL" = "Y")
+    filters = c("TRTEMFL" = "Y"),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -24,7 +26,54 @@ testthat::test_that("s_count_patients_with_event handles multiple columns", {
   result <- s_count_patients_with_event(
     test_data,
     .var = "SUBJID",
-    filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL")
+    filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL"),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
+  )
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("a_count_patients_with_event works with healthy input.", {
+  test_data <- data.frame(
+    SUBJID = c("1001", "1001", "1001", "1002", "1002", "1002", "1003", "1003", "1003"),
+    ARM = c("A", "A", "A", "A", "A", "A", "B", "B", "B"),
+    TRTEMFL = c("Y", "", "", "NA", "", "", "Y", "", ""),
+    AEOUT = c("", "", "", "", "", "", "FATAL", "", "FATAL"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- a_count_patients_with_event(
+    test_data,
+    .var = "SUBJID",
+    filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL"),
+    .N_col = 10, .N_row = 10, .df_row = test_data,
+    .stats = get_stats("count_patients_with_event")
+  )
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("a_count_patients_with_event works with custom input.", {
+  test_data <- data.frame(
+    SUBJID = c("1001", "1001", "1001", "1002", "1002", "1002", "1003", "1003", "1003"),
+    ARM = c("A", "A", "A", "A", "A", "A", "B", "B", "B"),
+    TRTEMFL = c("Y", "", "", "NA", "", "", "Y", "", ""),
+    AEOUT = c("", "", "", "", "", "", "FATAL", "", "FATAL"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- a_count_patients_with_event(
+    test_data,
+    .var = "SUBJID",
+    filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL"),
+    .N_col = 10, .N_row = 10, .df_row = test_data,
+    .stats = c("count_fraction", "n"),
+    .formats = c(count_fraction = "xx (xx.xx%)"),
+    .labels = list("count_fraction" = "New label"),
+    .indent_mods = list("count_fraction" = 1L, "n" = 3L)
   )
 
   res <- testthat::expect_silent(result)
@@ -114,7 +163,9 @@ testthat::test_that("s_count_patients_with_event works with factor filters", {
   result <- s_count_patients_with_event(
     test_data,
     .var = "SUBJID",
-    filters = c("AEOUT" = "FATAL")
+    filters = c("AEOUT" = "FATAL"),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)

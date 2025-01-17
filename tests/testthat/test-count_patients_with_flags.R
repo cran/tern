@@ -7,7 +7,9 @@ testthat::test_that("s_count_patients_with_flags handles NA", {
   result <- s_count_patients_with_flags(
     test_data,
     .var = "SUBJID",
-    flag_variables = "TRTEMFL"
+    flag_variables = "TRTEMFL",
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -24,7 +26,9 @@ testthat::test_that("s_count_patients_with_flags handles multiple columns", {
   result <- s_count_patients_with_flags(
     test_data,
     .var = "SUBJID",
-    flag_variables = c("TRTEMFL", "AEOUTFL")
+    flag_variables = c("TRTEMFL", "AEOUTFL"),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -32,7 +36,7 @@ testthat::test_that("s_count_patients_with_flags handles multiple columns", {
 })
 
 testthat::test_that("s_count_patients_with_flags custom variable label behaviour works", {
-  adae_local <- tern_ex_adae %>%
+  test_data <- tern_ex_adae %>%
     dplyr::mutate(
       SER = AESER == "Y",
       REL = AEREL == "Y",
@@ -43,9 +47,11 @@ testthat::test_that("s_count_patients_with_flags custom variable label behaviour
 
   # No variable labels (variable names used)
   result <- s_count_patients_with_flags(
-    adae_local,
+    test_data,
     .var = "USUBJID",
-    flag_variables = aesi_vars
+    flag_variables = aesi_vars,
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -53,14 +59,16 @@ testthat::test_that("s_count_patients_with_flags custom variable label behaviour
 
   labels <- c("Serious AE", "Related AE", "Grade 3-5 AE", "Grade 4/5 AE")
   for (i in seq_along(aesi_vars)) {
-    attr(adae_local[[aesi_vars[i]]], "label") <- labels[i]
+    attr(test_data[[aesi_vars[i]]], "label") <- labels[i]
   }
 
   # Variable labels from df
   result <- s_count_patients_with_flags(
-    adae_local,
+    test_data,
     .var = "USUBJID",
-    flag_variables = aesi_vars
+    flag_variables = aesi_vars,
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -68,10 +76,12 @@ testthat::test_that("s_count_patients_with_flags custom variable label behaviour
 
   # Custom labels via flag_labels argument
   result <- s_count_patients_with_flags(
-    adae_local,
+    test_data,
     .var = "USUBJID",
     flag_variables = aesi_vars,
-    flag_labels = c("Category 1", "Category 2", "Category 3", "Category 4")
+    flag_labels = c("Category 1", "Category 2", "Category 3", "Category 4"),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
   )
 
   res <- testthat::expect_silent(result)
@@ -79,9 +89,64 @@ testthat::test_that("s_count_patients_with_flags custom variable label behaviour
 
   # Labels supplied within flag_variables argument
   result <- s_count_patients_with_flags(
+    test_data,
+    .var = "USUBJID",
+    flag_variables = formatters::var_labels(test_data[, aesi_vars]),
+    .N_col = ncol(test_data),
+    .N_row = nrow(test_data)
+  )
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("a_count_patients_with_flags works with healthy input.", {
+  options("width" = 100)
+
+  adae_local <- tern_ex_adae %>%
+    dplyr::mutate(
+      SER = AESER == "Y",
+      REL = AEREL == "Y",
+      CTC35 = AETOXGR %in% c("3", "4", "5"),
+      CTC45 = AETOXGR %in% c("4", "5")
+    )
+  aesi_vars <- c("SER", "REL", "CTC35", "CTC45")
+  labels <- c("Serious AE", "Related AE", "Grade 3-5 AE", "Grade 4/5 AE")
+
+  result <- a_count_patients_with_flags(
     adae_local,
     .var = "USUBJID",
-    flag_variables = formatters::var_labels(adae_local[, aesi_vars])
+    flag_variables = aesi_vars, flag_labels = labels,
+    .N_col = 10, .N_row = 10, .df_row = raw_data,
+    .stats = get_stats("count_patients_with_flags")
+  )
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("a_count_patients_with_flags works with custom input.", {
+  options("width" = 100)
+
+  adae_local <- tern_ex_adae %>%
+    dplyr::mutate(
+      SER = AESER == "Y",
+      REL = AEREL == "Y",
+      CTC35 = AETOXGR %in% c("3", "4", "5"),
+      CTC45 = AETOXGR %in% c("4", "5")
+    )
+  aesi_vars <- c("SER", "REL", "CTC35", "CTC45")
+  labels <- c("Serious AE", "Related AE", "Grade 3-5 AE", "Grade 4/5 AE")
+
+  result <- a_count_patients_with_flags(
+    adae_local,
+    .var = "USUBJID",
+    flag_variables = aesi_vars, flag_labels = labels,
+    .N_col = 10, .N_row = 10, .df_row = raw_data,
+    .stats = "count_fraction",
+    .formats = c(count_fraction = "xx (xx.xx%)"),
+    .labels = list("count_fraction.SER" = "New label"),
+    .indent_mods = list("count_fraction" = 1L, "SER" = 2L, "count_fraction.REL" = 3L)
   )
 
   res <- testthat::expect_silent(result)
@@ -329,6 +394,48 @@ testthat::test_that("count_patients_with_flags works as expected with risk diffe
       riskdiff = TRUE
     ) %>%
     build_table(adae)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("count_patients_with_flags works with single indent mod value", {
+  test_data <- tibble::tibble(
+    SUBJID = c("1001", "1001", "1001", "1002", "1002", "1002", "1003", "1003", "1003"),
+    ARM = factor(c("A", "A", "A", "A", "A", "A", "B", "B", "B"), levels = c("A", "B")),
+    TRTEMFL = c("Y", "", "", "NA", "", "", "Y", "", ""),
+    AEOUT = c("", "", "", "", "", "", "FATAL", "", "FATAL")
+  ) %>%
+    dplyr::mutate(
+      flag1 = TRTEMFL == "Y",
+      flag2 = TRTEMFL == "Y" & AEOUT == "FATAL",
+    )
+  labels <- c(
+    "A",
+    "B",
+    "C",
+    "D",
+    "Total number of patients with at least one adverse event",
+    "Total number of patients with fatal AEs"
+  )
+  formatters::var_labels(test_data) <- labels
+
+  test_adsl_like <- tibble::tibble(
+    SUBJID = as.character(1001:1010),
+    ARM = factor(c("A", "A", "B", "B", "A", "A", "A", "B", "B", "A"), levels = c("A", "B")),
+    stringsAsFactors = FALSE
+  )
+
+  lyt <- basic_table() %>%
+    split_cols_by("ARM") %>%
+    add_colcounts() %>%
+    count_patients_with_flags(
+      "SUBJID",
+      flag_variables = formatters::var_labels(test_data[, c("flag1", "flag2")]),
+      denom = "N_col",
+      .indent_mods = 3L
+    )
+  result <- build_table(lyt, df = test_data, alt_counts_df = test_adsl_like)
 
   res <- testthat::expect_silent(result)
   testthat::expect_snapshot(res)

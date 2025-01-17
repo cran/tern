@@ -59,15 +59,15 @@ get_stats <- function(method_groups = "analyze_vars_numeric", stats_in = NULL, a
     method_groups[method_groups == "analyze_vars"] <- "analyze_vars_numeric"
   }
 
-  type_tmp <- ifelse(any(grepl("counts", method_groups)), "counts", "numeric") # for pval checks
+  type_tmp <- ifelse(any(grepl("counts$", method_groups)), "counts", "numeric") # for pval checks
 
   # Defaults for loop
   out <- NULL
 
   # Loop for multiple method groups
   for (mgi in method_groups) {
-    out_tmp <- if (mgi %in% names(tern_default_stats)) {
-      tern_default_stats[[mgi]]
+    if (mgi %in% names(tern_default_stats)) {
+      out_tmp <- tern_default_stats[[mgi]]
     } else {
       stop("The selected method group (", mgi, ") has no default statistical method.")
     }
@@ -117,6 +117,99 @@ get_stats <- function(method_groups = "analyze_vars_numeric", stats_in = NULL, a
       paste0(stats_in, collapse = " ")
     )
   }
+
+  out
+}
+
+
+#' @describeIn default_stats_formats_labels Get statistical NAMES available for a given method
+#'   group (analyze function). Please use the `s_*` functions to get the statistical names.
+#' @param stat_results (`list`)\cr list of statistical results. It should be used close to the end of
+#'   a statistical function. See examples for a structure with two statistical results and two groups.
+#' @param stat_names_in (`character`)\cr custom modification of statistical values.
+#'
+#' @return
+#' * `get_stat_names()` returns a named list of`character` vectors, indicating the names of
+#'    statistical outputs.
+#'
+#' @examples
+#' stat_results <- list(
+#'   "n" = list("M" = 1, "F" = 2),
+#'   "count_fraction" = list("M" = c(1, 0.2), "F" = c(2, 0.1))
+#' )
+#' get_stat_names(stat_results)
+#' get_stat_names(stat_results, list("n" = "argh"))
+#'
+#' @export
+get_stat_names <- function(stat_results, stat_names_in = NULL) {
+  checkmate::assert_character(names(stat_results), min.len = 1)
+  checkmate::assert_list(stat_names_in, null.ok = TRUE)
+
+  stat_nms_from_stats <- lapply(stat_results, function(si) {
+    nm <- names(si)
+    if (is.null(nm)) {
+      nm <- rep(NA_character_, length(si)) # no statistical names
+    }
+    return(nm)
+  })
+
+  # Modify some with custom stat names
+  if (!is.null(stat_names_in)) {
+    # Stats is the main
+    common_names <- intersect(names(stat_nms_from_stats), names(stat_names_in))
+    stat_nms_from_stats[common_names] <- stat_names_in[common_names]
+  }
+
+  stat_nms_from_stats
+}
+
+# Utility function used to separate custom stats (user-defined functions) from defaults
+.split_std_from_custom_stats <- function(stats_in) {
+  out <- list(default_stats = NULL, custom_stats = NULL)
+  if (is.list(stats_in)) {
+    is_custom_fnc <- sapply(stats_in, is.function)
+    checkmate::assert_list(stats_in[is_custom_fnc], types = "function", names = "named")
+    out[["custom_stats"]] <- stats_in[is_custom_fnc]
+    out[["default_stats"]] <- unlist(stats_in[!is_custom_fnc])
+  } else {
+    out[["default_stats"]] <- stats_in
+  }
+
+  out
+}
+
+# Utility function to apply statistical functions
+.apply_stat_functions <- function(default_stat_fnc, custom_stat_fnc_list, args_list) {
+  # Default checks
+  checkmate::assert_function(default_stat_fnc)
+  checkmate::assert_list(custom_stat_fnc_list, types = "function", null.ok = TRUE, names = "named")
+  checkmate::assert_list(args_list)
+
+  # Checking custom stats have same formals
+  if (!is.null(custom_stat_fnc_list)) {
+    fundamental_call_to_data <- names(formals(default_stat_fnc))[[1]]
+    for (fnc in custom_stat_fnc_list) {
+      if (!identical(names(formals(fnc))[[1]], fundamental_call_to_data)) {
+        stop(
+          "The first parameter of a custom statistical function needs to be the same (it can be `df` or `x`) ",
+          "as the default statistical function. In this case your custom function has ", names(formals(fnc))[[1]],
+          " as first parameter, while the default function has ", fundamental_call_to_data, "."
+        )
+      }
+      if (!any(names(formals(fnc)) == "...")) {
+        stop(
+          "The custom statistical function needs to have `...` as a parameter to accept additional arguments. ",
+          "In this case your custom function does not have `...`."
+        )
+      }
+    }
+  }
+
+  # Merging
+  stat_fnc_list <- c(default_stat_fnc, custom_stat_fnc_list)
+
+  # Applying
+  out <- unlist(lapply(stat_fnc_list, function(fnc) do.call(fnc, args = args_list)), recursive = FALSE)
 
   out
 }
@@ -183,11 +276,12 @@ get_formats_from_stats <- function(stats, formats_in = NULL) {
 #'   the statistics name will be used as label.
 #'
 #' @param labels_in (named `character`)\cr inserted labels to replace defaults.
-#' @param row_nms (`character`)\cr row names. Levels of a `factor` or `character` variable, each
+#' @param levels_per_stats (named `list` of `character` or `NULL`)\cr Levels of a `factor` or `character` variable, each
 #'   of which the statistics in `.stats` will be calculated for. If this parameter is set, these
 #'   variable levels will be used as the defaults, and the names of the given custom values should
 #'   correspond to levels (or have format `statistic.level`) instead of statistics. Can also be
 #'   variable names if rows correspond to different variables instead of levels. Defaults to `NULL`.
+#' @param row_nms (`character`)\cr See `levels_per_stats`. Deprecation cycle started.
 #'
 #' @return
 #' * `get_labels_from_stats()` returns a named `character` vector of labels (if present in either
@@ -205,9 +299,9 @@ get_formats_from_stats <- function(stats, formats_in = NULL) {
 #' get_labels_from_stats(all_cnt_occ, labels_in = list("fraction" = c("Some more fractions")))
 #'
 #' @export
-get_labels_from_stats <- function(stats, labels_in = NULL, row_nms = NULL) {
+get_labels_from_stats <- function(stats, labels_in = NULL, levels_per_stats = NULL) {
   checkmate::assert_character(stats, min.len = 1)
-  checkmate::assert_character(row_nms, null.ok = TRUE)
+  checkmate::assert_list(levels_per_stats, null.ok = TRUE)
   # It may be a list
   if (checkmate::test_list(labels_in, null.ok = TRUE)) {
     checkmate::assert_list(labels_in, null.ok = TRUE)
@@ -216,14 +310,10 @@ get_labels_from_stats <- function(stats, labels_in = NULL, row_nms = NULL) {
     checkmate::assert_character(labels_in, null.ok = TRUE)
   }
 
-  if (!is.null(row_nms)) {
-    ret <- rep(row_nms, length(stats))
-    out <- setNames(ret, paste(rep(stats, each = length(row_nms)), ret, sep = "."))
-
-    if (!is.null(labels_in)) {
-      lvl_lbls <- intersect(names(labels_in), row_nms)
-      for (i in lvl_lbls) out[paste(stats, i, sep = ".")] <- labels_in[[i]]
-    }
+  # Default for stats with sublevels (for factors or chrs) are the labels
+  if (!is.null(levels_per_stats)) {
+    out <- .adjust_stats_desc_by_in_def(levels_per_stats, labels_in, tern_default_labels)
+    # numeric case, where there are not other levels (list of stats)
   } else {
     which_lbl <- match(stats, names(tern_default_labels))
 
@@ -231,13 +321,13 @@ get_labels_from_stats <- function(stats, labels_in = NULL, row_nms = NULL) {
     ret[!is.na(which_lbl)] <- tern_default_labels[which_lbl[!is.na(which_lbl)]]
 
     out <- setNames(ret, stats)
-  }
 
-  # Modify some with custom labels
-  if (!is.null(labels_in)) {
-    # Stats is the main
-    common_names <- intersect(names(out), names(labels_in))
-    out[common_names] <- labels_in[common_names]
+    # Modify some with custom labels
+    if (!is.null(labels_in)) {
+      # Stats is the main
+      common_names <- intersect(names(out), names(labels_in))
+      out[common_names] <- unlist(labels_in[common_names], recursive = FALSE)
+    }
   }
 
   out
@@ -300,6 +390,72 @@ get_indents_from_stats <- function(stats, indents_in = NULL, row_nms = NULL) {
   out
 }
 
+# Function to loop over each stat and levels to set correct values
+.adjust_stats_desc_by_in_def <- function(levels_per_stats, user_in, tern_defaults) {
+  out <- levels_per_stats
+
+  # Seq over the stats levels (can be also flat (stat$NULL))
+  for (stat_i in seq_along(levels_per_stats)) {
+    # If you want to change all factor levels at once by statistic
+    common_stat_names <- intersect(names(levels_per_stats), names(user_in))
+
+    # Levels for each statistic
+    nm_of_levs <- levels_per_stats[[stat_i]]
+    # Special case in which only stat$NULL
+    if (is.null(nm_of_levs)) {
+      nm_of_levs <- "a single NULL level"
+    }
+
+    # Loop over levels for each statistic
+    for (lev_i in seq_along(nm_of_levs)) {
+      # If there are no further names (stat$NULL) push label (stat) down to lowest level
+      if (is.null(levels_per_stats[[stat_i]])) {
+        lev_val <- names(levels_per_stats[stat_i])
+        out[[stat_i]] <- lev_val
+      } else {
+        lev_val <- levels_per_stats[[stat_i]][[lev_i]]
+      }
+
+      # Add default if it is a stat at last level
+      if (lev_val %in% names(tern_defaults)) {
+        out[[stat_i]][[lev_i]] <- tern_defaults[[lev_val]]
+      }
+
+      # If a general stat was added to the custom labels
+      if (names(levels_per_stats[stat_i]) %in% names(user_in)) {
+        out[[stat_i]][[lev_i]] <- user_in[[names(levels_per_stats[stat_i])]]
+      }
+
+      # If a stat level (e.g. if it is counts levels from table) was added to the custom labels
+      if (lev_val %in% names(user_in)) {
+        out[[stat_i]][[lev_i]] <- user_in[[lev_val]]
+      }
+
+      # If stat_i.lev_val is added to labels_in
+      composite_stat_lev_nm <- paste(
+        names(levels_per_stats[stat_i]),
+        lev_val,
+        sep = "."
+      )
+      if (composite_stat_lev_nm %in% names(user_in)) {
+        out[[stat_i]][[lev_i]] <- user_in[[composite_stat_lev_nm]]
+      }
+
+      # Used by the unlist (to avoid count_fraction1, count_fraction2, etc.)
+      names(out[[stat_i]])[lev_i] <- lev_val
+    }
+  }
+
+  out
+}
+
+# Custom unlist function to retain NULL as "NULL" or NA
+.unlist_keep_nulls <- function(lst, null_placeholder = "NULL", recursive = FALSE) {
+  lapply(lst, function(x) if (is.null(x)) null_placeholder else x) %>%
+    unlist(recursive = recursive)
+}
+
+
 #' Update labels according to control specifications
 #'
 #' @description `r lifecycle::badge("stable")`
@@ -344,6 +500,20 @@ labels_use_control <- function(labels_default, control, labels_custom = NULL) {
       labels_default["quantiles"]
     )
   }
+  if ("quantiles" %in% names(control) && "quantiles_lower" %in% names(labels_default) &&
+    !"quantiles_lower" %in% names(labels_custom)) { # nolint
+    labels_default["quantiles_lower"] <- gsub(
+      "[0-9]+%-ile", paste0(control[["quantiles"]][1] * 100, "%-ile", ""),
+      labels_default["quantiles_lower"]
+    )
+  }
+  if ("quantiles" %in% names(control) && "quantiles_upper" %in% names(labels_default) &&
+    !"quantiles_upper" %in% names(labels_custom)) { # nolint
+    labels_default["quantiles_upper"] <- gsub(
+      "[0-9]+%-ile", paste0(control[["quantiles"]][2] * 100, "%-ile", ""),
+      labels_default["quantiles_upper"]
+    )
+  }
   if ("test_mean" %in% names(control) && "mean_pval" %in% names(labels_default) &&
     !"mean_pval" %in% names(labels_custom)) { # nolint
     labels_default["mean_pval"] <- gsub(
@@ -354,6 +524,7 @@ labels_use_control <- function(labels_default, control, labels_custom = NULL) {
   labels_default
 }
 
+# tern_default_stats -----------------------------------------------------------
 #' @describeIn default_stats_formats_labels Named list of available statistics by method group for `tern`.
 #'
 #' @format
@@ -372,7 +543,9 @@ tern_default_stats <- list(
   analyze_vars_numeric = c(
     "n", "sum", "mean", "sd", "se", "mean_sd", "mean_se", "mean_ci", "mean_sei", "mean_sdi", "mean_pval",
     "median", "mad", "median_ci", "quantiles", "iqr", "range", "min", "max", "median_range", "cv",
-    "geom_mean", "geom_mean_ci", "geom_cv"
+    "geom_mean", "geom_mean_ci", "geom_cv",
+    "median_ci_3d",
+    "mean_ci_3d", "geom_mean_ci_3d"
   ),
   count_cumulative = c("count_fraction", "count_fraction_fixed_dp"),
   count_missed_doses = c("n", "count_fraction", "count_fraction_fixed_dp"),
@@ -392,8 +565,14 @@ tern_default_stats <- list(
   summarize_glm_count = c("n", "rate", "rate_ci", "rate_ratio", "rate_ratio_ci", "pval"),
   summarize_num_patients = c("unique", "nonunique", "unique_count"),
   summarize_patients_events_in_cols = c("unique", "all"),
-  surv_time = c("median", "median_ci", "quantiles", "range_censor", "range_event", "range"),
-  surv_timepoint = c("pt_at_risk", "event_free_rate", "rate_se", "rate_ci", "rate_diff", "rate_diff_ci", "ztest_pval"),
+  surv_time = c(
+    "median", "median_ci", "median_ci_3d", "quantiles",
+    "quantiles_lower", "quantiles_upper", "range_censor", "range_event", "range"
+  ),
+  surv_timepoint = c(
+    "pt_at_risk", "event_free_rate", "rate_se", "rate_ci", "rate_diff", "rate_diff_ci", "ztest_pval",
+    "event_free_rate_3d"
+  ),
   tabulate_rsp_biomarkers = c("n_tot", "n_rsp", "prop", "or", "ci", "pval"),
   tabulate_rsp_subgroups = c("n", "n_rsp", "prop", "n_tot", "or", "ci", "pval"),
   tabulate_survival_biomarkers = c("n_tot", "n_tot_events", "median", "hr", "ci", "pval"),
@@ -401,6 +580,7 @@ tern_default_stats <- list(
   test_proportion_diff = c("pval")
 )
 
+# tern_default_formats ---------------------------------------------------------
 #' @describeIn default_stats_formats_labels Named vector of default formats for `tern`.
 #'
 #' @format
@@ -428,10 +608,14 @@ tern_default_formats <- c(
   mean_sei = "(xx.xx, xx.xx)",
   mean_sdi = "(xx.xx, xx.xx)",
   mean_pval = "x.xxxx | (<0.0001)",
+  mean_ci_3d = "xx.xx (xx.xx - xx.xx)",
   median = "xx.x",
   mad = "xx.x",
   median_ci = "(xx.xx, xx.xx)",
+  median_ci_3d = "xx.xx (xx.xx - xx.xx)",
   quantiles = "xx.x - xx.x",
+  quantiles_lower = "xx.xx (xx.xx - xx.xx)",
+  quantiles_upper = "xx.xx (xx.xx - xx.xx)",
   iqr = "xx.x",
   range = "xx.x - xx.x",
   min = "xx.x",
@@ -440,6 +624,7 @@ tern_default_formats <- c(
   cv = "xx.x",
   geom_mean = "xx.x",
   geom_mean_ci = "(xx.xx, xx.xx)",
+  geom_mean_ci_3d = "xx.xx (xx.xx - xx.xx)",
   geom_cv = "xx.x",
   pval = "x.xxxx | (<0.0001)",
   pval_counts = "x.xxxx | (<0.0001)",
@@ -451,6 +636,7 @@ tern_default_formats <- c(
   rate_ratio_ci = "(xx.xxxx, xx.xxxx)"
 )
 
+# tern_default_labels ----------------------------------------------------------
 #' @describeIn default_stats_formats_labels Named `character` vector of default labels for `tern`.
 #'
 #' @format
@@ -465,7 +651,7 @@ tern_default_labels <- c(
   n = "n",
   count = "count",
   count_fraction = "count_fraction",
-  count_fraction_fixed_dp = "count_fraction",
+  count_fraction_fixed_dp = "count_fraction_fixed_dp",
   n_blq = "n_blq",
   sum = "Sum",
   mean = "Mean",
@@ -477,10 +663,14 @@ tern_default_labels <- c(
   mean_sei = "Mean -/+ 1xSE",
   mean_sdi = "Mean -/+ 1xSD",
   mean_pval = "Mean p-value (H0: mean = 0)",
+  mean_ci_3d = "Mean (95% CI)",
   median = "Median",
   mad = "Median Absolute Deviation",
   median_ci = "Median 95% CI",
+  median_ci_3d = "Median (95% CI)",
   quantiles = "25% and 75%-ile",
+  quantiles_lower = "25%-ile (95% CI)",
+  quantiles_upper = "75%-ile (95% CI)",
   iqr = "IQR",
   range = "Min - Max",
   min = "Minimum",
@@ -489,6 +679,7 @@ tern_default_labels <- c(
   cv = "CV (%)",
   geom_mean = "Geometric Mean",
   geom_mean_ci = "Geometric Mean 95% CI",
+  geom_mean_ci_3d = "Geometric Mean (95% CI)",
   geom_cv = "CV % Geometric Mean",
   pval = "p-value (t-test)", # Default for numeric
   pval_counts = "p-value (chi-squared test)", # Default for counts
@@ -496,9 +687,7 @@ tern_default_labels <- c(
   rate_ratio = "Adjusted Rate Ratio"
 )
 
-# To deprecate ---------
-
-#' @describeIn default_stats_formats_labels `r lifecycle::badge("deprecated")`
+#' @describeIn default_stats_formats_labels `r lifecycle::badge("stable")`
 #'   Quick function to retrieve default formats for summary statistics:
 #'   [analyze_vars()] and [analyze_vars_in_cols()] principally.
 #'
@@ -513,19 +702,19 @@ tern_default_labels <- c(
 #'
 #' @export
 summary_formats <- function(type = "numeric", include_pval = FALSE) {
-  lifecycle::deprecate_warn(
-    "0.9.6", "summary_formats()",
-    details = 'Use get_formats_from_stats(get_stats("analyze_vars_numeric", add_pval = include_pval)) instead'
-  )
   met_grp <- paste0(c("analyze_vars", type), collapse = "_")
   get_formats_from_stats(get_stats(met_grp, add_pval = include_pval))
 }
 
-#' @describeIn default_stats_formats_labels `r lifecycle::badge("deprecated")`
+#' @describeIn default_stats_formats_labels `r lifecycle::badge("stable")`
 #'   Quick function to retrieve default labels for summary statistics.
 #'   Returns labels of descriptive statistics which are understood by `rtables`. Similar to `summary_formats`.
 #'
 #' @param include_pval (`flag`)\cr same as the `add_pval` argument in [get_stats()].
+#'
+#' @details
+#' `summary_*` quick get functions for labels or formats uses `get_stats` and `get_labels_from_stats` or
+#' `get_formats_from_stats` respectively to retrieve relevant information.
 #'
 #' @return
 #' * `summary_labels` returns a named `vector` of default statistic labels for the given data type.
@@ -536,10 +725,6 @@ summary_formats <- function(type = "numeric", include_pval = FALSE) {
 #'
 #' @export
 summary_labels <- function(type = "numeric", include_pval = FALSE) {
-  lifecycle::deprecate_warn(
-    "0.9.6", "summary_formats()",
-    details = 'Use get_labels_from_stats(get_stats("analyze_vars_numeric", add_pval = include_pval)) instead'
-  )
   met_grp <- paste0(c("analyze_vars", type), collapse = "_")
   get_labels_from_stats(get_stats(met_grp, add_pval = include_pval))
 }
