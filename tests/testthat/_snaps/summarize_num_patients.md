@@ -304,6 +304,16 @@
       Number of events                                 4           3    
       (n)                                              3           3    
 
+# summarize_num_patients works with single unnamed .labels/.formats values
+
+    Code
+      res
+    Output
+                      A       B  
+                    (N=5)   (N=4)
+      ———————————————————————————
+      - Overall -   3.00    3.00 
+
 # analyze_num_patients works well for pagination
 
     Code
@@ -384,10 +394,10 @@
     Code
       res
     Output
-                A: Drug X    B: Placebo   C: Combination   Risk Difference (%) (95% CI)
-                 (N=202)      (N=177)        (N=162)                 (N=379)           
-      —————————————————————————————————————————————————————————————————————————————————
-      Any SAE   59 (29.2%)   57 (32.2%)     48 (29.6%)          -3.0 (-12.3 - 6.3)     
-                   202          177            162              -3.0 (-12.3 - 6.3)     
-      (n)           59           57             48              -3.0 (-12.3 - 6.3)     
+                         A: Drug X    B: Placebo   C: Combination   Risk Difference (%) (95% CI)
+                          (N=202)      (N=177)        (N=162)                 (N=379)           
+      ——————————————————————————————————————————————————————————————————————————————————————————
+      Any SAE            59 (29.2%)   57 (32.2%)     48 (29.6%)          -3.0 (-12.3 - 6.3)     
+      Number of events      202          177            162              -3.0 (-12.3 - 6.3)     
+      (n)                    59           57             48              -3.0 (-12.3 - 6.3)     
 

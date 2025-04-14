@@ -22,7 +22,7 @@
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
 #'   In addition to any statistics added using `filters_list`, statistic options are:
-#'   ``r shQuote(get_stats("summarize_patients_events_in_cols"))``
+#'   ``r shQuote(get_stats("summarize_patients_events_in_cols"), type = "sh")``
 #'
 #' @name count_patients_events_in_cols
 #' @order 1
@@ -39,7 +39,7 @@ NULL
 #'     i.e. events, fulfilling the filter condition.
 #'
 #' @keywords internal
-s_count_patients_and_multiple_events <- function(df, # nolint
+s_count_patients_and_multiple_events <- function(df,
                                                  id,
                                                  filters_list,
                                                  empty_stats = character(),
@@ -129,7 +129,7 @@ s_count_patients_and_multiple_events <- function(df, # nolint
 #'
 #' @export
 #' @order 2
-summarize_patients_events_in_cols <- function(lyt, # nolint
+summarize_patients_events_in_cols <- function(lyt,
                                               id = "USUBJID",
                                               filters_list = list(),
                                               empty_stats = character(),

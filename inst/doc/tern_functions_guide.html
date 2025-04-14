@@ -1667,23 +1667,23 @@ as follows:</p>
 <span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>), <span class="at">na_rm =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
 <span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="fu">print</span>()</span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;                     A               B         C </span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; ————————————————————————————————————————————————</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; V1                                              </span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;   n                 2               1         0 </span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)    7.50 (2.12)      3.00 (NA)     NA</span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;   Median          7.50            3.00        NA</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;   Min - Max    6.00 - 9.00     3.00 - 3.00    NA</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; V2                                              </span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;   n                 2               1         0 </span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)   -1.00 (0.00)     -1.00 (NA)     NA</span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;   Median          -1.00           -1.00       NA</span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -1.00 - -1.00   -1.00 - -1.00   NA</span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; V3                                              </span></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt;   n                 2               1         0 </span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)   -2.00 (0.00)     -2.00 (NA)     NA</span></span>
-<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt;   Median          -2.00           -2.00       NA</span></span>
-<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -2.00 - -2.00   -2.00 - -2.00   NA</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;                     A         B    C </span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; V1                                   </span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;   n                 2         2    2 </span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)    7.50 (2.12)    NA   NA</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;   Median          7.50        NA   NA</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;   Min - Max    6.00 - 9.00    NA   NA</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; V2                                   </span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;   n                 2         2    2 </span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)   -1.00 (0.00)    NA   NA</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;   Median          -1.00       NA   NA</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -1.00 - -1.00   NA   NA</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; V3                                   </span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt;   n                 2         2    2 </span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt;   Mean (SD)   -2.00 (0.00)    NA   NA</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt;   Median          -2.00       NA   NA</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -2.00 - -2.00   NA   NA</span></span>
 <span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a></span>
 <span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a><span class="co"># changing the NA string (it is done on all levels)</span></span>
 <span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>

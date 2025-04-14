@@ -19,7 +19,7 @@
 #'   Note that in that case the remaining occurrence levels in the table are sorted alphabetically.
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
-#'   Options are: ``r shQuote(get_stats("count_occurrences"))``
+#'   Options are: ``r shQuote(get_stats("count_occurrences"), type = "sh")``
 #'
 #' @note By default, occurrences which don't appear in a given row split are dropped from the table and
 #'   the occurrences in the table are sorted alphabetically per row split. Therefore, the corresponding layout
@@ -75,13 +75,14 @@ NULL
 #'
 #' @export
 s_count_occurrences <- function(df,
-                                denom = c("N_col", "n", "N_row"),
+                                .var = "MHDECOD",
                                 .N_col, # nolint
                                 .N_row, # nolint
                                 .df_row,
+                                ...,
                                 drop = TRUE,
-                                .var = "MHDECOD",
-                                id = "USUBJID") {
+                                id = "USUBJID",
+                                denom = c("N_col", "n", "N_row")) {
   checkmate::assert_flag(drop)
   assert_df_with_variables(df, list(range = .var, id = id))
   checkmate::assert_count(.N_col)
@@ -153,49 +154,63 @@ s_count_occurrences <- function(df,
 #' @export
 a_count_occurrences <- function(df,
                                 labelstr = "",
-                                id = "USUBJID",
-                                denom = c("N_col", "n", "N_row"),
-                                drop = TRUE,
-                                .N_col, # nolint
-                                .N_row, # nolint
-                                .var = NULL,
-                                .df_row = NULL,
+                                ...,
                                 .stats = NULL,
+                                .stat_names = NULL,
                                 .formats = NULL,
                                 .labels = NULL,
-                                .indent_mods = NULL,
-                                na_str = default_na_str()) {
-  denom <- match.arg(denom)
-  x_stats <- s_count_occurrences(
-    df = df, denom = denom, .N_col = .N_col, .N_row = .N_row, .df_row = .df_row, drop = drop, .var = .var, id = id
+                                .indent_mods = NULL) {
+  # Check for additional parameters to the statistics function
+  dots_extra_args <- list(...)
+  extra_afun_params <- retrieve_extra_afun_params(names(dots_extra_args$.additional_fun_parameters))
+  dots_extra_args$.additional_fun_parameters <- NULL
+
+  # Check for user-defined functions
+  default_and_custom_stats_list <- .split_std_from_custom_stats(.stats)
+  .stats <- default_and_custom_stats_list$all_stats
+  custom_stat_functions <- default_and_custom_stats_list$custom_stats
+
+  # Apply statistics function
+  x_stats <- .apply_stat_functions(
+    default_stat_fnc = s_count_occurrences,
+    custom_stat_fnc_list = custom_stat_functions,
+    args_list = c(
+      df = list(df),
+      extra_afun_params,
+      dots_extra_args
+    )
   )
+
+  # if empty, return NA
   if (is.null(unlist(x_stats))) {
-    return(NULL)
+    return(in_rows(.list = as.list(rep(NA, length(.stats))) %>% stats::setNames(.stats)))
   }
 
-  # Fill in with formatting defaults if needed
-  .stats <- get_stats("count_occurrences", stats_in = .stats)
-  .formats <- get_formats_from_stats(.stats, .formats)
-  .labels <- .unlist_keep_nulls(get_labels_from_stats(.stats, .labels, levels_per_stats = lapply(x_stats, names)))
-  .indent_mods <- get_indents_from_stats(.stats, .indent_mods, row_nms = names(x_stats[[1]]))
-
+  # Fill in formatting defaults
+  .stats <- get_stats("count_occurrences", stats_in = .stats, custom_stats_in = names(custom_stat_functions))
   x_stats <- x_stats[.stats]
+  levels_per_stats <- lapply(x_stats, names)
+  .formats <- get_formats_from_stats(.stats, .formats, levels_per_stats)
+  .labels <- get_labels_from_stats(.stats, .labels, levels_per_stats)
+  .indent_mods <- get_indents_from_stats(.stats, .indent_mods, levels_per_stats)
 
-  # Ungroup statistics with values for each level of x
-  x_ungrp <- ungroup_stats(x_stats, .formats, list())
-  x_stats <- x_ungrp[["x"]]
-  .formats <- x_ungrp[[".formats"]]
+  x_stats <- x_stats[.stats] %>%
+    .unlist_keep_nulls() %>%
+    setNames(names(.formats))
 
   # Auto format handling
-  .formats <- apply_auto_formatting(.formats, x_stats, .df_row, .var)
+  .formats <- apply_auto_formatting(.formats, x_stats, extra_afun_params$.df_row, extra_afun_params$.var)
+
+  # Get and check statistical names
+  .stat_names <- get_stat_names(x_stats, .stat_names)
 
   in_rows(
     .list = x_stats,
     .formats = .formats,
-    .names = .labels,
-    .labels = .labels,
-    .indent_mods = .indent_mods,
-    .format_na_strs = na_str
+    .names = .labels %>% .unlist_keep_nulls(),
+    .stat_names = .stat_names,
+    .labels = .labels %>% .unlist_keep_nulls(),
+    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
   )
 }
 
@@ -235,38 +250,42 @@ count_occurrences <- function(lyt,
                               ...,
                               table_names = vars,
                               .stats = "count_fraction_fixed_dp",
+                              .stat_names = NULL,
                               .formats = NULL,
                               .labels = NULL,
                               .indent_mods = NULL) {
   checkmate::assert_flag(riskdiff)
+  afun <- if (isFALSE(riskdiff)) a_count_occurrences else afun_riskdiff
 
-  extra_args <- list(
-    .stats = .stats, .formats = .formats, .labels = .labels, .indent_mods = .indent_mods, na_str = na_str
+  # Process standard extra arguments
+  extra_args <- list(".stats" = .stats)
+  if (!is.null(.stat_names)) extra_args[[".stat_names"]] <- .stat_names
+  if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
+  if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
+  if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
+
+  # Process additional arguments to the statistic function
+  extra_args <- c(
+    extra_args,
+    id = id, drop = drop,
+    if (!isFALSE(riskdiff)) list(afun = list("s_count_occurrences" = a_count_occurrences)),
+    ...
   )
-  s_args <- list(id = id, drop = drop, ...)
 
-  if (isFALSE(riskdiff)) {
-    extra_args <- c(extra_args, s_args)
-  } else {
-    extra_args <- c(
-      extra_args,
-      list(
-        afun = list("s_count_occurrences" = a_count_occurrences),
-        s_args = s_args
-      )
-    )
-  }
+  # Append additional info from layout to the analysis function
+  extra_args[[".additional_fun_parameters"]] <- get_additional_afun_params(add_alt_df = FALSE)
+  formals(afun) <- c(formals(afun), extra_args[[".additional_fun_parameters"]])
 
   analyze(
     lyt = lyt,
     vars = vars,
-    afun = ifelse(isFALSE(riskdiff), a_count_occurrences, afun_riskdiff),
-    var_labels = var_labels,
-    show_labels = show_labels,
-    table_names = table_names,
+    afun = afun,
     na_str = na_str,
     nested = nested,
-    extra_args = extra_args
+    extra_args = extra_args,
+    var_labels = var_labels,
+    show_labels = show_labels,
+    table_names = table_names
   )
 }
 
@@ -299,33 +318,45 @@ summarize_occurrences <- function(lyt,
                                   na_str = default_na_str(),
                                   ...,
                                   .stats = "count_fraction_fixed_dp",
+                                  .stat_names = NULL,
                                   .formats = NULL,
-                                  .indent_mods = NULL,
+                                  .indent_mods = 0L,
                                   .labels = NULL) {
   checkmate::assert_flag(riskdiff)
+  afun <- if (isFALSE(riskdiff)) a_count_occurrences else afun_riskdiff
 
-  extra_args <- list(
-    .stats = .stats, .formats = .formats, .labels = .labels, .indent_mods = .indent_mods, na_str = na_str
-  )
-  s_args <- list(id = id, drop = drop, ...)
-
-  if (isFALSE(riskdiff)) {
-    extra_args <- c(extra_args, s_args)
+  # Process standard extra arguments
+  extra_args <- list(".stats" = .stats)
+  if (!is.null(.stat_names)) extra_args[[".stat_names"]] <- .stat_names
+  if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
+  if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
+  if (is.null(.indent_mods)) {
+    indent_mod <- 0L
+  } else if (length(.indent_mods) == 1) {
+    indent_mod <- .indent_mods
   } else {
-    extra_args <- c(
-      extra_args,
-      list(
-        afun = list("s_count_occurrences" = a_count_occurrences),
-        s_args = s_args
-      )
-    )
+    indent_mod <- 0L
+    extra_args[[".indent_mods"]] <- .indent_mods
   }
+
+  # Process additional arguments to the statistic function
+  extra_args <- c(
+    extra_args,
+    id = id, drop = drop,
+    if (!isFALSE(riskdiff)) list(afun = list("s_count_occurrences" = a_count_occurrences)),
+    ...
+  )
+
+  # Append additional info from layout to the analysis function
+  extra_args[[".additional_fun_parameters"]] <- get_additional_afun_params(add_alt_df = FALSE)
+  formals(afun) <- c(formals(afun), extra_args[[".additional_fun_parameters"]])
 
   summarize_row_groups(
     lyt = lyt,
     var = var,
-    cfun = ifelse(isFALSE(riskdiff), a_count_occurrences, afun_riskdiff),
+    cfun = afun,
     na_str = na_str,
-    extra_args = extra_args
+    extra_args = extra_args,
+    indent_mod = indent_mod
   )
 }

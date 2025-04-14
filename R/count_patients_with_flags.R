@@ -18,7 +18,7 @@
 #'   the `.labels` parameter, the `.labels` values will take precedence and replace these labels.
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
-#'   Options are: ``r shQuote(get_stats("count_patients_with_flags"))``
+#'   Options are: ``r shQuote(get_stats("count_patients_with_flags"), type = "sh")``
 #'
 #' @seealso [count_patients_with_event]
 #'
@@ -55,10 +55,11 @@ NULL
 #' @export
 s_count_patients_with_flags <- function(df,
                                         .var,
-                                        flag_variables,
-                                        flag_labels = NULL,
                                         .N_col = ncol(df), # nolint
                                         .N_row = nrow(df), # nolint
+                                        ...,
+                                        flag_variables,
+                                        flag_labels = NULL,
                                         denom = c("n", "N_col", "N_row")) {
   checkmate::assert_character(flag_variables)
   if (!is.null(flag_labels)) {
@@ -72,8 +73,8 @@ s_count_patients_with_flags <- function(df,
       flag_variables <- names(flag_variables)
     }
   }
-
   checkmate::assert_subset(flag_variables, colnames(df))
+
   temp <- sapply(flag_variables, function(x) {
     tmp <- Map(function(y) which(df[[y]]), x)
     position_satisfy_flags <- Reduce(intersect, tmp)
@@ -113,60 +114,65 @@ s_count_patients_with_flags <- function(df,
 #' @export
 a_count_patients_with_flags <- function(df,
                                         labelstr = "",
-                                        flag_variables,
-                                        flag_labels = NULL,
-                                        denom = c("n", "N_col", "N_row"),
-                                        .N_col = ncol(df), # nolint
-                                        .N_row = nrow(df), # nolint
-                                        .df_row,
-                                        .var = NULL,
+                                        ...,
                                         .stats = NULL,
+                                        .stat_names = NULL,
                                         .formats = NULL,
                                         .labels = NULL,
-                                        .indent_mods = NULL,
-                                        na_str = default_na_str()) {
-  x_stats <- s_count_patients_with_flags(
-    df = df, .var = .var, flag_variables = flag_variables, flag_labels = flag_labels,
-    .N_col = .N_col, .N_row = .N_row, denom = denom
+                                        .indent_mods = NULL) {
+  # Check for additional parameters to the statistics function
+  dots_extra_args <- list(...)
+  extra_afun_params <- retrieve_extra_afun_params(names(dots_extra_args$.additional_fun_parameters))
+  dots_extra_args$.additional_fun_parameters <- NULL
+  flag_variables <- dots_extra_args[["flag_variables"]]
+  flag_labels <- dots_extra_args[["flag_labels"]]
+
+  if (is.null(names(flag_variables))) flag_variables <- formatters::var_labels(df, fill = TRUE)[flag_variables]
+  if (is.null(flag_labels)) flag_labels <- flag_variables
+
+  # Check for user-defined functions
+  default_and_custom_stats_list <- .split_std_from_custom_stats(.stats)
+  .stats <- default_and_custom_stats_list$all_stats
+  custom_stat_functions <- default_and_custom_stats_list$custom_stats
+
+  # Apply statistics function
+  x_stats <- .apply_stat_functions(
+    default_stat_fnc = s_count_patients_with_flags,
+    custom_stat_fnc_list = custom_stat_functions,
+    args_list = c(
+      df = list(df),
+      extra_afun_params,
+      dots_extra_args
+    )
   )
 
-  if (is.null(unlist(x_stats))) {
-    return(NULL)
-  }
+  # Fill in formatting defaults
+  .stats <- get_stats("count_patients_with_flags", stats_in = .stats, custom_stats_in = names(custom_stat_functions))
+  levels_per_stats <- rep(list(names(flag_variables)), length(.stats)) %>% stats::setNames(.stats)
+  .formats <- get_formats_from_stats(.stats, .formats, levels_per_stats)
+  .labels <- get_labels_from_stats(
+    .stats, .labels, levels_per_stats,
+    tern_defaults = flag_labels %>% stats::setNames(names(flag_variables))
+  )
+  .indent_mods <- get_indents_from_stats(.stats, .indent_mods, levels_per_stats)
 
-  # Fill in with formatting defaults if needed
-  .stats <- get_stats("count_patients_with_flags", stats_in = .stats)
-  x_stats <- x_stats[.stats]
-
-  .formats <- get_formats_from_stats(.stats, .formats)
-
-  # label formatting
-  x_nms <- paste(rep(.stats, each = length(flag_variables)), flag_variables, sep = ".")
-  new_lbls <- if (!is.null(.labels)) .labels[names(.labels) %in% x_nms] else NULL
-  .labels <- .unlist_keep_nulls(get_labels_from_stats(.stats, .labels,
-    levels_per_stats = lapply(x_stats, names)
-  )) %>%
-    setNames(x_nms)
-
-  # indent mod formatting
-  .indent_mods <- get_indents_from_stats(.stats, .indent_mods, row_nms = flag_variables)
-
-
-  # Ungroup statistics with values for each level of x
-  x_ungrp <- ungroup_stats(x_stats, .formats, list())
-  x_stats <- x_ungrp[["x"]] %>% setNames(x_nms)
-  .formats <- x_ungrp[[".formats"]] %>% setNames(x_nms)
+  x_stats <- x_stats[.stats] %>%
+    .unlist_keep_nulls() %>%
+    setNames(names(.formats))
 
   # Auto format handling
-  .formats <- apply_auto_formatting(.formats, x_stats, .df_row, .var)
+  .formats <- apply_auto_formatting(.formats, x_stats, extra_afun_params$.df_row, extra_afun_params$.var)
+
+  # Get and check statistical names
+  .stat_names <- get_stat_names(x_stats, .stat_names)
 
   in_rows(
     .list = x_stats,
     .formats = .formats,
     .names = names(.labels),
-    .labels = .labels,
-    .indent_mods = .indent_mods,
-    .format_na_strs = na_str
+    .stat_names = .stat_names,
+    .labels = .labels %>% .unlist_keep_nulls(),
+    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
   )
 }
 
@@ -216,36 +222,41 @@ count_patients_with_flags <- function(lyt,
                                       ...,
                                       table_names = paste0("tbl_flags_", var),
                                       .stats = "count_fraction",
+                                      .stat_names = NULL,
                                       .formats = list(count_fraction = format_count_fraction_fixed_dp),
                                       .indent_mods = NULL,
                                       .labels = NULL) {
   checkmate::assert_flag(riskdiff)
-  extra_args <- list(
-    .stats = .stats, .formats = .formats, .labels = .labels, .indent_mods = .indent_mods, na_str = na_str
-  )
-  s_args <- list(flag_variables = flag_variables, flag_labels = flag_labels, ...)
+  afun <- if (isFALSE(riskdiff)) a_count_patients_with_flags else afun_riskdiff
 
-  if (isFALSE(riskdiff)) {
-    extra_args <- c(extra_args, s_args)
-  } else {
-    extra_args <- c(
-      extra_args,
-      list(
-        afun = list("s_count_patients_with_flags" = a_count_patients_with_flags),
-        s_args = s_args
-      )
-    )
-  }
+  # Process standard extra arguments
+  extra_args <- list(".stats" = .stats)
+  if (!is.null(.stat_names)) extra_args[[".stat_names"]] <- .stat_names
+  if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
+  if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
+  if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
+
+  # Process additional arguments to the statistic function
+  extra_args <- c(
+    extra_args,
+    flag_variables = list(flag_variables), flag_labels = list(flag_labels),
+    if (!isFALSE(riskdiff)) list(afun = list("s_count_patients_with_flags" = a_count_patients_with_flags)),
+    ...
+  )
+
+  # Append additional info from layout to the analysis function
+  extra_args[[".additional_fun_parameters"]] <- get_additional_afun_params(add_alt_df = FALSE)
+  formals(afun) <- c(formals(afun), extra_args[[".additional_fun_parameters"]])
 
   analyze(
     lyt = lyt,
     vars = var,
-    afun = ifelse(isFALSE(riskdiff), a_count_patients_with_flags, afun_riskdiff),
-    var_labels = var_labels,
-    show_labels = show_labels,
-    table_names = table_names,
+    afun = afun,
     na_str = na_str,
     nested = nested,
-    extra_args = extra_args
+    extra_args = extra_args,
+    var_labels = var_labels,
+    show_labels = show_labels,
+    table_names = table_names
   )
 }

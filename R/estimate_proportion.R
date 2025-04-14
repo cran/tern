@@ -16,7 +16,7 @@
 #' @param long (`flag`)\cr whether a long description is required.
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
-#'   Options are: ``r shQuote(get_stats("estimate_proportion"))``
+#'   Options are: ``r shQuote(get_stats("estimate_proportion"), type = "sh")``
 #'
 #' @seealso [h_proportions]
 #'
@@ -73,10 +73,15 @@ s_proportion <- function(df,
                          weights = NULL,
                          max_iterations = 50,
                          variables = list(strata = NULL),
-                         long = FALSE) {
+                         long = FALSE,
+                         denom = c("n", "N_col", "N_row"),
+                         ...) {
   method <- match.arg(method)
   checkmate::assert_flag(long)
   assert_proportion_value(conf_level)
+  args_list <- list(...)
+  .N_row <- args_list[[".N_row"]] # nolint
+  .N_col <- args_list[[".N_col"]] # nolint
 
   if (!is.null(variables$strata)) {
     # Checks for strata
@@ -93,43 +98,46 @@ s_proportion <- function(df,
   } else if (checkmate::test_subset(method, c("strat_wilson", "strat_wilsonc"))) {
     stop("To use stratified methods you need to specify the strata variables.")
   }
+
+  # Finding the Responders
   if (checkmate::test_atomic_vector(df)) {
     rsp <- as.logical(df)
   } else {
     rsp <- as.logical(df[[.var]])
   }
-  n <- sum(rsp)
-  p_hat <- mean(rsp)
+
+  # Stop for stratified analysis
+  if (method %in% c("strat_wilson", "strat_wilsonc") && denom[1] != "n") {
+    stop(
+      "Stratified methods only support 'n' as the denominator (denom). ",
+      "Consider adding negative responders directly to the dataset."
+    )
+  }
+
+  denom <- match.arg(denom) %>%
+    switch(
+      n = length(rsp),
+      N_row = .N_row,
+      N_col = .N_col
+    )
+  n_rsp <- sum(rsp)
+  p_hat <- ifelse(denom > 0, n_rsp / denom, 0)
 
   prop_ci <- switch(method,
-    "clopper-pearson" = prop_clopper_pearson(rsp, conf_level),
-    "wilson" = prop_wilson(rsp, conf_level),
-    "wilsonc" = prop_wilson(rsp, conf_level, correct = TRUE),
-    "strat_wilson" = prop_strat_wilson(rsp,
-      strata,
-      weights,
-      conf_level,
-      max_iterations,
-      correct = FALSE
-    )$conf_int,
-    "strat_wilsonc" = prop_strat_wilson(rsp,
-      strata,
-      weights,
-      conf_level,
-      max_iterations,
-      correct = TRUE
-    )$conf_int,
-    "wald" = prop_wald(rsp, conf_level),
-    "waldcc" = prop_wald(rsp, conf_level, correct = TRUE),
-    "agresti-coull" = prop_agresti_coull(rsp, conf_level),
-    "jeffreys" = prop_jeffreys(rsp, conf_level)
+    "clopper-pearson" = prop_clopper_pearson(rsp, n = denom, conf_level),
+    "wilson" = prop_wilson(rsp, n = denom, conf_level),
+    "wilsonc" = prop_wilson(rsp, n = denom, conf_level, correct = TRUE),
+    "strat_wilson" = prop_strat_wilson(rsp, strata, weights, conf_level, max_iterations, correct = FALSE)$conf_int,
+    "strat_wilsonc" = prop_strat_wilson(rsp, strata, weights, conf_level, max_iterations, correct = TRUE)$conf_int,
+    "wald" = prop_wald(rsp, n = denom, conf_level),
+    "waldcc" = prop_wald(rsp, n = denom, conf_level, correct = TRUE),
+    "agresti-coull" = prop_agresti_coull(rsp, n = denom, conf_level),
+    "jeffreys" = prop_jeffreys(rsp, n = denom, conf_level)
   )
 
   list(
-    "n_prop" = formatters::with_label(c(n, p_hat), "Responders"),
-    "prop_ci" = formatters::with_label(
-      x = 100 * prop_ci, label = d_proportion(conf_level, method, long = long)
-    )
+    "n_prop" = formatters::with_label(c(n_rsp, p_hat), "Responders"),
+    "prop_ci" = formatters::with_label(x = 100 * prop_ci, label = d_proportion(conf_level, method, long = long))
   )
 }
 
@@ -140,10 +148,62 @@ s_proportion <- function(df,
 #' * `a_proportion()` returns the corresponding list with formatted [rtables::CellValue()].
 #'
 #' @export
-a_proportion <- make_afun(
-  s_proportion,
-  .formats = c(n_prop = "xx (xx.x%)", prop_ci = "(xx.x, xx.x)")
-)
+a_proportion <- function(df,
+                         ...,
+                         .stats = NULL,
+                         .stat_names = NULL,
+                         .formats = NULL,
+                         .labels = NULL,
+                         .indent_mods = NULL) {
+  # Check for additional parameters to the statistics function
+  dots_extra_args <- list(...)
+  extra_afun_params <- retrieve_extra_afun_params(names(dots_extra_args$.additional_fun_parameters))
+  dots_extra_args$.additional_fun_parameters <- NULL
+
+  # Check for user-defined functions
+  default_and_custom_stats_list <- .split_std_from_custom_stats(.stats)
+  .stats <- default_and_custom_stats_list$all_stats
+  custom_stat_functions <- default_and_custom_stats_list$custom_stats
+
+  # Apply statistics function
+  x_stats <- .apply_stat_functions(
+    default_stat_fnc = s_proportion,
+    custom_stat_fnc_list = custom_stat_functions,
+    args_list = c(
+      df = list(df),
+      extra_afun_params,
+      dots_extra_args
+    )
+  )
+
+  # Fill in formatting defaults
+  .stats <- get_stats("estimate_proportion",
+    stats_in = .stats,
+    custom_stats_in = names(custom_stat_functions)
+  )
+  x_stats <- x_stats[.stats]
+  .formats <- get_formats_from_stats(.stats, .formats)
+  .labels <- get_labels_from_stats(
+    .stats, .labels,
+    tern_defaults = c(lapply(x_stats, attr, "label"), tern_default_labels)
+  )
+  .indent_mods <- get_indents_from_stats(.stats, .indent_mods)
+
+  # Auto format handling
+  .formats <- apply_auto_formatting(.formats, x_stats, extra_afun_params$.df_row, extra_afun_params$.var)
+
+  # Get and check statistical names
+  .stat_names <- get_stat_names(x_stats, .stat_names)
+
+  in_rows(
+    .list = x_stats,
+    .formats = .formats,
+    .names = .labels %>% .unlist_keep_nulls(),
+    .stat_names = .stat_names,
+    .labels = .labels %>% .unlist_keep_nulls(),
+    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
+  )
+}
 
 #' @describeIn estimate_proportion Layout-creating function which can take statistics function arguments
 #'   and additional format arguments. This function is a wrapper for [rtables::analyze()].
@@ -156,13 +216,14 @@ a_proportion <- make_afun(
 #' @examples
 #' dta_test <- data.frame(
 #'   USUBJID = paste0("S", 1:12),
-#'   ARM     = rep(LETTERS[1:3], each = 4),
-#'   AVAL    = rep(LETTERS[1:3], each = 4)
-#' )
+#'   ARM = rep(LETTERS[1:3], each = 4),
+#'   AVAL = rep(LETTERS[1:3], each = 4)
+#' ) %>%
+#'   dplyr::mutate(is_rsp = AVAL == "A")
 #'
 #' basic_table() %>%
 #'   split_cols_by("ARM") %>%
-#'   estimate_proportion(vars = "AVAL") %>%
+#'   estimate_proportion(vars = "is_rsp") %>%
 #'   build_table(df = dta_test)
 #'
 #' @export
@@ -184,26 +245,34 @@ estimate_proportion <- function(lyt,
                                 ...,
                                 show_labels = "hidden",
                                 table_names = vars,
-                                .stats = NULL,
+                                .stats = c("n_prop", "prop_ci"),
+                                .stat_names = NULL,
                                 .formats = NULL,
                                 .labels = NULL,
                                 .indent_mods = NULL) {
-  extra_args <- list(
-    conf_level = conf_level, method = method, weights = weights, max_iterations = max_iterations,
-    variables = variables, long = long, ...
+  # Process standard extra arguments
+  extra_args <- list(".stats" = .stats)
+  if (!is.null(.stat_names)) extra_args[[".stat_names"]] <- .stat_names
+  if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
+  if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
+  if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
+
+  # Process additional arguments to the statistic function
+  extra_args <- c(
+    extra_args,
+    conf_level = list(conf_level), method = list(method), weights = list(weights),
+    max_iterations = list(max_iterations), variables = list(variables), long = list(long),
+    ...
   )
 
-  afun <- make_afun(
-    a_proportion,
-    .stats = .stats,
-    .formats = .formats,
-    .labels = .labels,
-    .indent_mods = .indent_mods
-  )
+  # Append additional info from layout to the analysis function
+  extra_args[[".additional_fun_parameters"]] <- get_additional_afun_params(add_alt_df = FALSE)
+  formals(a_proportion) <- c(formals(a_proportion), extra_args[[".additional_fun_parameters"]])
+
   analyze(
-    lyt,
-    vars,
-    afun = afun,
+    lyt = lyt,
+    vars = vars,
+    afun = a_proportion,
     na_str = na_str,
     nested = nested,
     extra_args = extra_args,
@@ -240,10 +309,10 @@ NULL
 #' prop_wilson(rsp, conf_level = 0.9)
 #'
 #' @export
-prop_wilson <- function(rsp, conf_level, correct = FALSE) {
+prop_wilson <- function(rsp, n = length(rsp), conf_level, correct = FALSE) {
   y <- stats::prop.test(
     sum(rsp),
-    length(rsp),
+    n,
     correct = correct,
     conf.level = conf_level
   )
@@ -374,15 +443,17 @@ prop_strat_wilson <- function(rsp,
 #' @describeIn h_proportions Calculates the Clopper-Pearson interval by calling [stats::binom.test()].
 #'   Also referred to as the `exact` method.
 #'
+#' @param n (`count`)\cr number of participants (if `denom = "N_col"`) or the number of responders
+#'   (if `denom = "n"`, the default).
+#'
 #' @examples
 #' prop_clopper_pearson(rsp, conf_level = .95)
 #'
 #' @export
-prop_clopper_pearson <- function(rsp,
-                                 conf_level) {
+prop_clopper_pearson <- function(rsp, n = length(rsp), conf_level) {
   y <- stats::binom.test(
     x = sum(rsp),
-    n = length(rsp),
+    n = n,
     conf.level = conf_level
   )
   as.numeric(y$conf.int)
@@ -398,9 +469,8 @@ prop_clopper_pearson <- function(rsp,
 #' prop_wald(rsp, conf_level = 0.95, correct = TRUE)
 #'
 #' @export
-prop_wald <- function(rsp, conf_level, correct = FALSE) {
-  n <- length(rsp)
-  p_hat <- mean(rsp)
+prop_wald <- function(rsp, n = length(rsp), conf_level, correct = FALSE) {
+  p_hat <- ifelse(n > 0, sum(rsp) / n, 0)
   z <- stats::qnorm((1 + conf_level) / 2)
   q_hat <- 1 - p_hat
   correct <- if (correct) 1 / (2 * n) else 0
@@ -419,8 +489,7 @@ prop_wald <- function(rsp, conf_level, correct = FALSE) {
 #' prop_agresti_coull(rsp, conf_level = 0.95)
 #'
 #' @export
-prop_agresti_coull <- function(rsp, conf_level) {
-  n <- length(rsp)
+prop_agresti_coull <- function(rsp, n = length(rsp), conf_level) {
   x_sum <- sum(rsp)
   z <- stats::qnorm((1 + conf_level) / 2)
 
@@ -445,9 +514,7 @@ prop_agresti_coull <- function(rsp, conf_level) {
 #' prop_jeffreys(rsp, conf_level = 0.95)
 #'
 #' @export
-prop_jeffreys <- function(rsp,
-                          conf_level) {
-  n <- length(rsp)
+prop_jeffreys <- function(rsp, n = length(rsp), conf_level) {
   x_sum <- sum(rsp)
 
   alpha <- 1 - conf_level

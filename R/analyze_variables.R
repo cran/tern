@@ -61,9 +61,9 @@ control_analyze_vars <- function(conf_level = 0.95,
 #' @inheritParams argument_convention
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
-#'   Options for numeric variables are: ``r shQuote(get_stats("analyze_vars_numeric"))``
+#'   Options for numeric variables are: ``r shQuote(get_stats("analyze_vars_numeric"), type = "sh")``
 #'
-#'   Options for non-numeric variables are: ``r shQuote(get_stats("analyze_vars_counts"))``
+#'   Options for non-numeric variables are: ``r shQuote(get_stats("analyze_vars_counts"), type = "sh")``
 #'
 #' @name analyze_variables
 #' @order 1
@@ -234,10 +234,25 @@ s_summary.numeric <- function(x, control = control_analyze_vars(), ...) {
 
   y$cv <- c("cv" = unname(y$sd) / unname(y$mean) * 100)
 
-  # Convert negative values to NA for log calculation.
+  # Geometric Mean - Convert negative values to NA for log calculation.
+  geom_verbose <- args_list[["geom_verbose"]] %||% FALSE # Additional info if requested
+  checkmate::assert_flag(geom_verbose)
   x_no_negative_vals <- x
+  if (identical(x_no_negative_vals, numeric())) {
+    x_no_negative_vals <- NA
+  }
   x_no_negative_vals[x_no_negative_vals <= 0] <- NA
+  if (geom_verbose) {
+    if (any(x <= 0)) {
+      warning("Negative values were converted to NA for calculation of the geometric mean.")
+    }
+    if (all(is.na(x_no_negative_vals))) {
+      warning("Since all values are negative or NA, the geometric mean is NA.")
+    }
+  }
   y$geom_mean <- c("geom_mean" = exp(mean(log(x_no_negative_vals), na.rm = FALSE)))
+  y$geom_sd <- c("geom_sd" = geom_sd <- exp(sd(log(x_no_negative_vals), na.rm = FALSE)))
+  y$geom_mean_sd <- c(y$geom_mean, y$geom_sd)
   geom_mean_ci <- stat_mean_ci(x, conf_level = control$conf_level, na.rm = FALSE, gg_helper = FALSE, geom_mean = TRUE)
   y$geom_mean_ci <- formatters::with_label(geom_mean_ci, paste("Geometric Mean", f_conf_level(control$conf_level)))
 
@@ -256,7 +271,7 @@ s_summary.numeric <- function(x, control = control_analyze_vars(), ...) {
     checkmate::assert_numeric(.ref_group)
     checkmate::assert_flag(.in_ref_col)
 
-    y$pval <- character()
+    y$pval <- numeric()
     if (!.in_ref_col && n_available(x) > 1 && n_available(.ref_group) > 1) {
       y$pval <- stats::t.test(x, .ref_group)$p.value
     }
@@ -368,7 +383,7 @@ s_summary.factor <- function(x, denom = c("n", "N_col", "N_row"), ...) {
     if ("NA" %in% levels(x)) levels(.ref_group) <- c(levels(.ref_group), "NA")
     checkmate::assert_factor(x, levels = levels(.ref_group), min.levels = 2)
 
-    y$pval_counts <- character()
+    y$pval_counts <- numeric()
     if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
       tab <- rbind(table(x), table(.ref_group))
       res <- suppressWarnings(stats::chisq.test(tab))
@@ -483,7 +498,7 @@ s_summary.logical <- function(x, denom = c("n", "N_col", "N_row"), ...) {
       .ref_group[is.na(.ref_group)] <- FALSE
     }
 
-    y$pval_counts <- character()
+    y$pval_counts <- numeric()
     if (!.in_ref_col && length(x) > 0 && length(.ref_group) > 0) {
       x <- factor(x, levels = c(TRUE, FALSE))
       .ref_group <- factor(.ref_group, levels = c(TRUE, FALSE))
@@ -541,7 +556,7 @@ s_summary.logical <- function(x, denom = c("n", "N_col", "N_row"), ...) {
 a_summary <- function(x,
                       ...,
                       .stats = NULL,
-                      .stat_names_in = NULL,
+                      .stat_names = NULL,
                       .formats = NULL,
                       .labels = NULL,
                       .indent_mods = NULL) {
@@ -549,7 +564,7 @@ a_summary <- function(x,
 
   # Check if there are user-defined functions
   default_and_custom_stats_list <- .split_std_from_custom_stats(.stats)
-  .stats <- default_and_custom_stats_list$default_stats
+  .stats <- default_and_custom_stats_list$all_stats # just the labels of stats
   custom_stat_functions <- default_and_custom_stats_list$custom_stats
 
   # Correction of the pval indication if it is numeric or counts
@@ -562,11 +577,6 @@ a_summary <- function(x,
   )
   dots_extra_args$.additional_fun_parameters <- NULL # After extraction we do not need them anymore
 
-  # If one col has NA vals, must add NA row to other cols (using placeholder lvl `fill-na-level`)
-  if (any(is.na(dots_extra_args$.df_row[[dots_extra_args$.var]])) && !any(is.na(x)) && !dots_extra_args$na_rm) {
-    levels(x) <- c(levels(x), "fill-na-level")
-  }
-
   # Check if compare_with_ref_group is TRUE but no ref col is set
   if (isTRUE(dots_extra_args$compare_with_ref_group) &&
     all(
@@ -576,7 +586,7 @@ a_summary <- function(x,
   ) {
     stop(
       "For comparison (compare_with_ref_group = TRUE), the reference group must be specified.",
-      "\nSee split_fun in spit_cols_by()."
+      "\nSee ref_group in split_cols_by()."
     )
   }
 
@@ -593,23 +603,47 @@ a_summary <- function(x,
 
   # Fill in with stats defaults if needed
   met_grp <- paste0(c("analyze_vars", type), collapse = "_")
-  .stats <- c(
-    get_stats(met_grp,
-      stats_in = .stats,
-      add_pval = dots_extra_args$compare_with_ref_group %||% FALSE
-    ),
-    names(custom_stat_functions) # Additional stats from custom functions
+  .stats <- get_stats(
+    met_grp,
+    stats_in = .stats,
+    custom_stats_in = names(custom_stat_functions),
+    add_pval = dots_extra_args$compare_with_ref_group %||% FALSE
   )
 
   x_stats <- x_stats[.stats]
-  if (is.character(x) || is.factor(x)) {
-    levels_per_stats <- lapply(x_stats, names) # if there is a count is table() with levels
+
+  is_char <- is.character(x) || is.factor(x)
+  if (is_char) {
+    levels_per_stats <- lapply(x_stats, names)
   } else {
-    levels_per_stats <- NULL
+    levels_per_stats <- names(x_stats) %>%
+      as.list() %>%
+      setNames(names(x_stats))
   }
 
-  # Formats checks
-  .formats <- get_formats_from_stats(.stats, .formats)
+  # Fill in formats/indents/labels with custom input and defaults
+  .formats <- get_formats_from_stats(.stats, .formats, levels_per_stats)
+  .indent_mods <- get_indents_from_stats(.stats, .indent_mods, levels_per_stats)
+  lbls <- get_labels_from_stats(.stats, .labels, levels_per_stats)
+
+  if (is_char) {
+    # Keep pval_counts stat if present from comparisons and empty
+    if ("pval_counts" %in% names(x_stats) && length(x_stats[["pval_counts"]]) == 0) {
+      x_stats[["pval_counts"]] <- list(NULL) %>% setNames("pval_counts")
+    }
+
+    # Unlist stats
+    x_stats <- x_stats %>%
+      .unlist_keep_nulls() %>%
+      setNames(names(.formats))
+  }
+
+  # Check for custom labels from control_analyze_vars
+  .labels <- if ("control" %in% names(dots_extra_args)) {
+    labels_use_control(lbls, dots_extra_args[["control"]], .labels)
+  } else {
+    lbls
+  }
 
   # Auto format handling
   .formats <- apply_auto_formatting(
@@ -619,38 +653,16 @@ a_summary <- function(x,
     extra_afun_params$.var
   )
 
-  # Indentation checks
-  .indent_mods <- get_indents_from_stats(.stats, .indent_mods)
-
-  # Labels assignments
-  lbls <- get_labels_from_stats(.stats, .labels, levels_per_stats)
-  # Check for custom labels from control_analyze_vars
-  .labels <- if ("control" %in% names(dots_extra_args)) {
-    labels_use_control(lbls, dots_extra_args[["control"]], .labels)
-  } else {
-    lbls
-  }
-
-  if (is.character(x) || is.factor(x)) {
-    # Ungroup statistics with values for each level of x
-    x_ungrp <- ungroup_stats(x_stats, .formats, .indent_mods)
-    x_stats <- x_ungrp[["x"]]
-    .formats <- x_ungrp[[".formats"]]
-    .indent_mods <- x_ungrp[[".indent_mods"]]
-    .labels <- .unlist_keep_nulls(.labels)
-    .labels <- gsub("fill-na-level", "NA", .labels)
-  }
-
   # Get and check statistical names from defaults
-  .stat_names <- get_stat_names(x_stats, .stat_names_in) # note is x_stats
+  .stat_names <- get_stat_names(x_stats, .stat_names)
 
   in_rows(
     .list = x_stats,
     .formats = .formats,
     .names = names(.labels),
     .stat_names = .stat_names,
-    .labels = .labels,
-    .indent_mods = .indent_mods
+    .labels = .labels %>% .unlist_keep_nulls(),
+    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
   )
 }
 
@@ -747,7 +759,7 @@ analyze_vars <- function(lyt,
                          na_rm = TRUE,
                          compare_with_ref_group = FALSE,
                          .stats = c("n", "mean_sd", "median", "range", "count_fraction"),
-                         .stat_names_in = NULL,
+                         .stat_names = NULL,
                          .formats = NULL,
                          .labels = NULL,
                          .indent_mods = NULL) {
@@ -760,11 +772,10 @@ analyze_vars <- function(lyt,
 
   # Needed defaults
   if (!is.null(.stats)) extra_args[[".stats"]] <- .stats
-  if (!is.null(.stat_names_in)) extra_args[[".stat_names_in"]] <- .stat_names_in
+  if (!is.null(.stat_names)) extra_args[[".stat_names"]] <- .stat_names
   if (!is.null(.formats)) extra_args[[".formats"]] <- .formats
   if (!is.null(.labels)) extra_args[[".labels"]] <- .labels
   if (!is.null(.indent_mods)) extra_args[[".indent_mods"]] <- .indent_mods
-
 
   # Adding all additional information from layout to analysis functions (see ?rtables::additional_fun_params)
   extra_args[[".additional_fun_parameters"]] <- get_additional_afun_params(add_alt_df = FALSE)

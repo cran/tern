@@ -19,6 +19,7 @@ count_patients_with_flags(
   ...,
   table_names = paste0("tbl_flags_", var),
   .stats = "count_fraction",
+  .stat_names = NULL,
   .formats = list(count_fraction = format_count_fraction_fixed_dp),
   .indent_mods = NULL,
   .labels = NULL
@@ -27,28 +28,23 @@ count_patients_with_flags(
 s_count_patients_with_flags(
   df,
   .var,
-  flag_variables,
-  flag_labels = NULL,
   .N_col = ncol(df),
   .N_row = nrow(df),
+  ...,
+  flag_variables,
+  flag_labels = NULL,
   denom = c("n", "N_col", "N_row")
 )
 
 a_count_patients_with_flags(
   df,
   labelstr = "",
-  flag_variables,
-  flag_labels = NULL,
-  denom = c("n", "N_col", "N_row"),
-  .N_col = ncol(df),
-  .N_row = nrow(df),
-  .df_row,
-  .var = NULL,
+  ...,
   .stats = NULL,
+  .stat_names = NULL,
   .formats = NULL,
   .labels = NULL,
-  .indent_mods = NULL,
-  na_str = default_na_str()
+  .indent_mods = NULL
 )
 }
 \arguments{
@@ -86,6 +82,9 @@ times, to avoid warnings from \code{rtables}.}
 
 Options are: \verb{'n', 'count', 'count_fraction', 'count_fraction_fixed_dp', 'n_blq'}}
 
+\item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
+(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
 
@@ -114,8 +113,6 @@ passed by \code{rtables}.}
 \item{labelstr}{(\code{string})\cr label of the level of the parent split currently being summarized
 (must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
 for more information.}
-
-\item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 }
 \value{
 \itemize{

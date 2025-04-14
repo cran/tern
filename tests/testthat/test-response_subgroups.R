@@ -93,12 +93,13 @@ testthat::test_that("a_response_subgroups functions as expected with valid input
     stringsAsFactors = FALSE
   )
 
-  afun <- a_response_subgroups(.formats = list(prop = "xx.xx", pval = "x.xxxx | (<0.0001)"))
-
-  result <- basic_table() %>%
-    split_cols_by_multivar(c("prop", "pval")) %>%
-    analyze_colvars(afun) %>%
-    build_table(df)
+  result <- a_response_subgroups(
+    df,
+    .stats = c("prop", "pval"),
+    .formats = list(prop = "xx.xx", pval = "x.xxxx | (<0.0001)"),
+    .labels = list(prop.M = "M - proportion", "M" = "Male", "F" = "Female"),
+    .indent_mods = c("M" = 2L, "F" = 3L)
+  )
 
   res <- testthat::expect_silent(result)
   testthat::expect_snapshot(res)
@@ -306,6 +307,23 @@ testthat::test_that("tabulate_rsp_subgroups riskdiff argument works as expected"
 
   res <- testthat::expect_silent(result)
   testthat::expect_snapshot(res)
+
+  # pct works
+  result2 <- basic_table() %>%
+    tabulate_rsp_subgroups(
+      df = df,
+      vars = c("n", "prop", "n_tot", "or", "ci", "pval"),
+      riskdiff = control_riskdiff(
+        arm_x = levels(df$prop$arm)[1],
+        arm_y = levels(df$prop$arm)[2],
+        pct = FALSE
+      )
+    )
+
+  testthat::expect_equal(
+    cell_values(result2)[[1]][[9]],
+    cell_values(result)[[1]][[9]] / 100
+  )
 })
 
 testthat::test_that("tabulate_rsp_subgroups pval statistic warning works as expected", {

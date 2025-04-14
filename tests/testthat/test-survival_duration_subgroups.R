@@ -76,12 +76,13 @@ testthat::test_that("a_survival_subgroups functions as expected with valid input
     stringsAsFactors = FALSE
   )
 
-  afun <- a_survival_subgroups(.formats = list("hr" = "xx.xx", pval = "x.xxxx | (<0.0001)"))
-
-  result <- basic_table() %>%
-    split_cols_by_multivar(c("hr", "pval")) %>%
-    analyze_colvars(afun) %>%
-    build_table(df)
+  result <- a_survival_subgroups(
+    df,
+    .stats = c("hr", "pval"),
+    .formats = list(hr = "xx.xx", pval = "x.xxxx | (<0.0001)"),
+    .labels = list(hr.M = "M - HR", "M" = "Male", "F" = "Female"),
+    .indent_mods = c("M" = 2L, "F" = 3L)
+  )
 
   res <- testthat::expect_silent(result)
   testthat::expect_snapshot(res)
@@ -286,4 +287,17 @@ testthat::test_that("tabulate_survival_subgroups riskdiff argument works as expe
 
   res <- testthat::expect_silent(result)
   testthat::expect_snapshot(res)
+
+  # pct works
+  result2 <- basic_table() %>%
+    tabulate_survival_subgroups(
+      df,
+      time_unit = adtte$AVALU[1],
+      riskdiff = control_riskdiff(pct = FALSE)
+    )
+
+  testthat::expect_equal(
+    cell_values(result2)[[1]][[8]],
+    cell_values(result)[[1]][[8]] / 100
+  )
 })

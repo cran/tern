@@ -272,7 +272,7 @@ testthat::test_that("`estimate_proportion` is compatible with `rtables`", {
       vars = "is_rsp",
       conf_level = 0.95,
       method = "wilson",
-      .formats = c("xx.xx (xx.xx%)", "(xx.xxxx, xx.xxxx)")
+      .formats = c(n_prop = "xx.xx (xx.xx%)", prop_ci = "(xx.xxxx, xx.xxxx)")
     ) %>%
     build_table(anl)
   result <- get_formatted_cells(result)
@@ -297,7 +297,7 @@ testthat::test_that("`estimate_proportion` and strat_wilson is compatible with `
       conf_level = 0.95,
       method = "strat_wilson",
       variables = list(strata = c("SEX", "REGION1")),
-      .formats = c("xx.xx (xx.xx%)", "(xx.xxxx, xx.xxxx)")
+      .formats = c(n_prop = "xx.xx (xx.xx%)", prop_ci = "(xx.xxxx, xx.xxxx)")
     ) %>%
     build_table(anl))
 
@@ -330,7 +330,7 @@ testthat::test_that(
         variables = list(strata = c("SEX", "STRATA1")),
         weights = rep(1 / n_ws, n_ws),
         max_iterations = 1,
-        .formats = c("xx.xx (xx.xx%)", "(xx.xxxx, xx.xxxx)")
+        .formats = c(n_prop = "xx.xx (xx.xx%)", prop_ci = "(xx.xxxx, xx.xxxx)")
       ) %>%
       build_table(anl) %>%
       get_formatted_cells()
@@ -339,3 +339,46 @@ testthat::test_that(
     testthat::expect_snapshot(res)
   }
 )
+testthat::test_that("`estimate_proportion` works with different denominators", {
+  set.seed(1)
+
+  # Data loading and processing
+  anl <- tern_ex_adrs %>%
+    dplyr::filter(PARAMCD == "BESRSPI") %>%
+    dplyr::mutate(DTHFL = DTHFL == "Y") # Death flag yes
+
+  # Changing other variables (weights and max_nt)
+  n_ws <- length(unique(anl$SEX)) * length(unique(anl$STRATA1))
+  expect_error(
+    {
+      result <- basic_table() %>%
+        estimate_proportion(
+          vars = "DTHFL",
+          method = "strat_wilson",
+          variables = list(strata = c("SEX", "STRATA1")),
+          weights = rep(1 / n_ws, n_ws),
+          denom = "N_cols"
+        ) %>%
+        build_table(anl)
+    },
+    "Stratified methods only support"
+  )
+
+  result <- basic_table() %>%
+    estimate_proportion(
+      vars = "DTHFL",
+      denom = "N_col"
+    ) %>%
+    build_table(anl, col_counts = c(200))
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+
+  result <- basic_table() %>%
+    estimate_proportion(
+      vars = "DTHFL",
+      denom = "n"
+    ) %>%
+    build_table(anl)
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})

@@ -539,13 +539,13 @@ testthat::test_that("analyze_vars works correctly with auto formats", {
   testthat::expect_snapshot(res)
 })
 
-testthat::test_that("analyze_vars works well with additional stat names (.stat_names_in)", {
+testthat::test_that("analyze_vars works well with additional stat names (.stat_names)", {
   dt <- data.frame("VAR" = c(0.001, 0.2, 0.0011000, 3, 4))
   res <- basic_table() %>%
     analyze_vars(
       vars = "VAR",
       .stats = c("n", "mean", "mean_sd", "range"),
-      .stat_names_in = list("n" = "CoUnT"),
+      .stat_names = list("n" = "CoUnT"),
       .formats = c("mean_sd" = "auto", "range" = "auto")
     ) %>%
     build_table(dt) %>%
@@ -554,20 +554,20 @@ testthat::test_that("analyze_vars works well with additional stat names (.stat_n
   testthat::expect_equal(res$stat_name, c("CoUnT", "mean", "mean", "sd", "min", "max"))
 })
 
-testthat::test_that("analyze_vars works well with additional stat names (.stat_names_in) and stats (custom fnc)", {
+testthat::test_that("analyze_vars works well with additional stat names (.stat_names) and stats (custom fnc)", {
   dt <- data.frame("VAR" = c(0.001, 0.2, 0.0011000, 3, 4), "VAR2" = letters[seq(5)])
   res <- basic_table() %>%
     analyze_vars(
       vars = c("VAR", "VAR2"),
       .stats = c("n", "mean",
         "a" = function(x, ...) {
-          return(0)
+          0
         },
         "v" = function(x, ...) {
-          return(0)
+          0
         }
       ),
-      .stat_names_in = list("n" = "CoUnT", "v" = "something"),
+      .stat_names = list("n" = "CoUnT", "v" = "something"),
       .formats = c("mean" = "auto", "v" = "xx.xx"),
       verbose = FALSE # now it works
     ) %>%
@@ -579,26 +579,24 @@ testthat::test_that("analyze_vars works well with additional stat names (.stat_n
   # stat_names are correctly assigned
   testthat::expect_equal(
     res2$stat_name,
-    c("CoUnT", "mean", NA, "something", "n", NA, "something")
+    c("CoUnT", "mean", NA, "something", "CoUnT", NA, "something")
   )
 
   # format for v is correctly printed (added external statistic)
   testthat::expect_equal(
-    as_result_df(res, data_format = "strings")[nrow(res2), ncol(res2)],
+    as_result_df(res, data_format = "strings")[["all obs"]][nrow(res2)],
     c("0.00") # i.e. x.xx
   )
-})
-testthat::test_that("analyze_vars works well with additional stat names (.stat_names_in) and stats (custom fnc)", {
-  dt <- data.frame("VAR" = c(0.001, 0.2, 0.0011000, 3, 4), "VAR2" = letters[seq(5)])
+
   res <- basic_table() %>%
     analyze_vars(
       vars = c("VAR", "VAR2"),
       .stats = c("n", "mean", "count_fraction",
         "a_zero" = function(x, ...) {
-          return(0)
+          0
         }
       ),
-      .stat_names_in = list("n" = "CoUnT", "v" = "something"),
+      .stat_names = list("n" = "CoUnT", "v" = "something"),
       .formats = c("mean" = "auto", "v" = "xx.xx"),
       .labels = list("n" = "N=", "a" = "AAAA", "a_zero" = "A_ZERO"),
       verbose = FALSE # now it works
@@ -617,6 +615,71 @@ testthat::test_that("analyze_vars works well with additional stat names (.stat_n
   cols_int <- names(res2) %in% c("variable", "variable_level", "variable_label", "stat_name", "stat")
   testthat::expect_equal(
     unlist(res2[nrow(res2), cols_int, drop = TRUE], use.names = FALSE),
-    c("VAR2", "a_zero.a_zero", "A_ZERO", NA, 0)
+    c("VAR2", "a_zero", "A_ZERO", NA, 0)
   )
+})
+
+testthat::test_that("analyze_vars keeps the order of mixed custom fnc and defaults", {
+  # Regression test for custom function ordering
+  result <- basic_table() %>%
+    analyze_vars(
+      .stats = list("n",
+        "another function" = function(x, ...) {
+          0
+        },
+        "geom_sd_custom" = function(x, ...) {
+          x_no_negative_vals <- x
+          x_no_negative_vals[x_no_negative_vals <= 0] <- NA
+
+          geom_mean <- exp(mean(log(x_no_negative_vals), na.rm = FALSE))
+          geom_sd <- exp(sd(log(x_no_negative_vals), na.rm = FALSE))
+
+          rcell(c(geom_mean, geom_sd))
+        },
+        "geom_mean_sd"
+      ),
+      vars = "AGE",
+      var_labels = "Age (yr)",
+      .formats = c("another function" = "xx.xxx", geom_sd_custom = "xx.xx (xx.xx)")
+    ) %>%
+    build_table(tern_ex_adsl)
+
+  expect_identical(
+    strsplit(toString(matrix_form(result), hsep = "-"), "\n")[[1]],
+    c(
+      "                        all obs   ",
+      "----------------------------------",
+      "n                         200     ",
+      "another function         0.000    ",
+      "geom_sd_custom        34.65 (1.22)",
+      "Geometric Mean (SD)    34.7 (1.2) "
+    )
+  )
+})
+
+testthat::test_that("analyze_vars warnings for geom_verbose work", {
+  tmp_df <- data.frame("VAR1" = c(1, 2, 3, 0, -1, -2), "VAR2" = 0)
+  expect_warning(
+    result <- basic_table() %>%
+      analyze_vars("VAR1", .stats = "geom_mean_sd", geom_verbose = TRUE) %>%
+      build_table(tmp_df),
+    "Negative values were converted to NA"
+  )
+
+  # Do we expect output to be NA?
+  expect_true(all(is.na(cell_values(result)[[1]])))
+
+  # All NAs
+  expect_warning(
+    expect_warning(
+      result2 <- basic_table() %>%
+        analyze_vars("VAR2", .stats = "geom_mean_sd", geom_verbose = TRUE) %>%
+        build_table(tmp_df),
+      "Since all values are negative or NA"
+    ),
+    "Negative values were converted to NA"
+  )
+
+  # Do we expect output to be NA?
+  expect_true(all(is.na(cell_values(result2)[[1]])))
 })

@@ -22,9 +22,10 @@ count_occurrences_by_grade(
   ...,
   table_names = var,
   .stats = "count_fraction",
+  .stat_names = NULL,
   .formats = list(count_fraction = format_count_fraction_fixed_dp),
-  .indent_mods = NULL,
-  .labels = NULL
+  .labels = NULL,
+  .indent_mods = NULL
 )
 
 summarize_occurrences_by_grade(
@@ -38,41 +39,35 @@ summarize_occurrences_by_grade(
   na_str = default_na_str(),
   ...,
   .stats = "count_fraction",
+  .stat_names = NULL,
   .formats = list(count_fraction = format_count_fraction_fixed_dp),
-  .indent_mods = NULL,
-  .labels = NULL
+  .labels = NULL,
+  .indent_mods = 0L
 )
 
 s_count_occurrences_by_grade(
   df,
+  labelstr = "",
   .var,
   .N_row,
   .N_col,
+  ...,
   id = "USUBJID",
   grade_groups = list(),
   remove_single = TRUE,
   only_grade_groups = FALSE,
-  denom = c("N_col", "n", "N_row"),
-  labelstr = ""
+  denom = c("N_col", "n", "N_row")
 )
 
 a_count_occurrences_by_grade(
   df,
   labelstr = "",
-  id = "USUBJID",
-  grade_groups = list(),
-  remove_single = TRUE,
-  only_grade_groups = FALSE,
-  denom = c("N_col", "n", "N_row"),
-  .N_col,
-  .N_row,
-  .df_row,
-  .var = NULL,
+  ...,
   .stats = NULL,
+  .stat_names = NULL,
   .formats = NULL,
   .labels = NULL,
-  .indent_mods = NULL,
-  na_str = default_na_str()
+  .indent_mods = NULL
 )
 }
 \arguments{
@@ -113,15 +108,22 @@ times, to avoid warnings from \code{rtables}.}
 
 Options are: \verb{'count_fraction', 'count_fraction_fixed_dp'}}
 
+\item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
+(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
+
+\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
 
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Defaults to 0, which corresponds to the
 unmodified default behavior. Can be negative.}
 
-\item{.labels}{(named \code{character})\cr labels for the statistics (without indent).}
-
 \item{df}{(\code{data.frame})\cr data set containing all analysis variables.}
+
+\item{labelstr}{(\code{string})\cr label of the level of the parent split currently being summarized
+(must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
+for more information.}
 
 \item{.var, var}{(\code{string})\cr single variable name that is passed by \code{rtables} when requested
 by a statistics function.}
@@ -138,12 +140,6 @@ passed by \code{rtables}.}
 \item \code{n}: number of patients with any occurrences.
 \item \code{N_row}: total number of patients in this row across columns.
 }}
-
-\item{labelstr}{(\code{string})\cr label of the level of the parent split currently being summarized
-(must be present as second argument in Content Row Functions). See \code{\link[rtables:summarize_row_groups]{rtables::summarize_row_groups()}}
-for more information.}
-
-\item{.df_row}{(\code{data.frame})\cr data frame across all of the columns for the given row split.}
 }
 \value{
 \itemize{
