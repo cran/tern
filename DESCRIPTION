@@ -1,7 +1,7 @@
 Package: tern
 Title: Create Common TLGs Used in Clinical Trials
-Version: 0.9.8
-Date: 2025-04-07
+Version: 0.9.9
+Date: 2025-06-18
 Authors@R: c(
     person("Joe", "Zhu", , "joe.zhu@roche.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7566-2787")),
@@ -27,7 +27,7 @@ License: Apache License 2.0
 URL: https://insightsengineering.github.io/tern/,
         https://github.com/insightsengineering/tern/
 BugReports: https://github.com/insightsengineering/tern/issues
-Depends: R (>= 4.4.0), rtables (>= 0.6.12)
+Depends: R (>= 4.4.0), rtables (>= 0.6.13)
 Imports: broom (>= 0.5.4), car (>= 3.0-13), checkmate (>= 2.1.0),
         cowplot (>= 1.0.0), dplyr (>= 1.0.0), emmeans (>= 1.10.4),
         forcats (>= 1.0.0), formatters (>= 0.5.11), ggplot2 (>= 3.5.0),
@@ -100,13 +100,14 @@ Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'utils_ggplot.R' 'utils_grid.R' 'utils_rtables.R'
         'utils_split_funs.R'
 NeedsCompilation: no
-Packaged: 2025-04-11 21:48:37 UTC; delaruae
-Author: Joe Zhu [aut, cre] (<https://orcid.org/0000-0001-7566-2787>),
+Packaged: 2025-06-20 00:18:23 UTC; delaruae
+Author: Joe Zhu [aut, cre] (ORCID: <https://orcid.org/0000-0001-7566-2787>),
   Daniel Sabanés Bové [aut],
   Jana Stoilova [aut],
-  Davide Garolini [aut] (<https://orcid.org/0000-0002-1445-1369>),
-  Emily de la Rua [aut] (<https://orcid.org/0009-0000-8738-5561>),
-  Abinaya Yogasekaram [aut] (<https://orcid.org/0009-0005-2083-1105>),
+  Davide Garolini [aut] (ORCID: <https://orcid.org/0000-0002-1445-1369>),
+  Emily de la Rua [aut] (ORCID: <https://orcid.org/0009-0000-8738-5561>),
+  Abinaya Yogasekaram [aut] (ORCID:
+    <https://orcid.org/0009-0005-2083-1105>),
   Heng Wang [aut],
   Francois Collin [aut],
   Adrian Waddell [aut],
@@ -116,4 +117,4 @@ Author: Joe Zhu [aut, cre] (<https://orcid.org/0000-0001-7566-2787>),
   F. Hoffmann-La Roche AG [cph, fnd]
 Maintainer: Joe Zhu <joe.zhu@roche.com>
 Repository: CRAN
-Date/Publication: 2025-04-14 15:00:06 UTC
+Date/Publication: 2025-06-20 08:50:05 UTC
