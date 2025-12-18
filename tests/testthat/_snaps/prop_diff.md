@@ -141,6 +141,9 @@
       $diff_ci
       [1] -0.285363076  0.009989872
       
+      $se_diff
+      [1] 0.08978092
+      
       $weights
             a.x       b.x       a.y       b.y       a.z       b.z 
       0.1148388 0.2131696 0.1148388 0.2131696 0.1767914 0.1671918 
@@ -153,6 +156,56 @@
       a.x b.x a.y b.y a.z b.z 
         8   9   4   9   6   6 
       
+
+# `prop_diff_cmh` with Sato variance estimator for difference
+
+    Code
+      res
+    Output
+      $prop
+        Placebo Treatment 
+      0.5331117 0.3954251 
+      
+      $prop_ci
+      $prop_ci$Placebo
+      [1] 0.4306536 0.6355698
+      
+      $prop_ci$Treatment
+      [1] 0.2890735 0.5017768
+      
+      
+      $diff
+      [1] -0.1376866
+      
+      $diff_ci
+      [1] -0.31541846  0.04004526
+      
+      $se_diff
+      [1] 0.1080533
+      
+      $weights
+            a.x       b.x       a.y       b.y       a.z       b.z 
+      0.1148388 0.2131696 0.1148388 0.2131696 0.1767914 0.1671918 
+      
+      $n1
+      a.x b.x a.y b.y a.z b.z 
+        4  11   8  11  13  11 
+      
+      $n2
+      a.x b.x a.y b.y a.z b.z 
+        8   9   4   9   6   6 
+      
+
+# h_miettinen_nurminen_var_est works as expected
+
+    list(p1_hat = 0.342213591803752, p2_hat = 0.442213591803752, 
+        var_est = 0.0405774934104561)
+
+---
+
+    list(p1_hat = c(0.342213591803752, 0.265846883932378), p2_hat = c(0.442213591803752, 
+    0.365846883932378), var_est = c(0.0405774934104561, 0.0301587022300622
+    ))
 
 # prop_diff_cmh works correctly when some strata don't have both groups
 
@@ -176,6 +229,9 @@
       
       $diff_ci
       [1] -0.32786094 -0.01567301
+      
+      $se_diff
+      [1] 0.09489839
       
       $weights
             b.x       a.y       b.y       a.z       b.z 
@@ -253,4 +309,28 @@
       attr(,"label")
       [1] "90% CI (CMH, without correction)"
       
+
+# s_proportion_diff works with CMH Sato method
+
+    Code
+      res
+    Output
+      $diff
+      diff_cmh_sato 
+           13.76866 
+      attr(,"label")
+      [1] "Difference in Response rate (%)"
+      
+      $diff_ci
+      diff_ci_cmh_sato_l diff_ci_cmh_sato_u 
+               -4.004526          31.541846 
+      attr(,"label")
+      [1] "90% CI (CMH, Sato variance estimator)"
+      
+
+# s_proportion_diff works with CMH Miettinen and Nurminen method
+
+    list(diff = structure(c(diff_cmh_mn = 13.7686601988347), label = "Difference in Response rate (%)"), 
+        diff_ci = structure(c(diff_ci_cmh_mn_l = -3.45069418895496, 
+        diff_ci_cmh_mn_u = 30.2144371774115), label = "90% CI (CMH, Miettinen and Nurminen)"))
 

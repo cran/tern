@@ -16,6 +16,7 @@ analyze_vars(
   vars,
   var_labels = vars,
   na_str = default_na_str(),
+  na_str_drop = "<Missing>",
   nested = TRUE,
   show_labels = "default",
   table_names = vars,
@@ -27,7 +28,10 @@ analyze_vars(
   .stat_names = NULL,
   .formats = NULL,
   .labels = NULL,
-  .indent_mods = NULL
+  .indent_mods = NULL,
+  formats_var = NULL,
+  na_strs_var = NULL,
+  format = NULL
 )
 
 s_summary(x, ...)
@@ -58,6 +62,9 @@ a_summary(
 \item{var_labels}{(\code{character})\cr variable labels.}
 
 \item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
+
+\item{na_str_drop}{(\code{string})\cr Additional \code{NA} string to be dropped from factor calculations. If \code{NULL}
+nothing will be removed beyond standard \code{NA} handling.}
 
 \item{nested}{(\code{flag})\cr whether this layout instruction should be applied within the existing layout structure _if
 possible (\code{TRUE}, the default) or as a new top-level element (\code{FALSE}). Ignored if it would nest a split.
@@ -104,6 +111,15 @@ information on the \code{"auto"} setting.}
 \item{.indent_mods}{(named \code{integer})\cr indent modifiers for the labels. Each element of the vector
 should be a name-value pair with name corresponding to a statistic specified in \code{.stats} and value the indentation
 for that statistic's row label.}
+
+\item{formats_var}{(\code{NULL} or \code{string})\cr Passed to \code{\link[rtables:analyze]{rtables::analyze()}}. \code{.formats} must be \code{"default"} and
+\code{format} must be \code{NULL} when this is non-NULL.}
+
+\item{na_strs_var}{(\code{string} or \code{NULL})\cr Passed to \code{analyze}. \code{na_str} must be
+\code{NA} when this is non-NULL.}
+
+\item{format}{(\code{NULL}, \code{list}, \code{string} or \code{function})\cr Passed to \code{\link[rtables:analyze]{rtables::analyze()}}. \code{.formats} must be
+\code{"default"} and \code{formats_var} must be \code{NULL} when this is non-NULL.}
 
 \item{x}{(\code{numeric})\cr vector of numbers we want to analyze.}
 

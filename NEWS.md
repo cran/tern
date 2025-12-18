@@ -1,3 +1,19 @@
+# tern 0.9.10
+
+### Enhancements
+* Added `alternative` argument to `test_proportion_diff()` to allow one-sided hypothesis testing.
+* Added `cmh_sato` method to `estimate_proportion_diff()` for Cochran-Mantel-Haenszel proportion difference confidence interval using the Sato variance estimator.
+* Added `cmh_mn` method to `estimate_proportion_diff()` for Cochran-Mantel-Haenszel proportion difference confidence interval using the Miettinen and Nurminen method.
+* Added `cmh_wh` (CMH with Wilson-Hilferty transformation) method to `test_proportion_diff()` for stratified proportion difference testing.
+* `analyze_vars` now accepts `format`, `formats_var` and `na_strs_var` and passes them directly down to `analyze`
+* When `.formats` is `"default"` (the string), all stats will be assigned the `"default"` format label rather than the default formats baked into `tern`. This is intended for use in conjunction with the `format` or `formats_var` arguments to `analyze` (and now `analyze_vars`).
+
+### Bug Fixes
+* Fixed bug in `tabulate_rsp_subgroups()` and `tabulate_survival_subgroups()` preventing risk difference column format specified via `control_riskdiff()` from being applied.
+* Fixed bug in `a_summary()` causing an error when all values of a factor input variable were `NA`.
+* Fixed `NA` behavior in `s_summary.factor` and `s_summary.character` when `na.rm = FALSE` to ensure that `NA` values are always represented in output tables. 
+* Unified explicit `NA` behavior for missing values in `explicit_na()`.
+
 # tern 0.9.9
 
 ### Enhancements
@@ -356,7 +372,7 @@
 * Created vignette which saves cached synthetic CDISC dataset files to the `data/` folder and
   generated cached synthetic datasets.
 * Updated all examples/tests to use datasets from the `data/` folder instead of `scda` datasets.
-* Removed all template tests from `tern`. These tests are in internal repo `scda.test`.
+* Removed all template tests from `tern`. These tests are in internal repository `scda.test`.
 
 ### Miscellaneous
 * Renamed `summarize_vars_in_cols` to `analyze_vars_in_cols` to reflect the appropriate `analyze` logic.

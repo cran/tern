@@ -167,7 +167,7 @@ s_summary.numeric <- function(x, control = control_analyze_vars(), ...) {
 
   if (na_rm) {
     x <- x[!is.na(x)]
-  }
+  } # no explicit NA because it should be numeric
 
   y <- list()
 
@@ -326,13 +326,19 @@ s_summary.factor <- function(x, denom = c("n", "N_col", "N_row"), ...) {
   .N_row <- args_list[[".N_row"]] # nolint
   .N_col <- args_list[[".N_col"]] # nolint
   na_rm <- args_list[["na_rm"]] %||% TRUE
+  na_str <- args_list[["na_str"]] %||% "NA"
+  na_str_drop <- args_list[["na_str_drop"]]
   verbose <- args_list[["verbose"]] %||% TRUE
   compare_with_ref_group <- args_list[["compare_with_ref_group"]]
+  checkmate::assert_string(na_str_drop, null.ok = TRUE)
 
   if (na_rm) {
-    x <- x[!is.na(x)] %>% fct_discard("<Missing>")
+    x <- x[!is.na(x)]
+    if (!is.null(na_str_drop)) {
+      x <- fct_discard(x, na_str_drop)
+    }
   } else {
-    x <- x %>% explicit_na(label = "NA")
+    x <- x %>% explicit_na(label = na_str)
   }
 
   y <- list()
@@ -364,7 +370,6 @@ s_summary.factor <- function(x, denom = c("n", "N_col", "N_row"), ...) {
 
   y$n_blq <- list("n_blq" = c("n_blq" = sum(grepl("BLQ|LTR|<[1-9]|<PCLLOQ", x))))
 
-
   if (isTRUE(compare_with_ref_group)) {
     .ref_group <- as_factor_keep_attributes(args_list[[".ref_group"]], verbose = verbose)
     .in_ref_col <- args_list[[".in_ref_col"]]
@@ -376,8 +381,8 @@ s_summary.factor <- function(x, denom = c("n", "N_col", "N_row"), ...) {
       x <- x[!is.na(x)] %>% fct_discard("<Missing>")
       .ref_group <- .ref_group[!is.na(.ref_group)] %>% fct_discard("<Missing>")
     } else {
-      x <- x %>% explicit_na(label = "NA")
-      .ref_group <- .ref_group %>% explicit_na(label = "NA")
+      x <- x %>% explicit_na(label = na_str)
+      .ref_group <- .ref_group %>% explicit_na(label = na_str)
     }
 
     if ("NA" %in% levels(x)) levels(.ref_group) <- c(levels(.ref_group), "NA")
@@ -416,12 +421,13 @@ s_summary.factor <- function(x, denom = c("n", "N_col", "N_row"), ...) {
 s_summary.character <- function(x, denom = c("n", "N_col", "N_row"), ...) {
   args_list <- list(...)
   na_rm <- args_list[["na_rm"]] %||% TRUE
+  na_str <- args_list[["na_str"]] %||% "NA"
   verbose <- args_list[["verbose"]] %||% TRUE
 
   if (na_rm) {
     y <- as_factor_keep_attributes(x, verbose = verbose)
   } else {
-    y <- as_factor_keep_attributes(x, verbose = verbose, na_level = "NA")
+    y <- as_factor_keep_attributes(x, verbose = verbose, na_level = na_str)
   }
 
   s_summary(x = y, denom = denom, ...)
@@ -468,7 +474,7 @@ s_summary.logical <- function(x, denom = c("n", "N_col", "N_row"), ...) {
 
   if (na_rm) {
     x <- x[!is.na(x)]
-  }
+  } # na values are and should be logical here
 
   y <- list()
   y$n <- c("n" = length(x))
@@ -614,6 +620,7 @@ a_summary <- function(x,
 
   is_char <- is.character(x) || is.factor(x)
   if (is_char) {
+    x_stats <- x_stats[sapply(x_stats, \(x) length(x) > 0 || is.numeric(x))] # only return non-empty stats
     levels_per_stats <- lapply(x_stats, names)
   } else {
     levels_per_stats <- names(x_stats) %>%
@@ -669,6 +676,8 @@ a_summary <- function(x,
 #' @describeIn analyze_variables Layout-creating function which can take statistics function arguments
 #'   and additional format arguments. This function is a wrapper for [rtables::analyze()].
 #'
+#' @param na_str_drop (`string`)\cr Additional `NA` string to be dropped from factor calculations. If `NULL`
+#'   nothing will be removed beyond standard `NA` handling.
 #' @param ... additional arguments passed to `s_summary()`, including:
 #'   * `denom`: (`string`) See parameter description below.
 #'   * `.N_row`: (`numeric(1)`) Row-wise N (row group count) for the group of observations being analyzed (i.e. with no
@@ -680,6 +689,12 @@ a_summary <- function(x,
 #' @param .indent_mods (named `integer`)\cr indent modifiers for the labels. Each element of the vector
 #'   should be a name-value pair with name corresponding to a statistic specified in `.stats` and value the indentation
 #'   for that statistic's row label.
+#' @param formats_var (`NULL` or `string`)\cr Passed to [rtables::analyze()]. `.formats` must be `"default"` and
+#' `format` must be `NULL` when this is non-NULL.
+#' @param format (`NULL`, `list`, `string` or `function`)\cr Passed to [rtables::analyze()]. `.formats` must be
+#' `"default"` and `formats_var` must be `NULL` when this is non-NULL.
+#' @param na_strs_var (`string` or `NULL`)\cr Passed to `analyze`. `na_str` must be
+#'   `NA` when this is non-NULL.
 #'
 #' @return
 #' * `analyze_vars()` returns a layout object suitable for passing to further layouting functions,
@@ -751,6 +766,7 @@ analyze_vars <- function(lyt,
                          vars,
                          var_labels = vars,
                          na_str = default_na_str(),
+                         na_str_drop = "<Missing>",
                          nested = TRUE,
                          show_labels = "default",
                          table_names = vars,
@@ -762,13 +778,50 @@ analyze_vars <- function(lyt,
                          .stat_names = NULL,
                          .formats = NULL,
                          .labels = NULL,
-                         .indent_mods = NULL) {
+                         .indent_mods = NULL,
+                         formats_var = NULL,
+                         na_strs_var = NULL,
+                         format = NULL) {
   # Depending on main functions
   extra_args <- list(
     "na_rm" = na_rm,
+    "na_str_drop" = na_str_drop,
     "compare_with_ref_group" = compare_with_ref_group,
     ...
   )
+
+  ## handle na_str = NA (logical) for user convenience
+  if (identical(na_str, NA)) {
+    na_str <- NA_character_
+  }
+
+  if (!is.null(formats_var) && !identical(.formats, "default")) {
+    stop(
+      ".formats must be set to 'default' when specifying a formats variable ",
+      "(got formats_var: ",
+      formats_var,
+      ")."
+    )
+  }
+
+  if (!is.null(format) && !identical(.formats, "default")) {
+    stop(
+      ".formats must be set to 'default' when passing the format argument down ",
+      "to analyze() (got format class:",
+      paste(class(format), collapse = " - "),
+      ")."
+    )
+  }
+
+
+  if (!is.null(na_strs_var) && !identical(na_str, NA_character_)) {
+    stop(
+      "na_str must be set to NA when specifying an na strings variable ",
+      "(got na_strs_var: ",
+      na_strs_var,
+      ")."
+    )
+  }
 
   # Needed defaults
   if (!is.null(.stats)) extra_args[[".stats"]] <- .stats
@@ -796,6 +849,8 @@ analyze_vars <- function(lyt,
     extra_args = extra_args,
     show_labels = show_labels,
     table_names = table_names,
-    section_div = section_div
+    section_div = section_div,
+    formats_var = formats_var,
+    na_strs_var = na_strs_var
   )
 }
