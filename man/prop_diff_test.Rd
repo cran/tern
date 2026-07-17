@@ -11,7 +11,7 @@ test_proportion_diff(
   lyt,
   vars,
   variables = list(strata = NULL),
-  method = c("chisq", "schouten", "fisher", "cmh", "cmh_wh"),
+  method = c("chisq", "schouten", "fisher", "cmh", "cmh_sato", "cmh_wh"),
   alternative = c("two.sided", "less", "greater"),
   var_labels = vars,
   na_str = default_na_str(),
@@ -34,7 +34,7 @@ s_test_proportion_diff(
   .ref_group,
   .in_ref_col,
   variables = list(strata = NULL),
-  method = c("chisq", "schouten", "fisher", "cmh", "cmh_wh"),
+  method = c("chisq", "schouten", "fisher", "cmh", "cmh_sato", "cmh_wh"),
   alternative = c("two.sided", "less", "greater"),
   ...
 )
@@ -56,7 +56,7 @@ a_test_proportion_diff(
 
 \item{variables}{(named \code{list} of \code{string})\cr list of additional analysis variables.}
 
-\item{method}{(\code{string})\cr one of \code{chisq}, \code{cmh}, \code{cmh_wh}, \code{fisher}, or \code{schouten};
+\item{method}{(\code{string})\cr one of \code{chisq}, \code{cmh}, \code{cmh_sato}, \code{cmh_wh}, \code{fisher}, or \code{schouten};
 specifies the test used to calculate the p-value.}
 
 \item{alternative}{(\code{string})\cr whether \code{two.sided}, or one-sided \code{less} or \code{greater} p-value
@@ -87,7 +87,7 @@ defined by this split instruction, or \code{NA_character_} (the default) for no 
 Options are: \code{'pval'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -149,8 +149,8 @@ dta <- data.frame(
 )
 
 # With `rtables` pipelines.
-l <- basic_table() \%>\%
-  split_cols_by(var = "grp", ref_group = "B") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "grp", ref_group = "B") |>
   test_proportion_diff(
     vars = "rsp",
     method = "cmh", variables = list(strata = "strata")

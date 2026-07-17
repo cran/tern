@@ -101,7 +101,7 @@ Options for numeric variables are: \verb{'n', 'sum', 'mean', 'sd', 'se', 'mean_s
 Options for non-numeric variables are: \verb{'n', 'count', 'count_fraction', 'count_fraction_fixed_dp', 'fraction', 'n_blq'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -282,17 +282,17 @@ dta_test <- data.frame(
 
 # `analyze_vars()` in `rtables` pipelines
 ## Default output within a `rtables` pipeline.
-l <- basic_table() \%>\%
-  split_cols_by(var = "ARM") \%>\%
-  split_rows_by(var = "AVISIT") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "ARM") |>
+  split_rows_by(var = "AVISIT") |>
   analyze_vars(vars = "AVAL")
 
 build_table(l, df = dta_test)
 
 ## Select and format statistics output.
-l <- basic_table() \%>\%
-  split_cols_by(var = "ARM") \%>\%
-  split_rows_by(var = "AVISIT") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "ARM") |>
+  split_rows_by(var = "AVISIT") |>
   analyze_vars(
     vars = "AVAL",
     .stats = c("n", "mean_sd", "quantiles"),
@@ -303,9 +303,9 @@ l <- basic_table() \%>\%
 build_table(l, df = dta_test)
 
 ## Use arguments interpreted by `s_summary`.
-l <- basic_table() \%>\%
-  split_cols_by(var = "ARM") \%>\%
-  split_rows_by(var = "AVISIT") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "ARM") |>
+  split_rows_by(var = "AVISIT") |>
   analyze_vars(vars = "AVAL", na_rm = FALSE)
 
 build_table(l, df = dta_test)
@@ -313,20 +313,20 @@ build_table(l, df = dta_test)
 ## Handle `NA` levels first when summarizing factors.
 dta_test$AVISIT <- NA_character_
 dta_test <- df_explicit_na(dta_test)
-l <- basic_table() \%>\%
-  split_cols_by(var = "ARM") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "ARM") |>
   analyze_vars(vars = "AVISIT", na_rm = FALSE)
 
 build_table(l, df = dta_test)
 
 # auto format
 dt <- data.frame("VAR" = c(0.001, 0.2, 0.0011000, 3, 4))
-basic_table() \%>\%
+basic_table() |>
   analyze_vars(
     vars = "VAR",
     .stats = c("n", "mean", "mean_sd", "range"),
     .formats = c("mean_sd" = "auto", "range" = "auto")
-  ) \%>\%
+  ) |>
   build_table(dt)
 
 # `s_summary.numeric`
@@ -350,10 +350,10 @@ dta_test <- data.frame(
 )
 
 ## The summary obtained in with `rtables`:
-basic_table() \%>\%
-  split_cols_by(var = "Group") \%>\%
-  split_rows_by(var = "sub_group") \%>\%
-  analyze(vars = "x", afun = s_summary) \%>\%
+basic_table() |>
+  split_cols_by(var = "Group") |>
+  split_rows_by(var = "sub_group") |>
+  analyze(vars = "x", afun = s_summary) |>
   build_table(df = dta_test)
 
 ## By comparison with `lapply`:

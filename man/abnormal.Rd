@@ -71,7 +71,7 @@ times, to avoid warnings from \code{rtables}.}
 Options are: \code{'fraction'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -154,12 +154,12 @@ df <- data.frame(
 )
 
 # Select only post-baseline records.
-df <- df \%>\%
+df <- df |>
   filter(ONTRTFL == "Y")
 
 # Layout creating function.
-basic_table() \%>\%
-  count_abnormal(var = "ANRIND", abnormal = list(high = "HIGH", low = "LOW")) \%>\%
+basic_table() |>
+  count_abnormal(var = "ANRIND", abnormal = list(high = "HIGH", low = "LOW")) |>
   build_table(df)
 
 # Passing of statistics function and formatting arguments.
@@ -172,15 +172,15 @@ df2 <- data.frame(
 )
 
 # Select only post-baseline records.
-df2 <- df2 \%>\%
+df2 <- df2 |>
   filter(ONTRTFL == "Y")
 
-basic_table() \%>\%
+basic_table() |>
   count_abnormal(
     var = "RANGE",
     abnormal = list(low = "LOW", high = "HIGH"),
     variables = list(id = "ID", baseline = "BL_RANGE")
-  ) \%>\%
+  ) |>
   build_table(df2)
 
 }

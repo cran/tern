@@ -86,7 +86,7 @@ times, to avoid warnings from \code{rtables}.}
 Options are: \verb{'or_ci', 'n_tot'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -163,8 +163,8 @@ dta <- data.frame(
   strata = factor(sample(c("C", "D"), 100, TRUE))
 )
 
-l <- basic_table() \%>\%
-  split_cols_by(var = "grp", ref_group = "B") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "grp", ref_group = "B") |>
   estimate_odds_ratio(vars = "rsp")
 
 build_table(l, df = dta)

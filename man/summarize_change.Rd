@@ -70,7 +70,7 @@ defined by this split instruction, or \code{NA_character_} (the default) for no 
 Options are: \verb{'n', 'sum', 'mean', 'sd', 'se', 'mean_sd', 'mean_se', 'mean_ci', 'mean_sei', 'mean_sdi', 'mean_pval', 'median', 'mad', 'median_ci', 'quantiles', 'iqr', 'range', 'min', 'max', 'median_range', 'cv', 'geom_mean', 'geom_sd', 'geom_mean_sd', 'geom_mean_ci', 'geom_cv', 'median_ci_3d', 'mean_ci_3d', 'geom_mean_ci_3d'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -135,19 +135,19 @@ dta_test <- data.frame(
   AVISIT = rep(paste0("V", 1:3), 6),
   ARM = rep(LETTERS[1:3], rep(6, 3)),
   AVAL = c(9:1, rep(NA, 9))
-) \%>\%
-  mutate(ABLFLL = AVISIT == "V1") \%>\%
-  group_by(USUBJID) \%>\%
+) |>
+  mutate(ABLFLL = AVISIT == "V1") |>
+  group_by(USUBJID) |>
   mutate(
     BLVAL = AVAL[ABLFLL],
     CHG = AVAL - BLVAL
-  ) \%>\%
+  ) |>
   ungroup()
 
-results <- basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  split_rows_by("AVISIT") \%>\%
-  summarize_change("CHG", variables = list(value = "AVAL", baseline_flag = "ABLFLL")) \%>\%
+results <- basic_table() |>
+  split_cols_by("ARM") |>
+  split_rows_by("AVISIT") |>
+  summarize_change("CHG", variables = list(value = "AVAL", baseline_flag = "ABLFLL")) |>
   build_table(dta_test)
 
 results

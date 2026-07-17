@@ -77,7 +77,7 @@ times, to avoid warnings from \code{rtables}.}
 Options are: \verb{'n', 'count', 'count_fraction', 'count_fraction_fixed_dp', 'n_blq'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -148,27 +148,27 @@ in \code{count_patients_with_event()}.
 
 }}
 \examples{
-lyt <- basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  add_colcounts() \%>\%
+lyt <- basic_table() |>
+  split_cols_by("ARM") |>
+  add_colcounts() |>
   count_values(
     "STUDYID",
     values = "AB12345",
     .stats = "count",
     .labels = c(count = "Total AEs")
-  ) \%>\%
+  ) |>
   count_patients_with_event(
     "SUBJID",
     filters = c("TRTEMFL" = "Y"),
     .labels = c(count_fraction = "Total number of patients with at least one adverse event"),
     table_names = "tbl_all"
-  ) \%>\%
+  ) |>
   count_patients_with_event(
     "SUBJID",
     filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL"),
     .labels = c(count_fraction = "Total number of patients with fatal AEs"),
     table_names = "tbl_fatal"
-  ) \%>\%
+  ) |>
   count_patients_with_event(
     "SUBJID",
     filters = c("TRTEMFL" = "Y", "AEOUT" = "FATAL", "AEREL" = "Y"),

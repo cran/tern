@@ -22,21 +22,23 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Joe Zhu \email{joe.zhu@roche.com} (\href{https://orcid.org/0000-0001-7566-2787}{ORCID})
   \item Daniel Sabanés Bové \email{daniel.sabanes_bove@rconis.com}
-  \item Jana Stoilova \email{jana.stoilova@roche.com}
+  \item Jana Stoilova \email{stoilova@dnli.com}
   \item Davide Garolini \email{davide.garolini@roche.com} (\href{https://orcid.org/0000-0002-1445-1369}{ORCID})
-  \item Emily de la Rua \email{emily.de_la_rua@contractors.roche.com} (\href{https://orcid.org/0009-0000-8738-5561}{ORCID})
-  \item Abinaya Yogasekaram \email{abinaya.yogasekaram@contractors.roche.com} (\href{https://orcid.org/0009-0005-2083-1105}{ORCID})
-  \item Heng Wang \email{wang.heng@gene.com}
+  \item Emily de la Rua \email{emilydelarua@gmail.com} (\href{https://orcid.org/0009-0000-8738-5561}{ORCID})
+  \item Abinaya Yogasekaram \email{ayogasek@gmail.com} (\href{https://orcid.org/0009-0005-2083-1105}{ORCID})
+  \item Heng Wang \email{Heng.Wang21@gilead.com}
   \item Francois Collin
-  \item Adrian Waddell \email{adrian.waddell@gene.com}
+  \item Adrian Waddell \email{adrian.waddell@gmail.com}
   \item Pawel Rucki \email{pawel.rucki@roche.com}
-  \item Chendi Liao \email{chendi.liao@roche.com}
-  \item Jennifer Li \email{li.jing@gene.com}
+  \item Chendi Liao
+  \item Jennifer Li
 }
 
 Other contributors:
 \itemize{
+  \item David Munoz Tord \email{david.munoztord@mailbox.org} [contributor]
   \item F. Hoffmann-La Roche AG [copyright holder, funder]
 }
 

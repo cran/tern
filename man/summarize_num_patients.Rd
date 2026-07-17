@@ -107,7 +107,7 @@ See \code{\link[=stat_propdiff_ci]{stat_propdiff_ci()}} for details on risk diff
 Options are: \verb{'unique', 'nonunique', 'unique_count'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -215,19 +215,19 @@ df <- data.frame(
 )
 
 # analyze_num_patients
-tbl <- basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  add_colcounts() \%>\%
-  analyze_num_patients("USUBJID", .stats = c("unique")) \%>\%
+tbl <- basic_table() |>
+  split_cols_by("ARM") |>
+  add_colcounts() |>
+  analyze_num_patients("USUBJID", .stats = c("unique")) |>
   build_table(df)
 
 tbl
 
 # summarize_num_patients
-tbl <- basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  split_rows_by("SEX") \%>\%
-  summarize_num_patients("USUBJID", .stats = "unique_count") \%>\%
+tbl <- basic_table() |>
+  split_cols_by("ARM") |>
+  split_rows_by("SEX") |>
+  summarize_num_patients("USUBJID", .stats = "unique_count") |>
   build_table(df)
 
 tbl

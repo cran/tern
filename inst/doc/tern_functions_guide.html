@@ -1627,23 +1627,23 @@ as follows:</p>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">AVISIT =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">&quot;V&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>), <span class="dv">6</span>),</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">ARM =</span> <span class="fu">rep</span>(LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="fu">rep</span>(<span class="dv">6</span>, <span class="dv">3</span>)),</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">AVAL =</span> <span class="fu">c</span>(<span class="dv">9</span><span class="sc">:</span><span class="dv">1</span>, <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">9</span>))</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ABLFLL =</span> AVISIT <span class="sc">==</span> <span class="st">&quot;V1&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ABLFLL =</span> AVISIT <span class="sc">==</span> <span class="st">&quot;V1&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="fu">group_by</span>(USUBJID) <span class="sc">|&gt;</span></span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="at">BLVAL =</span> AVAL[ABLFLL],</span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="at">CHG =</span> AVAL <span class="sc">-</span> BLVAL</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
 <p>Classic use of <code>summarize_change()</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>fix_layout <span class="ot">&lt;-</span> <span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>fix_layout <span class="ot">&lt;-</span> <span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">split_rows_by</span>(<span class="st">&quot;AVISIT&quot;</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Dealing with NAs: na_rm = TRUE</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">|&gt;</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="fu">print</span>()</span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt;                     A               B         C </span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; ————————————————————————————————————————————————</span></span>
@@ -1664,9 +1664,9 @@ as follows:</p>
 <span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -2.00 - -2.00   -2.00 - -2.00   NA</span></span>
 <span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a></span>
 <span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># Dealing with NAs: na_rm = FALSE</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>), <span class="at">na_rm =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>), <span class="at">na_rm =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">|&gt;</span></span>
 <span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="fu">print</span>()</span>
 <span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;                     A         B    C </span></span>
 <span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————</span></span>
@@ -1687,9 +1687,9 @@ as follows:</p>
 <span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt;   Min - Max   -2.00 - -2.00   NA   NA</span></span>
 <span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a></span>
 <span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a><span class="co"># changing the NA string (it is done on all levels)</span></span>
-<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
-<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>), <span class="at">na_str =</span> <span class="st">&quot;my_na&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>, <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>), <span class="at">na_str =</span> <span class="st">&quot;my_na&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">|&gt;</span></span>
 <span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a>  <span class="fu">print</span>()</span>
 <span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a><span class="co">#&gt;                     A               B           C  </span></span>
 <span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a><span class="co">#&gt; ———————————————————————————————————————————————————</span></span>
@@ -1712,15 +1712,15 @@ as follows:</p>
 <code>.indent_mods</code> depend on the names of <code>.stats</code>.
 Here is how you can change the default formatting.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># changing n count format and label and indentation</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>),</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="at">.stats =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;mean&quot;</span>), <span class="co"># reducing the number of stats for visual appreciation</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">c</span>(<span class="at">n =</span> <span class="st">&quot;xx.xx&quot;</span>),</span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="at">.labels =</span> <span class="fu">c</span>(<span class="at">n =</span> <span class="st">&quot;NnNn&quot;</span>),</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="at">.indent_mods =</span> <span class="fu">c</span>(<span class="at">n =</span> <span class="dv">5</span>), <span class="at">na_str =</span> <span class="st">&quot;nA&quot;</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">|&gt;</span></span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="fu">print</span>()</span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;                     A      B      C  </span></span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; —————————————————————————————————————</span></span>
@@ -1735,13 +1735,13 @@ Here is how you can change the default formatting.</p>
 <span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;   Mean             -2.0   -2.0    nA</span></span></code></pre></div>
 <p>What if I want something special for the format?</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># changing n count format and label and indentation</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">summarize_change</span>(<span class="st">&quot;CHG&quot;</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>),</span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="at">.stats =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;mean&quot;</span>), <span class="co"># reducing the number of stats for visual appreciation</span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">c</span>(<span class="at">n =</span> <span class="cf">function</span>(x, ...) <span class="fu">as.character</span>(x <span class="sc">*</span> <span class="dv">100</span>))</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="co"># Note you need ...!!!</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">%&gt;%</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="co"># Note you need ...!!!</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test) <span class="sc">|&gt;</span></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="fu">print</span>()</span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;           A      B     C </span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; —————————————————————————</span></span>
@@ -1756,7 +1756,7 @@ Here is how you can change the default formatting.</p>
 <span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;   Mean   -2.0   -2.0   NA</span></span></code></pre></div>
 <p>Adding a custom statistic (and custom format):</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># changing n count format and label and indentation</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fix_layout <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fix_layout <span class="sc">|&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">summarize_change</span>(</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="st">&quot;CHG&quot;</span>,</span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">baseline_flag =</span> <span class="st">&quot;ABLFLL&quot;</span>),</span>
@@ -1766,7 +1766,7 @@ Here is how you can change the default formatting.</p>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      a <span class="sc">/</span> b</span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    }),</span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">c</span>(<span class="st">&quot;my_stat&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(x, ...) <span class="fu">sprintf</span>(<span class="st">&quot;%.2f&quot;</span>, x))</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="fu">build_table</span>(dta_test)</span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;              A      B     C </span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; ————————————————————————————</span></span>

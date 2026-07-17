@@ -22,13 +22,13 @@ var_labels <- c(
   "Continous Level Biomarker 1"
 )
 
-result <- basic_table(show_colcounts = TRUE) %>%
-  split_cols_by(var = "ARM") %>%
-  add_overall_col("All Patients") %>%
+result <- basic_table(show_colcounts = TRUE) |>
+  split_cols_by(var = "ARM") |>
+  add_overall_col("All Patients") |>
   analyze_vars(
     vars = vars,
     var_labels = var_labels
-  ) %>%
+  ) |>
   build_table(adsl)
 result
 
@@ -43,13 +43,13 @@ var_labels <- c(
   "Sex"
 )
 
-result <- basic_table(show_colcounts = TRUE) %>%
-  split_cols_by(var = "ARM") %>%
-  add_overall_col("All Patients") %>%
+result <- basic_table(show_colcounts = TRUE) |>
+  split_cols_by(var = "ARM") |>
+  add_overall_col("All Patients") |>
   analyze_vars(
     vars = vars,
     var_labels = var_labels
-  ) %>%
+  ) |>
   build_table(adsl)
 result
 
@@ -58,13 +58,13 @@ adsl <- tern_ex_adsl
 adsl$SEX[adsl$SEX == "M"] <- NA
 adsl <- df_explicit_na(adsl, na_level = "Missing Values")
 
-result <- basic_table(show_colcounts = TRUE) %>%
-  split_cols_by(var = "ARM") %>%
-  add_overall_col("All Patients") %>%
+result <- basic_table(show_colcounts = TRUE) |>
+  split_cols_by(var = "ARM") |>
+  add_overall_col("All Patients") |>
   analyze_vars(
     vars = vars,
     var_labels = var_labels
-  ) %>%
+  ) |>
   build_table(adsl)
 result
 
@@ -79,13 +79,13 @@ var_labels <- c(
   "Sex"
 )
 
-result <- basic_table(show_colcounts = TRUE) %>%
-  split_cols_by(var = "ARM") %>%
-  add_overall_col("All Patients") %>%
+result <- basic_table(show_colcounts = TRUE) |>
+  split_cols_by(var = "ARM") |>
+  add_overall_col("All Patients") |>
   analyze_vars(
     vars = vars,
     var_labels = var_labels
-  ) %>%
+  ) |>
   build_table(adsl)
 result
 

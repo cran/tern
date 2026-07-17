@@ -13,6 +13,7 @@ prop_chisq(tbl, alternative = c("two.sided", "less", "greater"))
 prop_cmh(
   ary,
   alternative = c("two.sided", "less", "greater"),
+  diff_se = c("standard", "sato"),
   transform = c("none", "wilson_hilferty")
 )
 
@@ -28,6 +29,9 @@ should be displayed.}
 
 \item{ary}{(\code{array}, 3 dimensions)\cr array with two groups in rows, the binary response
 (\code{TRUE}/\code{FALSE}) in columns, and the strata in the third dimension.}
+
+\item{diff_se}{(\code{string})\cr either \code{standard} or \code{sato}; specifies whether to use the Sato
+variance estimator to calculate the chi-squared statistic.}
 
 \item{transform}{(\code{string})\cr either \code{none} or \code{wilson_hilferty}; specifies whether to apply
 the Wilson-Hilferty transformation of the chi-squared statistic.}
@@ -51,9 +55,53 @@ Note that strata with less than two observations are automatically discarded.
 \item \code{prop_fisher()}: Performs the Fisher's exact test. Internally calls \code{\link[stats:fisher.test]{stats::fisher.test()}}.
 
 }}
+\examples{
+# Chi-Squared test
+tbl <- matrix(
+  c(13, 7, 8, 12),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+)
+
+prop_chisq(tbl)
+
+# Cochran-Mantel-Haenszel test with two strata
+ary <- array(
+  c(12, 8, 8, 12, 10, 10, 6, 14),
+  dim = c(2, 2, 2),
+  dimnames = list(
+    group = c("A", "B"),
+    response = c("TRUE", "FALSE"),
+    strata = c("Low", "High")
+  )
+)
+
+prop_cmh(ary)
+
+# Chi-Squared test with Schouten correction
+tbl <- matrix(
+  c(13, 7, 8, 12),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+)
+
+prop_schouten(tbl)
+
+# Fisher's exact test
+tbl <- matrix(
+  c(13, 7, 8, 12),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+)
+
+prop_fisher(tbl)
+
+}
 \seealso{
 \code{\link[=prop_diff_test]{prop_diff_test()}} for implementation of these helper functions.
 
 Schouten correction is based upon \insertCite{Schouten1980-kd;textual}{tern}.
 }
-\keyword{internal}

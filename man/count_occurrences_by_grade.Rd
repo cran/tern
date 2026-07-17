@@ -109,7 +109,7 @@ times, to avoid warnings from \code{rtables}.}
 Options are: \verb{'count_fraction', 'count_fraction_fixed_dp'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -209,18 +209,18 @@ df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-df_adsl <- df \%>\%
-  select(USUBJID, ARM) \%>\%
+df_adsl <- df |>
+  select(USUBJID, ARM) |>
   unique()
 
 # Layout creating function with custom format.
-basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by("ARM") |>
+  add_colcounts() |>
   count_occurrences_by_grade(
     var = "AESEV",
     .formats = c("count_fraction" = "xx.xx (xx.xx\%)")
-  ) \%>\%
+  ) |>
   build_table(df, alt_counts_df = df_adsl)
 
 # Define additional grade groupings.
@@ -230,33 +230,33 @@ grade_groups <- list(
   "Grade 3-5" = c("3", "4", "5")
 )
 
-basic_table() \%>\%
-  split_cols_by("ARM") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by("ARM") |>
+  add_colcounts() |>
   count_occurrences_by_grade(
     var = "AETOXGR",
     grade_groups = grade_groups,
     only_grade_groups = TRUE
-  ) \%>\%
+  ) |>
   build_table(df, alt_counts_df = df_adsl)
 
 # Layout creating function with custom format.
-basic_table() \%>\%
-  add_colcounts() \%>\%
-  split_rows_by("ARM", child_labels = "visible", nested = TRUE) \%>\%
+basic_table() |>
+  add_colcounts() |>
+  split_rows_by("ARM", child_labels = "visible", nested = TRUE) |>
   summarize_occurrences_by_grade(
     var = "AESEV",
     .formats = c("count_fraction" = "xx.xx (xx.xx\%)")
-  ) \%>\%
+  ) |>
   build_table(df, alt_counts_df = df_adsl)
 
-basic_table() \%>\%
-  add_colcounts() \%>\%
-  split_rows_by("ARM", child_labels = "visible", nested = TRUE) \%>\%
+basic_table() |>
+  add_colcounts() |>
+  split_rows_by("ARM", child_labels = "visible", nested = TRUE) |>
   summarize_occurrences_by_grade(
     var = "AETOXGR",
     grade_groups = grade_groups
-  ) \%>\%
+  ) |>
   build_table(df, alt_counts_df = df_adsl)
 
 s_count_occurrences_by_grade(

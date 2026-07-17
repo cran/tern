@@ -9,7 +9,7 @@
 #' supplied via the `strata` element of the `variables` argument.
 #'
 #' @inheritParams argument_convention
-#' @param method (`string`)\cr one of `chisq`, `cmh`, `cmh_wh`, `fisher`, or `schouten`;
+#' @param method (`string`)\cr one of `chisq`, `cmh`, `cmh_sato`, `cmh_wh`, `fisher`, or `schouten`;
 #'   specifies the test used to calculate the p-value.
 #' @param .stats (`character`)\cr statistics to select for the table.
 #'
@@ -53,7 +53,7 @@ s_test_proportion_diff <- function(df,
                                    .ref_group,
                                    .in_ref_col,
                                    variables = list(strata = NULL),
-                                   method = c("chisq", "schouten", "fisher", "cmh", "cmh_wh"),
+                                   method = c("chisq", "schouten", "fisher", "cmh", "cmh_sato", "cmh_wh"),
                                    alternative = c("two.sided", "less", "greater"),
                                    ...) {
   method <- match.arg(method)
@@ -82,6 +82,7 @@ s_test_proportion_diff <- function(df,
 
     tbl <- switch(method,
       cmh = table(grp, rsp, strata),
+      cmh_sato = table(grp, rsp, strata),
       cmh_wh = table(grp, rsp, strata),
       table(grp, rsp)
     )
@@ -91,6 +92,7 @@ s_test_proportion_diff <- function(df,
       cmh = prop_cmh(tbl, alternative = alternative),
       fisher = prop_fisher(tbl, alternative = alternative),
       schouten = prop_schouten(tbl, alternative = alternative),
+      cmh_sato = prop_cmh(tbl, alternative = alternative, diff_se = "sato"),
       cmh_wh = prop_cmh(tbl, alternative = alternative, transform = "wilson_hilferty")
     )
   }
@@ -118,6 +120,7 @@ d_test_proportion_diff <- function(method, alternative = c("two.sided", "less", 
     "schouten" = "Chi-Squared Test with Schouten Correction",
     "chisq" = "Chi-Squared Test",
     "cmh" = "Cochran-Mantel-Haenszel Test",
+    "cmh_sato" = "Cochran-Mantel-Haenszel Test with Sato Variance Estimator",
     "cmh_wh" = "Cochran-Mantel-Haenszel Test with Wilson-Hilferty Transformation",
     "fisher" = "Fisher's Exact Test",
     stop(paste(method, "does not have a description"))
@@ -200,8 +203,8 @@ a_test_proportion_diff <- function(df,
     .formats = .formats,
     .names = names(.labels),
     .stat_names = .stat_names,
-    .labels = .labels %>% .unlist_keep_nulls(),
-    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
+    .labels = .labels |> .unlist_keep_nulls(),
+    .indent_mods = .indent_mods |> .unlist_keep_nulls()
   )
 }
 
@@ -221,8 +224,8 @@ a_test_proportion_diff <- function(df,
 #' )
 #'
 #' # With `rtables` pipelines.
-#' l <- basic_table() %>%
-#'   split_cols_by(var = "grp", ref_group = "B") %>%
+#' l <- basic_table() |>
+#'   split_cols_by(var = "grp", ref_group = "B") |>
 #'   test_proportion_diff(
 #'     vars = "rsp",
 #'     method = "cmh", variables = list(strata = "strata")
@@ -235,7 +238,7 @@ a_test_proportion_diff <- function(df,
 test_proportion_diff <- function(lyt,
                                  vars,
                                  variables = list(strata = NULL),
-                                 method = c("chisq", "schouten", "fisher", "cmh", "cmh_wh"),
+                                 method = c("chisq", "schouten", "fisher", "cmh", "cmh_sato", "cmh_wh"),
                                  alternative = c("two.sided", "less", "greater"),
                                  var_labels = vars,
                                  na_str = default_na_str(),
@@ -305,7 +308,18 @@ NULL
 
 #' @describeIn h_prop_diff_test Performs Chi-Squared test. Internally calls [stats::prop.test()].
 #'
-#' @keywords internal
+#' @examples
+#' # Chi-Squared test
+#' tbl <- matrix(
+#'   c(13, 7, 8, 12),
+#'   nrow = 2,
+#'   byrow = TRUE,
+#'   dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+#' )
+#'
+#' prop_chisq(tbl)
+#'
+#' @export
 prop_chisq <- function(tbl, alternative = c("two.sided", "less", "greater")) {
   checkmate::assert_integer(c(ncol(tbl), nrow(tbl)), lower = 2, upper = 2)
   tbl <- tbl[, c("TRUE", "FALSE")]
@@ -321,17 +335,35 @@ prop_chisq <- function(tbl, alternative = c("two.sided", "less", "greater")) {
 #'
 #' @param ary (`array`, 3 dimensions)\cr array with two groups in rows, the binary response
 #'   (`TRUE`/`FALSE`) in columns, and the strata in the third dimension.
+#' @param diff_se (`string`)\cr either `standard` or `sato`; specifies whether to use the Sato
+#'   variance estimator to calculate the chi-squared statistic.
 #' @param transform (`string`)\cr either `none` or `wilson_hilferty`; specifies whether to apply
 #'   the Wilson-Hilferty transformation of the chi-squared statistic.
 #'
-#' @keywords internal
+#' @examples
+#' # Cochran-Mantel-Haenszel test with two strata
+#' ary <- array(
+#'   c(12, 8, 8, 12, 10, 10, 6, 14),
+#'   dim = c(2, 2, 2),
+#'   dimnames = list(
+#'     group = c("A", "B"),
+#'     response = c("TRUE", "FALSE"),
+#'     strata = c("Low", "High")
+#'   )
+#' )
+#'
+#' prop_cmh(ary)
+#'
+#' @export
 prop_cmh <- function(ary,
                      alternative = c("two.sided", "less", "greater"),
+                     diff_se = c("standard", "sato"),
                      transform = c("none", "wilson_hilferty")) {
   checkmate::assert_array(ary)
   checkmate::assert_integer(c(ncol(ary), nrow(ary)), lower = 2, upper = 2)
   checkmate::assert_integer(length(dim(ary)), lower = 3, upper = 3)
   alternative <- match.arg(alternative)
+  diff_se <- match.arg(diff_se)
   transform <- match.arg(transform)
 
   strata_sizes <- apply(ary, MARGIN = 3, sum)
@@ -340,30 +372,62 @@ prop_cmh <- function(ary,
     ary <- ary[, , strata_sizes > 1]
   }
 
-  cmh_res <- stats::mantelhaen.test(ary, correct = FALSE, alternative = alternative)
-
-  if (transform == "none") {
-    cmh_res$p.value
+  z_stat <- if (diff_se == "standard") {
+    mh_res <- stats::mantelhaen.test(ary, correct = FALSE, alternative = alternative)
+    checkmate::assert_true(mh_res$parameter == 1)
+    # Note: The odds ratio (OR) estimate from `mantelhaen.test` and the proportion difference
+    # always agree in direction, therefore we can use the OR estimate to determine the sign here.
+    stat_sign <- ifelse(unname(mh_res$estimate) < 1, 1, -1)
+    sqrt(unname(mh_res$statistic)) * stat_sign
   } else {
-    chisq_stat <- unname(cmh_res$statistic)
-    df <- unname(cmh_res$parameter)
-    num <- (chisq_stat / df)^(1 / 3) - (1 - 2 / (9 * df))
-    denom <- sqrt(2 / (9 * df))
-    wh_stat <- num / denom
-
-    if (alternative == "two.sided") {
-      2 * stats::pnorm(-abs(wh_stat))
-    } else {
-      stats::pnorm(wh_stat, lower.tail = (alternative == "greater"))
-    }
+    # Use the Sato variance estimator.
+    cmh <- h_diff_cmh(ary)
+    cmh_se <- h_diff_cmh_se(cmh, diff_se = "sato")
+    cmh$diff_est / cmh_se
   }
+
+  if (transform == "wilson_hilferty") {
+    if (diff_se == "sato") {
+      warning(
+        "Wilson-Hilferty transformation was not designed ",
+        "for use with the Sato variance estimator"
+      )
+    }
+    chisq_stat <- z_stat^2
+    df <- 1 # Because we only compare two groups.
+    num <- (1 - 2 / (9 * df)) - (chisq_stat / df)^(1 / 3)
+    denom <- sqrt(2 / (9 * df))
+    z_stat <- num / denom * sign(z_stat) # Preserve the direction of effect.
+  }
+
+  pval <- if (alternative == "two.sided") {
+    2 * stats::pnorm(-abs(z_stat))
+  } else {
+    stats::pnorm(z_stat, lower.tail = (alternative == "greater"))
+  }
+
+  structure(
+    pval,
+    z_stat = z_stat
+  )
 }
 
 #' @describeIn h_prop_diff_test Performs the Chi-Squared test with Schouten correction.
 #'
 #' @seealso Schouten correction is based upon \insertCite{Schouten1980-kd;textual}{tern}.
 #'
-#' @keywords internal
+#' @examples
+#' # Chi-Squared test with Schouten correction
+#' tbl <- matrix(
+#'   c(13, 7, 8, 12),
+#'   nrow = 2,
+#'   byrow = TRUE,
+#'   dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+#' )
+#'
+#' prop_schouten(tbl)
+#'
+#' @export
 prop_schouten <- function(tbl, alternative = c("two.sided", "less", "greater")) {
   checkmate::assert_integer(c(ncol(tbl), nrow(tbl)), lower = 2, upper = 2)
   alternative <- match.arg(alternative)
@@ -399,7 +463,18 @@ prop_schouten <- function(tbl, alternative = c("two.sided", "less", "greater")) 
 
 #' @describeIn h_prop_diff_test Performs the Fisher's exact test. Internally calls [stats::fisher.test()].
 #'
-#' @keywords internal
+#' @examples
+#' # Fisher's exact test
+#' tbl <- matrix(
+#'   c(13, 7, 8, 12),
+#'   nrow = 2,
+#'   byrow = TRUE,
+#'   dimnames = list(group = c("A", "B"), response = c("TRUE", "FALSE"))
+#' )
+#'
+#' prop_fisher(tbl)
+#'
+#' @export
 prop_fisher <- function(tbl, alternative = c("two.sided", "less", "greater")) {
   checkmate::assert_integer(c(ncol(tbl), nrow(tbl)), lower = 2, upper = 2)
   alternative <- match.arg(alternative) # Is needed here, because stats::fisher.test does not handle defaults.

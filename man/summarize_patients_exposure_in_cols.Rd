@@ -89,7 +89,7 @@ column split has been done already earlier in the layout pipe.}
 Options are: \verb{'n_patients', 'sum_exposure'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -195,24 +195,24 @@ adsl <- data.frame(
   stringsAsFactors = TRUE
 )
 
-lyt <- basic_table() \%>\%
-  split_cols_by("ARMCD", split_fun = add_overall_level("Total", first = FALSE)) \%>\%
-  summarize_patients_exposure_in_cols(var = "AVAL", col_split = TRUE) \%>\%
+lyt <- basic_table() |>
+  split_cols_by("ARMCD", split_fun = add_overall_level("Total", first = FALSE)) |>
+  summarize_patients_exposure_in_cols(var = "AVAL", col_split = TRUE) |>
   analyze_patients_exposure_in_cols(var = "SEX", col_split = FALSE)
 result <- build_table(lyt, df = df, alt_counts_df = adsl)
 result
 
-lyt2 <- basic_table() \%>\%
-  split_cols_by("ARMCD", split_fun = add_overall_level("Total", first = FALSE)) \%>\%
+lyt2 <- basic_table() |>
+  split_cols_by("ARMCD", split_fun = add_overall_level("Total", first = FALSE)) |>
   summarize_patients_exposure_in_cols(
     var = "AVAL", col_split = TRUE,
     .stats = "n_patients", custom_label = "some custom label"
-  ) \%>\%
+  ) |>
   analyze_patients_exposure_in_cols(var = "SEX", col_split = FALSE, ex_var = "AVAL")
 result2 <- build_table(lyt2, df = df, alt_counts_df = adsl)
 result2
 
-lyt3 <- basic_table() \%>\%
+lyt3 <- basic_table() |>
   analyze_patients_exposure_in_cols(var = "SEX", col_split = TRUE, ex_var = "AVAL")
 result3 <- build_table(lyt3, df = df, alt_counts_df = adsl)
 result3
@@ -220,25 +220,25 @@ result3
 # Adding total levels and custom label
 lyt4 <- basic_table(
   show_colcounts = TRUE
-) \%>\%
+) |>
   analyze_patients_exposure_in_cols(
     var = "ARMCD",
     col_split = TRUE,
     add_total_level = TRUE,
     custom_label = "TOTAL"
-  ) \%>\%
+  ) |>
   append_topleft(c("", "Sex"))
 
 result4 <- build_table(lyt4, df = df, alt_counts_df = adsl)
 result4
 
-lyt5 <- basic_table() \%>\%
+lyt5 <- basic_table() |>
   summarize_patients_exposure_in_cols(var = "AVAL", col_split = TRUE)
 
 result5 <- build_table(lyt5, df = df, alt_counts_df = adsl)
 result5
 
-lyt6 <- basic_table() \%>\%
+lyt6 <- basic_table() |>
   summarize_patients_exposure_in_cols(var = "AVAL", col_split = TRUE, .stats = "sum_exposure")
 
 result6 <- build_table(lyt6, df = df, alt_counts_df = adsl)

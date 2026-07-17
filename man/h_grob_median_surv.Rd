@@ -24,7 +24,7 @@ h_grob_median_surv(
 
 \item{width}{(\code{grid::unit})\cr width (as a unit) to use when printing the grob.}
 
-\item{ttheme}{(\code{list})\cr see \code{\link[gridExtra:tableGrob]{gridExtra::ttheme_default()}}.}
+\item{ttheme}{(\code{list})\cr see \code{\link[gridExtra:ttheme_default]{gridExtra::ttheme_default()}}.}
 }
 \value{
 A \code{grob} of a table containing statistics \code{N}, \code{Median}, and \verb{XX\% CI} (\code{XX} taken from \code{fit_km}).
@@ -43,10 +43,10 @@ library(grid)
 
 grid::grid.newpage()
 grid.rect(gp = grid::gpar(lty = 1, col = "pink", fill = "gray85", lwd = 1))
-tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS") \%>\%
-  survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = .) \%>\%
-  h_grob_median_surv() \%>\%
+tern_ex_adtte |>
+  filter(PARAMCD == "OS") |>
+  (\(x) survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = x))() |>
+  h_grob_median_surv() |>
   grid::grid.draw()
 }
 

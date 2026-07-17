@@ -1624,17 +1624,17 @@ displaying the redundant zero percentage value.</p>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>)</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">|&gt;</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="fu">filter</span>(ONTRTFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>)</span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> format_fraction)</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;         all obs  </span></span>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; —————————————————</span></span>
@@ -1651,17 +1651,17 @@ non-zero numerator and so both show a percentage.</p>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">|&gt;</span></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">filter</span>(ONTRTFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> format_fraction)</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;         all obs </span></span>
 <span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; ————————————————</span></span>
@@ -1679,17 +1679,17 @@ numerator, yet both are displayed in the same format.</p>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">ONTRTFL =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>),</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">|&gt;</span></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="fu">filter</span>(ONTRTFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> <span class="st">&quot;xx / xx&quot;</span>)</span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;        all obs</span></span>
 <span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; ——————————————</span></span>
@@ -1707,17 +1707,17 @@ of available formats in <code>formatters</code>.</p>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">ONTRTFL =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>),</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>)</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df2 <span class="sc">|&gt;</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">filter</span>(ONTRTFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>)</span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> <span class="st">&quot;xx.x / xx.x&quot;</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;         all obs </span></span>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; ————————————————</span></span>
@@ -1811,7 +1811,7 @@ it.</p>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>      <span class="st">&quot; (&quot;</span>, <span class="fu">sprintf</span>(<span class="st">&quot;%.1f&quot;</span>, <span class="fu">round</span>(x[<span class="st">&quot;num&quot;</span>] <span class="sc">/</span> x[<span class="st">&quot;denom&quot;</span>] <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)), <span class="st">&quot;%)&quot;</span></span>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>    )</span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  }</span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  result</span>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>}</span></code></pre></div>
 <p>Here we see that if the numerator value is greater than 0, the
 fraction and percentage is displayed. If the numerator is 0, only the
@@ -1824,17 +1824,17 @@ behavior when this formatting function is applied.</p>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">BL_RANGE =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;NORMAL&quot;</span>, <span class="st">&quot;NORMAL&quot;</span>, <span class="st">&quot;HIGH&quot;</span>, <span class="st">&quot;HIGH&quot;</span>)),</span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">ONTRTFL =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Y&quot;</span>),</span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="fu">filter</span>(ONTRTFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>)</span>
 <span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> format_fraction_fixed_dp)</span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt;          all obs   </span></span>
 <span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; ———————————————————</span></span>
@@ -1858,17 +1858,17 @@ want to display a 0 value (without the denominator).</p>
 <span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>      <span class="st">&quot; (&quot;</span>, <span class="fu">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>, <span class="fu">round</span>(x[<span class="st">&quot;num&quot;</span>] <span class="sc">/</span> x[<span class="st">&quot;denom&quot;</span>] <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)), <span class="st">&quot;%)&quot;</span> <span class="co"># We include 3 decimal places with %.3f</span></span>
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>    )</span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  }</span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  result</span>
 <span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>}</span>
 <span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
 <span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>  <span class="fu">count_abnormal</span>(</span>
 <span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">&quot;RANGE&quot;</span>,</span>
 <span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>    <span class="at">abnormal =</span> <span class="fu">list</span>(<span class="at">low =</span> <span class="st">&quot;LOW&quot;</span>, <span class="at">high =</span> <span class="st">&quot;HIGH&quot;</span>),</span>
 <span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;ID&quot;</span>, <span class="at">baseline =</span> <span class="st">&quot;BL_RANGE&quot;</span>),</span>
 <span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>    <span class="at">exclude_base_abn =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>    <span class="at">.formats =</span> <span class="fu">list</span>(<span class="at">fraction =</span> custom_format) <span class="co"># Here we implement our new custom_format function</span></span>
-<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>  <span class="fu">build_table</span>(df2)</span>
 <span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a><span class="co">#&gt;           all obs    </span></span>
 <span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt; —————————————————————</span></span>

@@ -1,3 +1,35 @@
+# tern 0.9.11
+
+### Enhancements
+* Added `factor_level_method` argument to `df_explicit_na()` to control factor level ordering
+  when converting character or logical columns. Supported methods: `"sort_auto"` (default,
+  locale-aware, preserves original behavior), `"sort_radix"` (byte-order / ASCII sort), and
+  `"data"` (first-appearance order). (#1322)
+* Added `factor_as_factor` argument to `df_explicit_na()` to allow re-encoding of existing
+  factor columns using `factor_level_method`. Defaults to `FALSE` to preserve original behavior.
+* Added `factor_level_last_pattern` argument to `df_explicit_na()` to move factor levels
+  matching a regular expression to the end (before `na_level`).
+* Added `alternative` argument to `s_coxph_pairwise()` to allow one-sided hypothesis testing. 
+* Added `lr_stat_df` to the parameters return list of `s_coxph_pairwise()`.
+* Added `uncond_exact_diff` method to `estimate_proportion_diff()` for the unconditional exact confidence interval for the difference in proportions by inverting one-sided tail tests over a nuisance parameter.
+* Added `cmh_sato` method to `test_proportion_diff()` for CMH testing with the Sato variance estimator. (#1482)
+* Added `range_with_cens_info` statistic to `s_surv_time()`.
+* Added `lsmean_se`, `lsmean_ci`, and `lsmean_diffci` statistics to `s_ancova()`.
+* Added `s_ancova()` to exported functions.
+* In `estimate_proportion_diff` now also the standard error is available for selected methods in the `se_diff` statistic.
+* Exported `h_incidence_rate()` to allow to reuse the incidence rate estimation logic.
+* Exported `prop_chisq()`, `prop_cmh()`, `prop_fisher()`, and `prop_schouten()` for standalone proportion difference testing.
+* Added `digits` argument to `h_tbl_median_surv()` and `control_surv_med_annot()` to control the `signif()` precision of the median survival time and confidence interval values annotated in `g_km()`. (#1469)
+
+### Bug Fixes
+* Fixed bug in `prop_diff_cmh()` which previously failed when strata combinations had 0 observations.
+* Fixed one-sided p-values in `prop_cmh()` with Wilson-Hilferty transformation — the sign of the effect was lost, producing incorrect p-values for `alternative = "less"` and `alternative = "greater"`.
+
+### Miscellaneous
+* Relaxed `fit_logistic()` tests to compare only the formula right-hand side, so they no longer break when `survival::clogit()` changes the internally generated response term. (#1484)
+* Updated `roxygen2` to 8.0.0 and added `@exportS3Method` tags for S3 methods in `decorate_grob.R` and `utils_grid.R`.
+* Converted `s_surv_time()` to exported functions.
+
 # tern 0.9.10
 
 ### Enhancements

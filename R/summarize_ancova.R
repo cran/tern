@@ -101,16 +101,20 @@ h_ancova <- function(.var,
 #'   of the investigated linear model.
 #'
 #' @return
-#' * `s_ancova()` returns a named list of 5 statistics:
+#' * `s_ancova()` returns a named list of 8 statistics:
 #'   * `n`: Count of complete sample size for the group.
 #'   * `lsmean`: Estimated marginal means in the group.
+#'   * `lsmean_se`: Adjusted mean with standard error as a 2-element vector `c(emmean, SE)`.
+#'   * `lsmean_ci`: Adjusted mean with confidence interval as a 3-element vector `c(emmean, lower.CL, upper.CL)`.
 #'   * `lsmean_diff`: Difference in estimated marginal means in comparison to the reference group.
 #'     If working with the reference group, this will be empty.
 #'   * `lsmean_diff_ci`: Confidence level for difference in estimated marginal means in comparison
 #'     to the reference group.
+#'   * `lsmean_diff_with_ci`: Difference in adjusted means with confidence interval as a 3-element vector
+#'     `c(estimate, lower.CL, upper.CL)`.
 #'   * `pval`: p-value (not adjusted for multiple comparisons).
 #'
-#' @keywords internal
+#' @export
 s_ancova <- function(df,
                      .var,
                      .df_row,
@@ -165,8 +169,20 @@ s_ancova <- function(df,
     list(
       n = length(y[!is.na(y)]),
       lsmean = formatters::with_label(sum_fit_level$emmean, "Adjusted Mean"),
+      lsmean_se = formatters::with_label(
+        c(sum_fit_level$emmean, sum_fit_level$SE),
+        "Adjusted Mean (SE)"
+      ),
+      lsmean_ci = formatters::with_label(
+        c(sum_fit_level$emmean, sum_fit_level$lower.CL, sum_fit_level$upper.CL),
+        f_conf_level(conf_level)
+      ),
       lsmean_diff = formatters::with_label(numeric(), "Difference in Adjusted Means"),
       lsmean_diff_ci = formatters::with_label(numeric(), f_conf_level(conf_level)),
+      lsmean_diff_with_ci = formatters::with_label(
+        numeric(),
+        paste0("Difference in Adjusted Means (", f_conf_level(conf_level), ")")
+      ),
       pval = formatters::with_label(numeric(), "p-value")
     )
   } else {
@@ -202,10 +218,22 @@ s_ancova <- function(df,
     list(
       n = length(y[!is.na(y)]),
       lsmean = formatters::with_label(sum_fit_level$emmean, "Adjusted Mean"),
+      lsmean_se = formatters::with_label(
+        c(sum_fit_level$emmean, sum_fit_level$SE),
+        "Adjusted Mean (SE)"
+      ),
+      lsmean_ci = formatters::with_label(
+        c(sum_fit_level$emmean, sum_fit_level$lower.CL, sum_fit_level$upper.CL),
+        f_conf_level(conf_level)
+      ),
       lsmean_diff = formatters::with_label(sum_contrasts_level$estimate, "Difference in Adjusted Means"),
       lsmean_diff_ci = formatters::with_label(
         c(sum_contrasts_level$lower.CL, sum_contrasts_level$upper.CL),
         f_conf_level(conf_level)
+      ),
+      lsmean_diff_with_ci = formatters::with_label(
+        c(sum_contrasts_level$estimate, sum_contrasts_level$lower.CL, sum_contrasts_level$upper.CL),
+        paste0("Difference in Adjusted Means (", f_conf_level(conf_level), ")")
       ),
       pval = formatters::with_label(sum_contrasts_level$p.value, "p-value")
     )
@@ -268,10 +296,10 @@ a_ancova <- function(df,
   in_rows(
     .list = x_stats,
     .formats = .formats,
-    .names = .labels %>% .unlist_keep_nulls(),
+    .names = .labels |> .unlist_keep_nulls(),
     .stat_names = .stat_names,
-    .labels = .labels %>% .unlist_keep_nulls(),
-    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
+    .labels = .labels |> .unlist_keep_nulls(),
+    .indent_mods = .indent_mods |> .unlist_keep_nulls()
   )
 }
 
@@ -284,22 +312,22 @@ a_ancova <- function(df,
 #'   the statistics from `s_ancova()` to the table layout.
 #'
 #' @examples
-#' basic_table() %>%
-#'   split_cols_by("Species", ref_group = "setosa") %>%
-#'   add_colcounts() %>%
+#' basic_table() |>
+#'   split_cols_by("Species", ref_group = "setosa") |>
+#'   add_colcounts() |>
 #'   summarize_ancova(
 #'     vars = "Petal.Length",
 #'     variables = list(arm = "Species", covariates = NULL),
 #'     table_names = "unadj",
 #'     conf_level = 0.95, var_labels = "Unadjusted comparison",
 #'     .labels = c(lsmean = "Mean", lsmean_diff = "Difference in Means")
-#'   ) %>%
+#'   ) |>
 #'   summarize_ancova(
 #'     vars = "Petal.Length",
 #'     variables = list(arm = "Species", covariates = c("Sepal.Length", "Sepal.Width")),
 #'     table_names = "adj",
 #'     conf_level = 0.95, var_labels = "Adjusted comparison (covariates: Sepal.Length and Sepal.Width)"
-#'   ) %>%
+#'   ) |>
 #'   build_table(iris)
 #'
 #' @export

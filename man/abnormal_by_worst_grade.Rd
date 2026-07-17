@@ -57,7 +57,7 @@ underneath analyses, which is not allowed.}
 Options are: \verb{'count_fraction', 'count_fraction_fixed_dp'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -147,23 +147,23 @@ adlb$ANRIND[adlb$PARAMCD == "IGA" & adlb$ANRIND == "LOW"] <- "HIGH"
 adlb$WGRLOFL[adlb$PARAMCD == "IGA"] <- ""
 
 # Pre-processing
-adlb_f <- adlb \%>\% h_adlb_abnormal_by_worst_grade()
+adlb_f <- adlb |> h_adlb_abnormal_by_worst_grade()
 
 # Map excludes records without abnormal grade since they should not be displayed
 # in the table.
-map <- unique(adlb_f[adlb_f$GRADE_DIR != "ZERO", c("PARAM", "GRADE_DIR", "GRADE_ANL")]) \%>\%
-  lapply(as.character) \%>\%
-  as.data.frame() \%>\%
+map <- unique(adlb_f[adlb_f$GRADE_DIR != "ZERO", c("PARAM", "GRADE_DIR", "GRADE_ANL")]) |>
+  lapply(as.character) |>
+  as.data.frame() |>
   arrange(PARAM, desc(GRADE_DIR), GRADE_ANL)
 
-basic_table() \%>\%
-  split_cols_by("ARMCD") \%>\%
-  split_rows_by("PARAM") \%>\%
-  split_rows_by("GRADE_DIR", split_fun = trim_levels_to_map(map)) \%>\%
+basic_table() |>
+  split_cols_by("ARMCD") |>
+  split_rows_by("PARAM") |>
+  split_rows_by("GRADE_DIR", split_fun = trim_levels_to_map(map)) |>
   count_abnormal_by_worst_grade(
     var = "GRADE_ANL",
     variables = list(id = "USUBJID", param = "PARAM", grade_dir = "GRADE_DIR")
-  ) \%>\%
+  ) |>
   build_table(df = adlb_f)
 
 }

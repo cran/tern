@@ -63,6 +63,9 @@ method is \code{"log-rank"} which comes from \code{\link[survival:survdiff]{surv
 \item \code{ties} (\code{string})\cr specifying the method for tie handling. Default is \code{"efron"},
 can also be set to \code{"breslow"} or \code{"exact"}. See more in \code{\link[survival:coxph]{survival::coxph()}}.
 \item \code{conf_level} (\code{proportion})\cr confidence level of the interval for HR.
+\item \code{alternative} (\code{string})\cr alternative hypothesis for the p-value test. Default is \code{"two.sided"},
+can also be set to \code{"less"} or \code{"greater"} for one-sided testing. Note that one-sided testing is not
+supported when \code{pval_method = "likelihood"}.
 }}
 
 \item{na_str}{(\code{string})\cr string used to replace all \code{NA} or empty values in the output.}
@@ -82,10 +85,10 @@ times, to avoid warnings from \code{rtables}.}
 
 \item{.stats}{(\code{character})\cr statistics to select for the table.
 
-Options are: \verb{'pvalue', 'hr', 'hr_ci', 'n_tot', 'n_tot_events'}}
+Options are: \verb{'pvalue', 'hr', 'hr_ci', 'hr_ci_3d', 'lr_stat_df', 'n_tot', 'n_tot_events'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -152,33 +155,33 @@ and additional format arguments. This function is a wrapper for \code{\link[rtab
 \examples{
 library(dplyr)
 
-adtte_f <- tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS") \%>\%
+adtte_f <- tern_ex_adtte |>
+  filter(PARAMCD == "OS") |>
   mutate(is_event = CNSR == 0)
 
-df <- adtte_f \%>\% filter(ARMCD == "ARM A")
-df_ref_group <- adtte_f \%>\% filter(ARMCD == "ARM B")
+df <- adtte_f |> filter(ARMCD == "ARM A")
+df_ref_group <- adtte_f |> filter(ARMCD == "ARM B")
 
-basic_table() \%>\%
-  split_cols_by(var = "ARMCD", ref_group = "ARM A") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by(var = "ARMCD", ref_group = "ARM A") |>
+  add_colcounts() |>
   coxph_pairwise(
     vars = "AVAL",
     is_event = "is_event",
     var_labels = "Unstratified Analysis"
-  ) \%>\%
+  ) |>
   build_table(df = adtte_f)
 
-basic_table() \%>\%
-  split_cols_by(var = "ARMCD", ref_group = "ARM A") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by(var = "ARMCD", ref_group = "ARM A") |>
+  add_colcounts() |>
   coxph_pairwise(
     vars = "AVAL",
     is_event = "is_event",
     var_labels = "Stratified Analysis",
     strata = "SEX",
     control = control_coxph(pval_method = "wald")
-  ) \%>\%
+  ) |>
   build_table(df = adtte_f)
 
 }

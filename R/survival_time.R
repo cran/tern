@@ -26,13 +26,13 @@
 #' @examples
 #' library(dplyr)
 #'
-#' adtte_f <- tern_ex_adtte %>%
-#'   filter(PARAMCD == "OS") %>%
+#' adtte_f <- tern_ex_adtte |>
+#'   filter(PARAMCD == "OS") |>
 #'   mutate(
 #'     AVAL = day2month(AVAL),
 #'     is_event = CNSR == 0
 #'   )
-#' df <- adtte_f %>% filter(ARMCD == "ARM A")
+#' df <- adtte_f |> filter(ARMCD == "ARM A")
 #'
 #' @name survival_time
 #' @order 1
@@ -51,8 +51,9 @@ NULL
 #'   * `range_censor`: Survival time range for censored observations.
 #'   * `range_event`: Survival time range for observations with events.
 #'   * `range`: Survival time range for all observations.
+#'   * `range_with_cens_info`: Survival time range for all observations, with `+` suffix on censored bounds.
 #'
-#' @keywords internal
+#' @export
 s_surv_time <- function(df,
                         .var,
                         ...,
@@ -80,6 +81,11 @@ s_surv_time <- function(df,
   range_censor <- range_noinf(df[[.var]][!df[[is_event]]], na.rm = TRUE)
   range_event <- range_noinf(df[[.var]][df[[is_event]]], na.rm = TRUE)
   range <- range_noinf(df[[.var]], na.rm = TRUE)
+
+  any_censored <- !all(df[[is_event]])
+  no_event <- !any(df[[is_event]])
+  lower_censored <- any_censored && (no_event || range_censor[1] < range_event[1])
+  upper_censored <- any_censored && (no_event || range_censor[2] > range_event[2])
 
   names(quantiles) <- as.character(100 * quantiles)
   srv_qt_tab_pre <- unlist(srv_qt_tab_pre)
@@ -116,6 +122,10 @@ s_surv_time <- function(df,
     ),
     quantiles_upper = formatters::with_label(
       unname(srv_qt_ci[[2]]), paste0(quantiles[2] * 100, "%-ile (", f_conf_level(conf_level), ")")
+    ),
+    range_with_cens_info = formatters::with_label(
+      c(range, lower_censored, upper_censored),
+      "Min - Max (with censoring)"
     )
   )
 }
@@ -170,7 +180,7 @@ a_surv_time <- function(df,
   # Fill in formatting defaults
   .stats <- get_stats("surv_time", stats_in = .stats, custom_stats_in = names(custom_stat_functions))
   .formats <- get_formats_from_stats(.stats, .formats)
-  .labels <- get_labels_from_stats(.stats, .labels) %>% labels_use_control(dots_extra_args$control)
+  .labels <- get_labels_from_stats(.stats, .labels) |> labels_use_control(dots_extra_args$control)
   .indent_mods <- get_indents_from_stats(.stats, .indent_mods)
 
   x_stats <- x_stats[.stats]
@@ -198,8 +208,8 @@ a_surv_time <- function(df,
     .formats = .formats,
     .names = names(.labels),
     .stat_names = .stat_names,
-    .labels = .labels %>% .unlist_keep_nulls(),
-    .indent_mods = .indent_mods %>% .unlist_keep_nulls(),
+    .labels = .labels |> .unlist_keep_nulls(),
+    .indent_mods = .indent_mods |> .unlist_keep_nulls(),
     .cell_footnotes = cell_fns
   )
 }
@@ -213,15 +223,15 @@ a_surv_time <- function(df,
 #'   the statistics from `s_surv_time()` to the table layout.
 #'
 #' @examples
-#' basic_table() %>%
-#'   split_cols_by(var = "ARMCD") %>%
-#'   add_colcounts() %>%
+#' basic_table() |>
+#'   split_cols_by(var = "ARMCD") |>
+#'   add_colcounts() |>
 #'   surv_time(
 #'     vars = "AVAL",
 #'     var_labels = "Survival Time (Months)",
 #'     is_event = "is_event",
 #'     control = control_surv_time(conf_level = 0.9, conf_type = "log-log")
-#'   ) %>%
+#'   ) |>
 #'   build_table(df = adtte_f)
 #'
 #' @export

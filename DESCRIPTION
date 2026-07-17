@@ -1,24 +1,25 @@
 Package: tern
 Title: Create Common TLGs Used in Clinical Trials
-Version: 0.9.10
-Date: 2025-12-14
+Version: 0.9.11
+Date: 2026-07-15
 Authors@R: c(
     person("Joe", "Zhu", , "joe.zhu@roche.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7566-2787")),
     person("Daniel", "Sabanés Bové", , "daniel.sabanes_bove@rconis.com", role = "aut"),
-    person("Jana", "Stoilova", , "jana.stoilova@roche.com", role = "aut"),
+    person("Jana", "Stoilova", , "stoilova@dnli.com", role = "aut"),
     person("Davide", "Garolini", , "davide.garolini@roche.com", role = "aut",
            comment = c(ORCID = "0000-0002-1445-1369")),
-    person("Emily", "de la Rua", , "emily.de_la_rua@contractors.roche.com", role = "aut",
+    person("Emily", "de la Rua", , "emilydelarua@gmail.com", role = "aut",
            comment = c(ORCID = "0009-0000-8738-5561")),
-    person("Abinaya", "Yogasekaram", , "abinaya.yogasekaram@contractors.roche.com", role = "aut",
+    person("Abinaya", "Yogasekaram", , "ayogasek@gmail.com", role = "aut",
            comment = c(ORCID = "0009-0005-2083-1105")),
-    person("Heng", "Wang", , "wang.heng@gene.com", role = "aut"),
+    person("Heng", "Wang", , "Heng.Wang21@gilead.com", role = "aut"),
     person("Francois", "Collin", role = "aut"),
-    person("Adrian", "Waddell", , "adrian.waddell@gene.com", role = "aut"),
+    person("Adrian", "Waddell", , "adrian.waddell@gmail.com", role = "aut"),
     person("Pawel", "Rucki", , "pawel.rucki@roche.com", role = "aut"),
-    person("Chendi", "Liao", , "chendi.liao@roche.com", role = "aut"),
-    person("Jennifer", "Li", , "li.jing@gene.com", role = "aut"),
+    person("Chendi", "Liao", role = "aut"),
+    person("Jennifer", "Li", role = "aut"),
+    person("David", "Munoz Tord", , "david.munoztord@mailbox.org", role = "ctb"),
     person("F. Hoffmann-La Roche AG", role = c("cph", "fnd"))
   )
 Description: Table, Listings, and Graphs (TLG) library for common outputs
@@ -32,31 +33,31 @@ Imports: broom (>= 1.0.8), car (>= 3.1-3), checkmate (>= 2.3.2),
         cowplot (>= 1.1.3), dplyr (>= 1.0.0), emmeans (>= 1.10.4),
         forcats (>= 1.0.0), formatters (>= 0.5.12), ggplot2 (>= 3.5.0),
         grid, gridExtra (>= 2.0.0), gtable (>= 0.3.0), labeling,
-        lifecycle (>= 0.2.0), magrittr (>= 1.5), MASS (>= 7.3-60),
-        methods, nestcolor (>= 0.1.1), Rdpack (>= 2.4), rlang (>=
-        1.1.0), scales (>= 1.2.0), stats, survival (>= 3.8-3), tibble
-        (>= 3.2.1), tidyr (>= 0.8.3), utils
+        lifecycle (>= 0.2.0), MASS (>= 7.3-60), methods, nestcolor (>=
+        0.1.1), Rdpack (>= 2.4), rlang (>= 1.1.0), scales (>= 1.2.0),
+        stats, survival (>= 3.8-9), tibble (>= 3.2.1), tidyr (>=
+        0.8.3), utils
 Suggests: knitr (>= 1.42), lattice (>= 0.18-4), lubridate (>= 1.7.9),
-        rmarkdown (>= 2.23), sass (>= 0.4.10), stringr (>= 1.4.1),
-        svglite (>= 2.1.2), testthat (>= 3.1.9), withr (>= 2.0.0)
+        rmarkdown (>= 2.28), stringr (>= 1.4.1), svglite (>= 2.1.2),
+        testthat (>= 3.3.0), withr (>= 2.0.0)
 VignetteBuilder: knitr, rmarkdown
 RdMacros: lifecycle, Rdpack
 Config/Needs/verdepcheck: insightsengineering/rtables,
         tidymodels/broom, cran/car, mllg/checkmate, wilkelab/cowplot,
         tidyverse/dplyr, rvlenth/emmeans, tidyverse/forcats,
         insightsengineering/formatters, tidyverse/ggplot2,
-        r-lib/gtable, r-lib/lifecycle, tidyverse/magrittr,
-        GeoBosh/Rdpack, r-lib/rlang, r-lib/scales, therneau/survival,
-        tidyverse/tibble, tidyverse/tidyr, yihui/knitr,
-        deepayan/lattice, tidyverse/lubridate,
-        insightsengineering/nestcolor, rstudio/rmarkdown,
-        tidyverse/stringr, r-lib/svglite, r-lib/testthat, r-lib/withr
+        r-lib/gtable, r-lib/lifecycle, GeoBosh/Rdpack, r-lib/rlang,
+        r-lib/scales, therneau/survival, tidyverse/tibble,
+        tidyverse/tidyr, yihui/knitr, deepayan/lattice,
+        tidyverse/lubridate, insightsengineering/nestcolor,
+        rstudio/rmarkdown, tidyverse/stringr, r-lib/svglite,
+        r-lib/testthat, r-lib/withr
 Config/Needs/website: insightsengineering/nesttemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.3.3
+RoxygenNote: 8.0.0
 Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'abnormal_by_marked.R' 'abnormal_by_worst_grade.R'
         'abnormal_lab_worsen_by_baseline.R'
@@ -100,7 +101,7 @@ Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'utils_ggplot.R' 'utils_grid.R' 'utils_rtables.R'
         'utils_split_funs.R'
 NeedsCompilation: no
-Packaged: 2025-12-17 03:55:15 UTC; rstudio
+Packaged: 2026-07-16 15:35:08 UTC; zhus31
 Author: Joe Zhu [aut, cre] (ORCID: <https://orcid.org/0000-0001-7566-2787>),
   Daniel Sabanés Bové [aut],
   Jana Stoilova [aut],
@@ -114,7 +115,8 @@ Author: Joe Zhu [aut, cre] (ORCID: <https://orcid.org/0000-0001-7566-2787>),
   Pawel Rucki [aut],
   Chendi Liao [aut],
   Jennifer Li [aut],
+  David Munoz Tord [ctb],
   F. Hoffmann-La Roche AG [cph, fnd]
 Maintainer: Joe Zhu <joe.zhu@roche.com>
 Repository: CRAN
-Date/Publication: 2025-12-18 06:10:24 UTC
+Date/Publication: 2026-07-17 06:40:02 UTC

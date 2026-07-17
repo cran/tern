@@ -4,12 +4,15 @@
 \alias{h_tbl_median_surv}
 \title{Helper function for survival estimations}
 \usage{
-h_tbl_median_surv(fit_km, armval = "All")
+h_tbl_median_surv(fit_km, armval = "All", digits = 4)
 }
 \arguments{
 \item{fit_km}{(\code{survfit})\cr result of \code{\link[survival:survfit]{survival::survfit()}}.}
 
 \item{armval}{(\code{string})\cr used as strata name when treatment arm variable only has one level. Default is \code{"All"}.}
+
+\item{digits}{(\code{integer(1)})\cr number of significant digits for median and CI values.
+Defaults to \code{4}.}
 }
 \value{
 A summary table with statistics \code{N}, \code{Median}, and \verb{XX\% CI} (\code{XX} taken from \code{fit_km}).
@@ -23,11 +26,12 @@ Transform a survival fit to a table with groups in rows characterized by N, medi
 library(dplyr)
 library(survival)
 
-adtte <- tern_ex_adtte \%>\% filter(PARAMCD == "OS")
+adtte <- tern_ex_adtte |> filter(PARAMCD == "OS")
 fit <- survfit(
   formula = Surv(AVAL, 1 - CNSR) ~ ARMCD,
   data = adtte
 )
 h_tbl_median_surv(fit_km = fit)
+h_tbl_median_surv(fit_km = fit, digits = 2)
 
 }

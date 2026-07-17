@@ -66,7 +66,7 @@ times, to avoid warnings from \code{rtables}.}
 Options are: \code{'fraction'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -160,8 +160,8 @@ df <- data.frame(
 df <- df_explicit_na(df)
 
 # Layout creating function.
-basic_table() \%>\%
-  count_abnormal_by_baseline(var = "ANRIND", abnormal = c(High = "HIGH")) \%>\%
+basic_table() |>
+  count_abnormal_by_baseline(var = "ANRIND", abnormal = c(High = "HIGH")) |>
   build_table(df)
 
 # Passing of statistics function and formatting arguments.
@@ -171,14 +171,14 @@ df2 <- data.frame(
   BLRANGE = factor(c("LOW", "HIGH", "HIGH", "NORMAL"))
 )
 
-basic_table() \%>\%
+basic_table() |>
   count_abnormal_by_baseline(
     var = "RANGE",
     abnormal = c(Low = "LOW"),
     variables = list(id = "ID", baseline = "BLRANGE"),
     .formats = c(fraction = "xx / xx"),
     .indent_mods = c(fraction = 2L)
-  ) \%>\%
+  ) |>
   build_table(df2)
 
 }

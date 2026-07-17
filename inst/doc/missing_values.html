@@ -1608,13 +1608,13 @@ factor resulting in the table being generated.</p>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="st">&quot;Continous Level Biomarker 1&quot;</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>result</span>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;                                                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
@@ -1664,13 +1664,13 @@ percent values.</p>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="st">&quot;Sex&quot;</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
 <span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>result</span>
 <span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
@@ -1692,13 +1692,13 @@ calculating percent values, use the <code>na_level</code> argument.</p>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>adsl<span class="sc">$</span>SEX[adsl<span class="sc">$</span>SEX <span class="sc">==</span> <span class="st">&quot;M&quot;</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>adsl <span class="ot">&lt;-</span> <span class="fu">df_explicit_na</span>(adsl, <span class="at">na_level =</span> <span class="st">&quot;Missing Values&quot;</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
 <span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>result</span>
 <span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;                     A: Drug X    B: Placebo    C: Combination   All Patients</span></span>
@@ -1733,13 +1733,13 @@ valued greater than 30 are included in the table below.</p>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="st">&quot;Sex&quot;</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>)</span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">basic_table</span>(<span class="at">show_colcounts =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="fu">add_overall_col</span>(<span class="st">&quot;All Patients&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(</span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    <span class="at">vars =</span> vars,</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="at">var_labels =</span> var_labels</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  <span class="fu">build_table</span>(adsl)</span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>result</span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;                A: Drug X    B: Placebo    C: Combination   All Patients</span></span>

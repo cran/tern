@@ -103,7 +103,7 @@ avoid warnings from duplicate table names.}
 Options are: \verb{'pt_at_risk', 'event_free_rate', 'rate_se', 'rate_ci', 'event_free_rate_3d'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -181,29 +181,29 @@ and additional format arguments. This function is a wrapper for \code{\link[rtab
 \examples{
 library(dplyr)
 
-adtte_f <- tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS") \%>\%
+adtte_f <- tern_ex_adtte |>
+  filter(PARAMCD == "OS") |>
   mutate(
     AVAL = day2month(AVAL),
     is_event = CNSR == 0
   )
 
 # Survival at given time points.
-basic_table() \%>\%
-  split_cols_by(var = "ARMCD", ref_group = "ARM A") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by(var = "ARMCD", ref_group = "ARM A") |>
+  add_colcounts() |>
   surv_timepoint(
     vars = "AVAL",
     var_labels = "Months",
     is_event = "is_event",
     time_point = 7
-  ) \%>\%
+  ) |>
   build_table(df = adtte_f)
 
 # Difference in survival at given time points.
-basic_table() \%>\%
-  split_cols_by(var = "ARMCD", ref_group = "ARM A") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by(var = "ARMCD", ref_group = "ARM A") |>
+  add_colcounts() |>
   surv_timepoint(
     vars = "AVAL",
     var_labels = "Months",
@@ -211,26 +211,26 @@ basic_table() \%>\%
     time_point = 9,
     method = "surv_diff",
     .indent_mods = c("rate_diff" = 0L, "rate_diff_ci" = 2L, "ztest_pval" = 2L)
-  ) \%>\%
+  ) |>
   build_table(df = adtte_f)
 
 # Survival and difference in survival at given time points.
-basic_table() \%>\%
-  split_cols_by(var = "ARMCD", ref_group = "ARM A") \%>\%
-  add_colcounts() \%>\%
+basic_table() |>
+  split_cols_by(var = "ARMCD", ref_group = "ARM A") |>
+  add_colcounts() |>
   surv_timepoint(
     vars = "AVAL",
     var_labels = "Months",
     is_event = "is_event",
     time_point = 9,
     method = "both"
-  ) \%>\%
+  ) |>
   build_table(df = adtte_f)
 
 library(dplyr)
 
-adtte_f <- tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS") \%>\%
+adtte_f <- tern_ex_adtte |>
+  filter(PARAMCD == "OS") |>
   mutate(
     AVAL = day2month(AVAL),
     is_event = CNSR == 0

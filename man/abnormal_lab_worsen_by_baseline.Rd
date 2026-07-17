@@ -64,7 +64,7 @@ Options are: \code{'fraction'}}
 \item{.stats}{(\code{character})\cr statistics to select for the table.}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -139,14 +139,14 @@ in \code{count_abnormal_lab_worsen_by_baseline()}.
 library(dplyr)
 
 # The direction variable, GRADDR, is based on metadata
-adlb <- tern_ex_adlb \%>\%
+adlb <- tern_ex_adlb |>
   mutate(
     GRADDR = case_when(
       PARAMCD == "ALT" ~ "B",
       PARAMCD == "CRP" ~ "L",
       PARAMCD == "IGA" ~ "H"
     )
-  ) \%>\%
+  ) |>
   filter(SAFFL == "Y" & ONTRTFL == "Y" & GRADDR != "")
 
 df <- h_adlb_worsen(
@@ -156,11 +156,11 @@ df <- h_adlb_worsen(
   direction_var = "GRADDR"
 )
 
-basic_table() \%>\%
-  split_cols_by("ARMCD") \%>\%
-  add_colcounts() \%>\%
-  split_rows_by("PARAMCD") \%>\%
-  split_rows_by("GRADDR") \%>\%
+basic_table() |>
+  split_cols_by("ARMCD") |>
+  add_colcounts() |>
+  split_rows_by("PARAMCD") |>
+  split_rows_by("GRADDR") |>
   count_abnormal_lab_worsen_by_baseline(
     var = "ATOXGR",
     variables = list(
@@ -168,8 +168,8 @@ basic_table() \%>\%
       baseline_var = "BTOXGR",
       direction_var = "GRADDR"
     )
-  ) \%>\%
-  append_topleft("Direction of Abnormality") \%>\%
+  ) |>
+  append_topleft("Direction of Abnormality") |>
   build_table(df = df, alt_counts_df = tern_ex_adsl)
 
 }

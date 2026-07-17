@@ -72,7 +72,7 @@ and the second level as \code{arm_y}.}
 \item{...}{additional arguments for the lower level functions.}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -127,12 +127,12 @@ adtte <- tern_ex_adtte
 # Save variable labels before data processing steps.
 adtte_labels <- formatters::var_labels(adtte)
 
-adtte_f <- adtte \%>\%
+adtte_f <- adtte |>
   filter(
     PARAMCD == "OS",
     ARM \%in\% c("B: Placebo", "A: Drug X"),
     SEX \%in\% c("M", "F")
-  ) \%>\%
+  ) |>
   mutate(
     # Reorder levels of ARM to display reference arm before treatment arm.
     ARM = droplevels(forcats::fct_relevel(ARM, "B: Placebo")),
@@ -177,11 +177,11 @@ df_grouped <- extract_survival_subgroups(
 df_grouped
 
 ## Table with default columns.
-basic_table() \%>\%
+basic_table() |>
   tabulate_survival_subgroups(df, time_unit = adtte_f$AVALU[1])
 
 ## Table with a manually chosen set of columns: adding "pval".
-basic_table() \%>\%
+basic_table() |>
   tabulate_survival_subgroups(
     df = df,
     vars = c("n_tot_events", "n_events", "median", "hr", "ci", "pval"),

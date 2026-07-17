@@ -13,7 +13,7 @@ estimate_proportion_diff(
   variables = list(strata = NULL),
   conf_level = 0.95,
   method = c("waldcc", "wald", "cmh", "cmh_sato", "cmh_mn", "ha", "newcombe",
-    "newcombecc", "strat_newcombe", "strat_newcombecc"),
+    "newcombecc", "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"),
   weights_method = "cmh",
   var_labels = vars,
   na_str = default_na_str(),
@@ -25,9 +25,9 @@ estimate_proportion_diff(
   na_rm = TRUE,
   .stats = c("diff", "diff_ci"),
   .stat_names = NULL,
-  .formats = c(diff = "xx.x", diff_ci = "(xx.x, xx.x)"),
+  .formats = c(diff = "xx.x", diff_ci = "(xx.x, xx.x)", se_diff = "xx.x"),
   .labels = NULL,
-  .indent_mods = c(diff = 0L, diff_ci = 1L)
+  .indent_mods = c(diff = 0L, diff_ci = 1L, se_diff = 1L)
 )
 
 s_proportion_diff(
@@ -38,7 +38,7 @@ s_proportion_diff(
   variables = list(strata = NULL),
   conf_level = 0.95,
   method = c("waldcc", "wald", "cmh", "cmh_sato", "cmh_mn", "ha", "newcombe",
-    "newcombecc", "strat_newcombe", "strat_newcombecc"),
+    "newcombecc", "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"),
   weights_method = "cmh",
   ...
 )
@@ -92,7 +92,7 @@ defined by this split instruction, or \code{NA_character_} (the default) for no 
 Options are: \verb{'diff', 'diff_ci'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
-(\code{.stats}). This option is visible when producing \code{\link[rtables:data.frame_export]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
+(\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
 
 \item{.formats}{(named \code{character} or \code{list})\cr formats for the statistics. See Details in \code{analyze_vars} for more
 information on the \code{"auto"} setting.}
@@ -120,6 +120,8 @@ the statistics from \code{s_proportion_diff()} to the table layout.
 
 \itemize{
 \item \code{s_proportion_diff()} returns a named list of elements \code{diff} and \code{diff_ci}.
+Depending on the method used, also the standard error of the difference \code{se_diff} is
+returned.
 }
 
 \itemize{
@@ -151,6 +153,8 @@ The possible methods are:
 correction \insertCite{Yan2010-jt}{tern}.
 \item \code{"strat_newcombecc"}: Stratified Newcombe confidence interval with continuity
 correction \insertCite{Yan2010-jt}{tern}.
+\item \code{"uncond_exact_diff"}: Unconditional exact confidence interval for the difference in
+proportions \insertCite{SantnerSnell1980}{tern}.
 }
 }
 \section{Functions}{
@@ -166,7 +170,8 @@ in terms of responder proportion.
 }}
 \note{
 When performing an unstratified analysis, methods \code{"cmh"}, \code{"cmh_sato"}, \code{"strat_newcombe"},
-and \code{"strat_newcombecc"} are not permitted.
+and \code{"strat_newcombecc"} are not permitted. For stratified analysis, method
+\code{"uncond_exact_diff"} is not permitted.
 }
 \examples{
 ## "Mid" case: 4/4 respond in group A, 1/2 respond in group B.
@@ -179,8 +184,8 @@ dta <- data.frame(
   stringsAsFactors = TRUE
 )
 
-l <- basic_table() \%>\%
-  split_cols_by(var = "grp", ref_group = "B") \%>\%
+l <- basic_table() |>
+  split_cols_by(var = "grp", ref_group = "B") |>
   estimate_proportion_diff(
     vars = "rsp",
     conf_level = 0.90,

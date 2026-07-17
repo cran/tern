@@ -85,7 +85,7 @@ Defaults to \code{NA} for no section divider. If a vector of two strings are giv
 treatment and covariate sections and the second between different covariates.}
 
 \item{model_df}{(\code{data.frame})\cr contains the resulting model fit from a \link{fit_coxreg}
-function with tidying applied via \code{\link[broom:reexports]{broom::tidy()}}.}
+function with tidying applied via \code{\link[broom:tidy]{broom::tidy()}}.}
 
 \item{.which_vars}{(\code{character})\cr which rows should statistics be returned for from the given model.
 Defaults to \code{"all"}. Other options include \code{"var_main"} for main effects, \code{"inter"} for interaction effects,
@@ -165,11 +165,11 @@ dta_bladder <- with(
     TIME = stop,
     STATUS = event,
     ARM = as.factor(rx),
-    COVAR1 = as.factor(enum) \%>\% formatters::with_label("A Covariate Label"),
+    COVAR1 = as.factor(enum) |> formatters::with_label("A Covariate Label"),
     COVAR2 = factor(
       sample(as.factor(enum)),
       levels = 1:4, labels = c("F", "F", "M", "M")
-    ) \%>\% formatters::with_label("Sex (F/M)")
+    ) |> formatters::with_label("Sex (F/M)")
   )
 )
 dta_bladder$AGE <- sample(20:60, size = nrow(dta_bladder), replace = TRUE)
@@ -189,32 +189,32 @@ m2_variables <- list(time = "TIME", event = "STATUS", covariates = c("COVAR1", "
 
 # summarize_coxreg
 
-result_univar <- basic_table() \%>\%
-  summarize_coxreg(variables = u1_variables) \%>\%
+result_univar <- basic_table() |>
+  summarize_coxreg(variables = u1_variables) |>
   build_table(dta_bladder)
 result_univar
 
-result_univar_covs <- basic_table() \%>\%
+result_univar_covs <- basic_table() |>
   summarize_coxreg(
     variables = u2_variables,
-  ) \%>\%
+  ) |>
   build_table(dta_bladder)
 result_univar_covs
 
-result_multivar <- basic_table() \%>\%
+result_multivar <- basic_table() |>
   summarize_coxreg(
     variables = m1_variables,
     multivar = TRUE,
-  ) \%>\%
+  ) |>
   build_table(dta_bladder)
 result_multivar
 
-result_multivar_covs <- basic_table() \%>\%
+result_multivar_covs <- basic_table() |>
   summarize_coxreg(
     variables = m2_variables,
     multivar = TRUE,
     varlabels = c("Covariate 1", "Covariate 2") # custom labels
-  ) \%>\%
+  ) |>
   build_table(dta_bladder)
 result_multivar_covs
 

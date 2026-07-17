@@ -24,7 +24,7 @@ A \code{tibble} with columns \code{time}, \code{n.risk}, \code{n.event}, \code{n
 Convert the survival fit data into a data frame designed for plotting
 within \code{g_km}.
 
-This starts from the \code{\link[broom:reexports]{broom::tidy()}} result, and then:
+This starts from the \code{\link[broom:tidy]{broom::tidy()}} result, and then:
 \itemize{
 \item Post-processes the \code{strata} column into a factor.
 \item Extends each stratum by an additional first row with time 0 and probability 1 so that
@@ -38,15 +38,15 @@ library(dplyr)
 library(survival)
 
 # Test with multiple arms
-tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS") \%>\%
-  survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = .) \%>\%
+tern_ex_adtte |>
+  filter(PARAMCD == "OS") |>
+  (\(x) survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = x))() |>
   h_data_plot()
 
 # Test with single arm
-tern_ex_adtte \%>\%
-  filter(PARAMCD == "OS", ARMCD == "ARM B") \%>\%
-  survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = .) \%>\%
+tern_ex_adtte |>
+  filter(PARAMCD == "OS", ARMCD == "ARM B") |>
+  (\(x) survfit(formula = Surv(AVAL, 1 - CNSR) ~ ARMCD, data = x))() |>
   h_data_plot(armval = "ARM B")
 
 }

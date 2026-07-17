@@ -21,16 +21,16 @@ A \code{data.frame} containing the tidied model.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
-Helper method (for \code{\link[broom:reexports]{broom::tidy()}}) to prepare a data frame from a \code{glm} object
+Helper method (for \code{\link[broom:tidy]{broom::tidy()}}) to prepare a data frame from a \code{glm} object
 with \code{binomial} family.
 }
 \examples{
 library(dplyr)
 library(broom)
 
-adrs_f <- tern_ex_adrs \%>\%
-  filter(PARAMCD == "BESRSPI") \%>\%
-  filter(RACE \%in\% c("ASIAN", "WHITE", "BLACK OR AFRICAN AMERICAN")) \%>\%
+adrs_f <- tern_ex_adrs |>
+  filter(PARAMCD == "BESRSPI") |>
+  filter(RACE \%in\% c("ASIAN", "WHITE", "BLACK OR AFRICAN AMERICAN")) |>
   mutate(
     Response = case_when(AVALC \%in\% c("PR", "CR") ~ 1, TRUE ~ 0),
     RACE = factor(RACE),

@@ -1667,17 +1667,17 @@ and the result should be rounded to 1 decimal place. Hence, a
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
 <p>Defining the table layout with a pure <code>rtables</code> code:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Create table layout pure rtables</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>lyt <span class="ot">&lt;-</span> rtables<span class="sc">::</span><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_rows_by</span>(<span class="at">var =</span> <span class="st">&quot;AVISIT&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>lyt <span class="ot">&lt;-</span> rtables<span class="sc">::</span><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_rows_by</span>(<span class="at">var =</span> <span class="st">&quot;AVISIT&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">analyze</span>(<span class="at">vars =</span> <span class="st">&quot;AVAL&quot;</span>, mean, <span class="at">format =</span> <span class="st">&quot;xx.x&quot;</span>)</span></code></pre></div>
 <p>Below, the only <code>tern</code> function used is
 <code>analyze_vars</code> which replaces the
 <code>rtables::analyze</code> function used above.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create table layout with tern analyze_vars analyze function</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>lyt2 <span class="ot">&lt;-</span> rtables<span class="sc">::</span><span class="fu">basic_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_rows_by</span>(<span class="at">var =</span> <span class="st">&quot;AVISIT&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>lyt2 <span class="ot">&lt;-</span> rtables<span class="sc">::</span><span class="fu">basic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_cols_by</span>(<span class="at">var =</span> <span class="st">&quot;ARM&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  rtables<span class="sc">::</span><span class="fu">split_rows_by</span>(<span class="at">var =</span> <span class="st">&quot;AVISIT&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">analyze_vars</span>(<span class="at">vars =</span> <span class="st">&quot;AVAL&quot;</span>, <span class="at">.formats =</span> <span class="fu">c</span>(<span class="st">&quot;mean_sd&quot;</span> <span class="ot">=</span> <span class="st">&quot;(xx.xx, xx.xx)&quot;</span>))</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Apply table layout to data and produce `rtables` object</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>

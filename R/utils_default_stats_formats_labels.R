@@ -282,7 +282,7 @@ get_formats_from_stats <- function(stats,
     !is.null(formats_in) && length(formats_in) == length(stats) &&
       is.null(names(formats_in)) && is.null(levels_per_stats)
   ) {
-    out <- as.list(formats_in) %>% setNames(stats)
+    out <- as.list(formats_in) |> setNames(stats)
     return(out)
   }
 
@@ -295,7 +295,7 @@ get_formats_from_stats <- function(stats,
   }
 
   # If levels_per_stats not given, assume one row per statistic
-  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) %>% setNames(stats)
+  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) |> setNames(stats)
 
   # Apply custom formats
   out <- .fill_in_vals_by_stats(levels_per_stats, formats_in, tern_defaults)
@@ -368,12 +368,12 @@ get_labels_from_stats <- function(stats,
     !is.null(labels_in) && length(labels_in) == length(stats) &&
       is.null(names(labels_in)) && is.null(levels_per_stats)
   ) {
-    out <- as.list(labels_in) %>% setNames(stats)
+    out <- as.list(labels_in) |> setNames(stats)
     return(out)
   }
 
   # If levels_per_stats not given, assume one row per statistic
-  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) %>% setNames(stats)
+  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) |> setNames(stats)
 
   # Apply custom labels
   out <- .fill_in_vals_by_stats(levels_per_stats, labels_in, tern_defaults)
@@ -402,7 +402,7 @@ get_labels_from_stats <- function(stats,
 get_indents_from_stats <- function(stats,
                                    indents_in = NULL,
                                    levels_per_stats = NULL,
-                                   tern_defaults = as.list(rep(0L, length(stats))) %>% setNames(stats),
+                                   tern_defaults = as.list(rep(0L, length(stats))) |> setNames(stats),
                                    row_nms = lifecycle::deprecated()) {
   checkmate::assert_character(stats, min.len = 1)
   # It may be a list
@@ -415,11 +415,11 @@ get_indents_from_stats <- function(stats,
   checkmate::assert_list(levels_per_stats, null.ok = TRUE)
 
   # If levels_per_stats not given, assume one row per statistic
-  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) %>% setNames(stats)
+  if (is.null(levels_per_stats)) levels_per_stats <- as.list(stats) |> setNames(stats)
 
   # Single indentation level for all rows
   if (is.null(names(indents_in)) && length(indents_in) == 1) {
-    out <- rep(indents_in, length(levels_per_stats %>% unlist()))
+    out <- rep(indents_in, length(levels_per_stats |> unlist()))
     return(out)
   }
 
@@ -472,7 +472,7 @@ get_indents_from_stats <- function(stats,
 
 # Custom unlist function to retain NULL as "NULL" or NA
 .unlist_keep_nulls <- function(lst, null_placeholder = "NULL", recursive = FALSE) {
-  lapply(lst, function(x) if (is.null(x)) null_placeholder else x) %>%
+  lapply(lst, function(x) if (is.null(x)) null_placeholder else x) |>
     unlist(recursive = recursive)
 }
 
@@ -496,7 +496,7 @@ get_indents_from_stats <- function(stats,
 #'
 #' @examples
 #' control <- list(conf_level = 0.80, quantiles = c(0.1, 0.83), test_mean = 0.57)
-#' get_labels_from_stats(c("mean_ci", "quantiles", "mean_pval")) %>%
+#' get_labels_from_stats(c("mean_ci", "quantiles", "mean_pval")) |>
 #'   labels_use_control(control = control)
 #'
 #' @export
@@ -574,20 +574,24 @@ tern_default_stats <- list(
   count_patients_with_event = c("n", "count", "count_fraction", "count_fraction_fixed_dp", "n_blq"),
   count_patients_with_flags = c("n", "count", "count_fraction", "count_fraction_fixed_dp", "n_blq"),
   count_values = c("n", "count", "count_fraction", "count_fraction_fixed_dp", "n_blq"),
-  coxph_pairwise = c("pvalue", "hr", "hr_ci", "n_tot", "n_tot_events"),
+  coxph_pairwise = c("pvalue", "hr", "hr_ci", "hr_ci_3d", "lr_stat_df", "n_tot", "n_tot_events"),
   estimate_incidence_rate = c("person_years", "n_events", "rate", "rate_ci", "n_unique", "n_rate"),
   estimate_multinomial_response = c("n_prop", "prop_ci"),
   estimate_odds_ratio = c("or_ci", "n_tot"),
   estimate_proportion = c("n_prop", "prop_ci"),
   estimate_proportion_diff = c("diff", "diff_ci"),
-  summarize_ancova = c("n", "lsmean", "lsmean_diff", "lsmean_diff_ci", "pval"),
+  summarize_ancova = c(
+    "n", "lsmean", "lsmean_se", "lsmean_ci",
+    "lsmean_diff", "lsmean_diff_ci", "lsmean_diff_with_ci", "pval"
+  ),
   summarize_coxreg = c("n", "hr", "ci", "pval", "pval_inter"),
   summarize_glm_count = c("n", "rate", "rate_ci", "rate_ratio", "rate_ratio_ci", "pval"),
   summarize_num_patients = c("unique", "nonunique", "unique_count"),
   summarize_patients_events_in_cols = c("unique", "all"),
   surv_time = c(
     "median", "median_ci", "median_ci_3d", "quantiles",
-    "quantiles_lower", "quantiles_upper", "range_censor", "range_event", "range"
+    "quantiles_lower", "quantiles_upper", "range_censor", "range_event", "range",
+    "range_with_cens_info"
   ),
   surv_timepoint = c("pt_at_risk", "event_free_rate", "rate_se", "rate_ci", "event_free_rate_3d"),
   surv_timepoint_diff = c("rate_diff", "rate_diff_ci", "ztest_pval", "rate_diff_ci_3d"),
@@ -623,10 +627,14 @@ tern_default_formats <- c(
   hr = list(format_extreme_values(2L)),
   hr_ci = "(xx.xx, xx.xx)",
   hr_ci_3d = "xx.xx (xx.xx - xx.xx)",
+  lr_stat_df = "xx.xx (xx.)",
   iqr = "xx.x",
   lsmean = "xx.xx",
+  lsmean_ci = "xx.xx (xx.xx - xx.xx)",
   lsmean_diff = "xx.xx",
   lsmean_diff_ci = "(xx.xx, xx.xx)",
+  lsmean_diff_with_ci = "xx.xx (xx.xx - xx.xx)",
+  lsmean_se = "xx.xx (xx.xx)",
   mad = "xx.x",
   max = "xx.x",
   mean = "xx.x",
@@ -676,6 +684,7 @@ tern_default_formats <- c(
   rate_ratio = "xx.xxxx",
   rate_ratio_ci = "(xx.xxxx, xx.xxxx)",
   rate_se = "xx.xx",
+  range_with_cens_info = list(format_range_cens(1L)),
   riskdiff = "xx.x (xx.x - xx.x)",
   sd = "xx.x",
   se = "xx.x",
@@ -729,6 +738,7 @@ tern_default_labels <- c(
   range = "Min - Max",
   range_censor = "Range (censored)",
   range_event = "Range (event)",
+  range_with_cens_info = "Min - Max (with censoring)",
   rate = "Adjusted Rate",
   rate_ratio = "Adjusted Rate Ratio",
   sd = "SD",

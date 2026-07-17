@@ -23,6 +23,8 @@
 #'     correction \insertCite{Yan2010-jt}{tern}.
 #' - `"strat_newcombecc"`: Stratified Newcombe confidence interval with continuity
 #'     correction \insertCite{Yan2010-jt}{tern}.
+#' - `"uncond_exact_diff"`: Unconditional exact confidence interval for the difference in
+#'      proportions \insertCite{SantnerSnell1980}{tern}.
 #'
 #' @inheritParams prop_diff_strat_nc
 #' @inheritParams argument_convention
@@ -45,9 +47,12 @@ NULL
 #'
 #' @return
 #' * `s_proportion_diff()` returns a named list of elements `diff` and `diff_ci`.
+#'   Depending on the method used, also the standard error of the difference `se_diff` is
+#'   returned.
 #'
 #' @note When performing an unstratified analysis, methods `"cmh"`, `"cmh_sato"`, `"strat_newcombe"`,
-#'   and `"strat_newcombecc"` are not permitted.
+#'   and `"strat_newcombecc"` are not permitted. For stratified analysis, method
+#'   `"uncond_exact_diff"` is not permitted.
 #'
 #' @examples
 #' s_proportion_diff(
@@ -80,7 +85,7 @@ s_proportion_diff <- function(df,
                               method = c(
                                 "waldcc", "wald", "cmh", "cmh_sato", "cmh_mn",
                                 "ha", "newcombe", "newcombecc",
-                                "strat_newcombe", "strat_newcombecc"
+                                "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"
                               ),
                               weights_method = "cmh",
                               ...) {
@@ -94,6 +99,11 @@ s_proportion_diff <- function(df,
       "'cmh', 'cmh_sato', 'cmh_mn', 'strat_newcombe', and 'strat_newcombecc' are not",
       "permitted. Please choose a different method."
     ))
+  }
+  if (!is.null(variables$strata) && identical(method, "uncond_exact_diff")) {
+    stop(
+      "Method 'uncond_exact_diff' is only available for unstratified analyses. Please choose a different method."
+    )
   }
   y <- list(diff = numeric(), diff_ci = numeric())
 
@@ -130,6 +140,7 @@ s_proportion_diff <- function(df,
       weights_method <- "cmh"
     }
 
+    y_stats_from_cmh <- c("diff", "diff_ci", "se_diff")
     y <- switch(method,
       "wald" = prop_diff_wald(rsp, grp, conf_level, correct = FALSE),
       "waldcc" = prop_diff_wald(rsp, grp, conf_level, correct = TRUE),
@@ -150,13 +161,17 @@ s_proportion_diff <- function(df,
         conf_level,
         correct = TRUE
       ),
-      "cmh" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "standard")[c("diff", "diff_ci")],
-      "cmh_sato" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "sato")[c("diff", "diff_ci")],
-      "cmh_mn" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "miettinen_nurminen")[c("diff", "diff_ci")]
+      "cmh" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "standard")[y_stats_from_cmh],
+      "cmh_sato" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "sato")[y_stats_from_cmh],
+      "cmh_mn" = prop_diff_cmh(rsp, grp, strata, conf_level, diff_se = "miettinen_nurminen")[y_stats_from_cmh],
+      "uncond_exact_diff" = prop_diff_uncond_exact(rsp, grp, conf_level)
     )
 
     y$diff <- setNames(y$diff * 100, paste0("diff_", method))
     y$diff_ci <- setNames(y$diff_ci * 100, paste0("diff_ci_", method, c("_l", "_u")))
+    if (!is.null(y$se_diff)) {
+      y$se_diff <- setNames(y$se_diff * 100, paste0("se_diff_", method))
+    }
   }
 
   attr(y$diff, "label") <- "Difference in Response rate (%)"
@@ -164,6 +179,9 @@ s_proportion_diff <- function(df,
     conf_level, method,
     long = FALSE
   )
+  if (!is.null(y$se_diff)) {
+    attr(y$se_diff, "label") <- paste0("Standard Error of Difference in Response rate (%)")
+  }
 
   y
 }
@@ -249,8 +267,8 @@ a_proportion_diff <- function(df,
     .formats = .formats,
     .names = names(.labels),
     .stat_names = .stat_names,
-    .labels = .labels %>% .unlist_keep_nulls(),
-    .indent_mods = .indent_mods %>% .unlist_keep_nulls()
+    .labels = .labels |> .unlist_keep_nulls(),
+    .indent_mods = .indent_mods |> .unlist_keep_nulls()
   )
 }
 
@@ -273,8 +291,8 @@ a_proportion_diff <- function(df,
 #'   stringsAsFactors = TRUE
 #' )
 #'
-#' l <- basic_table() %>%
-#'   split_cols_by(var = "grp", ref_group = "B") %>%
+#' l <- basic_table() |>
+#'   split_cols_by(var = "grp", ref_group = "B") |>
 #'   estimate_proportion_diff(
 #'     vars = "rsp",
 #'     conf_level = 0.90,
@@ -292,7 +310,7 @@ estimate_proportion_diff <- function(lyt,
                                      method = c(
                                        "waldcc", "wald", "cmh", "cmh_sato", "cmh_mn",
                                        "ha", "newcombe", "newcombecc",
-                                       "strat_newcombe", "strat_newcombecc"
+                                       "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"
                                      ),
                                      weights_method = "cmh",
                                      var_labels = vars,
@@ -305,9 +323,9 @@ estimate_proportion_diff <- function(lyt,
                                      na_rm = TRUE,
                                      .stats = c("diff", "diff_ci"),
                                      .stat_names = NULL,
-                                     .formats = c(diff = "xx.x", diff_ci = "(xx.x, xx.x)"),
+                                     .formats = c(diff = "xx.x", diff_ci = "(xx.x, xx.x)", se_diff = "xx.x"),
                                      .labels = NULL,
-                                     .indent_mods = c(diff = 0L, diff_ci = 1L)) {
+                                     .indent_mods = c(diff = 0L, diff_ci = 1L, se_diff = 1L)) {
   # Depending on main functions
   extra_args <- list(
     "na_rm" = na_rm,
@@ -429,6 +447,7 @@ d_proportion_diff <- function(conf_level,
     "newcombecc" = "Newcombe, with correction",
     "strat_newcombe" = "Stratified Newcombe, without correction",
     "strat_newcombecc" = "Stratified Newcombe, with correction",
+    "uncond_exact_diff" = "Unconditional exact",
     stop(paste(method, "does not have a description"))
   )
   paste0(label, " (", method_part, ")")
@@ -586,6 +605,81 @@ prop_diff_nc <- function(rsp,
   )
 }
 
+#' @describeIn h_prop_diff Helper function to calculate the CMH weighted
+#' difference in proportions.
+#'
+#' @param tbl (`array`)\cr 3-dimensional array with dimensions corresponding to
+#'   group, response, and strata. The second dimension (response) should have names
+#'   "TRUE" and "FALSE".
+#'
+#' @keywords internal
+h_diff_cmh <- function(tbl) {
+  checkmate::assert_array(tbl)
+  checkmate::assert_integer(c(ncol(tbl), nrow(tbl)), lower = 2, upper = 2)
+  checkmate::assert_integer(length(dim(tbl)), lower = 3, upper = 3)
+  checkmate::assert_true(identical(dimnames(tbl)[[2]], c("TRUE", "FALSE")))
+
+  n1 <- colSums(tbl[1, 1:2, ])
+  n2 <- colSums(tbl[2, 1:2, ])
+  x1 <- tbl[1, 1, ]
+  p1 <- x1 / n1
+  x2 <- tbl[2, 1, ]
+  p2 <- x2 / n2
+  # CMH weights
+  use_stratum <- (n1 > 0) & (n2 > 0)
+  n1 <- n1[use_stratum]
+  n2 <- n2[use_stratum]
+  p1 <- p1[use_stratum]
+  p2 <- p2[use_stratum]
+  wt <- (n1 * n2 / (n1 + n2))
+  wt_normalized <- wt / sum(wt)
+  est1 <- sum(wt_normalized * p1)
+  est2 <- sum(wt_normalized * p2)
+  diff_est <- est2 - est1
+
+  list(
+    x1 = x1,
+    n1 = n1,
+    p1 = p1,
+    x2 = x2,
+    n2 = n2,
+    p2 = p2,
+    wt = wt,
+    wt_normalized = wt_normalized,
+    est1 = est1,
+    est2 = est2,
+    diff_est = diff_est
+  )
+}
+
+#' @describeIn h_prop_diff Helper function to calculate the standard error for the
+#'   CMH weighted difference in proportions.
+#'
+#' @param cmh_results (`list`)\cr output of [h_diff_cmh()].
+#'
+#' @keywords internal
+h_diff_cmh_se <- function(cmh_results, diff_se = c("standard", "sato")) {
+  checkmate::assert_list(cmh_results, types = "numeric", any.missing = FALSE, names = "unique")
+  diff_se <- match.arg(diff_se)
+  l <- cmh_results # For easier readability of the formulas below.
+  if (diff_se == "standard") {
+    terms1 <- l$p1 * (1 - l$p1) / l$n1
+    terms2 <- l$p2 * (1 - l$p2) / l$n2
+    sqrt(sum((terms1 + terms2) * l$wt_normalized^2))
+  } else {
+    # Sato variance estimator.
+    p_terms_num <- l$n2^2 * l$x1 -
+      l$n1^2 * l$x2 +
+      l$n1 * l$n2 * (l$n1 - l$n2) / 2
+    p_terms <- p_terms_num / (l$n1 + l$n2)^2
+    q_terms_num <- l$x1 * (l$n2 - l$x2) + l$x2 * (l$n1 - l$x1)
+    q_terms <- q_terms_num / (2 * (l$n1 + l$n2))
+    num <- l$diff_est * sum(p_terms) + sum(q_terms)
+    denom <- sum(l$wt)^2
+    sqrt(num / denom)
+  }
+}
+
 #' @describeIn h_prop_diff Calculates the weighted difference. This is defined as the difference in
 #'   response rates between the experimental treatment group and the control treatment group, adjusted
 #'   for stratification factors by applying Cochran-Mantel-Haenszel (CMH) weights. For the CMH chi-squared
@@ -631,70 +725,47 @@ prop_diff_cmh <- function(rsp,
     rsp = rsp, grp = grp, conf_level = conf_level, strata = strata
   )
 
-  if (any(tapply(rsp, strata, length) < 5)) {
+  if (any(tapply(rsp, strata, length, default = 0) < 5)) {
     warning("Less than 5 observations in some strata.")
   }
 
-  # first dimension: FALSE, TRUE
-  # 2nd dimension: CONTROL, TX
+  # first dimension: CONTROL, TX
+  # 2nd dimension: TRUE, FALSE
   # 3rd dimension: levels of strata
-  # rsp as factor rsp to handle edge case of no FALSE (or TRUE) rsp records
+  # Note: rsp needs to be a factor to handle edge case of
+  #       no FALSE (or TRUE) rsp records.
   t_tbl <- table(
-    factor(rsp, levels = c("FALSE", "TRUE")),
     grp,
+    factor(rsp, levels = c("TRUE", "FALSE")),
     strata
   )
-  n1 <- colSums(t_tbl[1:2, 1, ])
-  n2 <- colSums(t_tbl[1:2, 2, ])
-  x1 <- t_tbl[2, 1, ]
-  p1 <- x1 / n1
-  x2 <- t_tbl[2, 2, ]
-  p2 <- x2 / n2
-  # CMH weights
-  use_stratum <- (n1 > 0) & (n2 > 0)
-  n1 <- n1[use_stratum]
-  n2 <- n2[use_stratum]
-  p1 <- p1[use_stratum]
-  p2 <- p2[use_stratum]
-  wt <- (n1 * n2 / (n1 + n2))
-  wt_normalized <- wt / sum(wt)
-  est1 <- sum(wt_normalized * p1)
-  est2 <- sum(wt_normalized * p2)
-  estimate <- c(est1, est2)
+  cmh <- h_diff_cmh(t_tbl)
+
+  estimate <- c(cmh$est1, cmh$est2)
   names(estimate) <- levels(grp)
-  se1 <- sqrt(sum(wt_normalized^2 * p1 * (1 - p1) / n1))
-  se2 <- sqrt(sum(wt_normalized^2 * p2 * (1 - p2) / n2))
+  se1 <- sqrt(sum(cmh$wt_normalized^2 * cmh$p1 * (1 - cmh$p1) / cmh$n1))
+  se2 <- sqrt(sum(cmh$wt_normalized^2 * cmh$p2 * (1 - cmh$p2) / cmh$n2))
   z <- stats::qnorm((1 + conf_level) / 2)
   err1 <- z * se1
   err2 <- z * se2
-  ci1 <- c((est1 - err1), (est1 + err1))
-  ci2 <- c((est2 - err2), (est2 + err2))
+  ci1 <- c((cmh$est1 - err1), (cmh$est1 + err1))
+  ci2 <- c((cmh$est2 - err2), (cmh$est2 + err2))
   estimate_ci <- list(ci1, ci2)
   names(estimate_ci) <- levels(grp)
-  diff_est <- est2 - est1
 
   if (diff_se %in% c("standard", "sato")) {
-    se_diff <- if (diff_se == "standard") {
-      sqrt(sum(((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2)) * wt_normalized^2))
-    } else {
-      # Sato variance estimator.
-      p_terms <- (n2^2 * x1 - n1^2 * x2 + n1 * n2 * (n1 - n2) / 2) / (n1 + n2)^2
-      q_terms <- (x1 * (n2 - x2) + x2 * (n1 - x1)) / (2 * (n1 + n2))
-      num <- diff_est * sum(p_terms) + sum(q_terms)
-      denom <- sum(wt)^2
-      sqrt(num / denom)
-    }
-    diff_ci <- c(diff_est - z * se_diff, diff_est + z * se_diff)
+    se_diff <- h_diff_cmh_se(cmh, diff_se = diff_se)
+    diff_ci <- c(cmh$diff_est - z * se_diff, cmh$diff_est + z * se_diff)
   } else {
     # Miettinen and Nurminen method is used.
     z_stat_fun <- function(delta) {
       var_est <- h_miettinen_nurminen_var_est(
-        n1 = n1, n2 = n2,
-        x1 = x1, x2 = x2,
+        n1 = cmh$n1, n2 = cmh$n2,
+        x1 = cmh$x1, x2 = cmh$x2,
         diff_par = delta
       )$var_est
-      num <- sum(wt * (p2 - p1 - delta))
-      denom <- sqrt(sum(wt^2 * var_est))
+      num <- sum(cmh$wt * (cmh$p2 - cmh$p1 - delta))
+      denom <- sqrt(sum(cmh$wt^2 * var_est))
       num / denom
     }
     # Find upper and lower confidence limits by root finding such that
@@ -702,27 +773,27 @@ prop_diff_cmh <- function(rsp,
     root_lower <- function(delta) z_stat_fun(delta) - z
     root_upper <- function(delta) z_stat_fun(delta) + z
     diff_ci <- c(
-      stats::uniroot(root_lower, interval = c(-0.99, diff_est))$root,
-      stats::uniroot(root_upper, interval = c(diff_est, 0.99))$root
+      stats::uniroot(root_lower, interval = c(-0.99, cmh$diff_est))$root,
+      stats::uniroot(root_upper, interval = c(cmh$diff_est, 0.99))$root
     )
     # Calculate the standard error separately.
     var_est <- h_miettinen_nurminen_var_est(
-      n1 = n1, n2 = n2,
-      x1 = x1, x2 = x2,
-      diff_par = diff_est
+      n1 = cmh$n1, n2 = cmh$n2,
+      x1 = cmh$x1, x2 = cmh$x2,
+      diff_par = cmh$diff_est
     )$var_est
-    se_diff <- sqrt(sum(wt_normalized^2 * var_est))
+    se_diff <- sqrt(sum(cmh$wt_normalized^2 * var_est))
   }
 
   list(
     prop = estimate,
     prop_ci = estimate_ci,
-    diff = diff_est,
+    diff = cmh$diff_est,
     diff_ci = diff_ci,
     se_diff = se_diff,
-    weights = wt_normalized,
-    n1 = n1,
-    n2 = n2
+    weights = cmh$wt_normalized,
+    n1 = cmh$n1,
+    n2 = cmh$n2
   )
 }
 
@@ -894,5 +965,238 @@ prop_diff_strat_nc <- function(rsp,
   list(
     "diff" = diff_est,
     "diff_ci" = c("lower" = lower, "upper" = upper)
+  )
+}
+
+#' Worst case tail probability for unconditional exact CI calculation
+#'
+#' This function is an internal helper for [prop_diff_uncond_exact()].
+#'
+#' @param d_star (`number`) hypothesized difference in proportions.
+#' @param n1 (`positive integer`) sample size in group 1.
+#' @param n2 (`positive integer`) sample size in group 2.
+#' @param t_values (`numeric`) vector of test statistic values from enumerated tables.
+#' @param t0 (`number`) observed test statistic value.
+#' @param tables (`data.frame`) with columns `n11` and `n21` containing enumerated
+#'   outcomes in each group.
+#' @param tail (`string`) one of `"upper"` or `"lower"` indicating which tail to compute.
+#'
+#' @return A `number` between 0 and 1 corresponding to the worst-case one-sided tail probability
+#'   at the hypothesized difference.
+#'
+#' @keywords internal
+h_worst_case_tail_probability <- function(d_star,
+                                          n1,
+                                          n2,
+                                          t_values,
+                                          t0,
+                                          tables,
+                                          tail = c("upper", "lower")) {
+  checkmate::assert_number(d_star, lower = -1, upper = 1)
+  checkmate::assert_int(n1, lower = 1)
+  checkmate::assert_int(n2, lower = 1)
+  checkmate::assert_numeric(t_values, any.missing = FALSE)
+  checkmate::assert_number(t0)
+  checkmate::assert_data_frame(tables, min.rows = 1)
+  checkmate::assert_names(names(tables), must.include = c("n11", "n21"))
+  checkmate::assert_true(length(t_values) == nrow(tables))
+
+  tail <- match.arg(tail)
+
+  # Step 0: Determine which tables are in the tail based on the observed test
+  # statistic value and the tail direction.
+  include_table <- if (tail == "upper") {
+    t_values >= t0
+  } else {
+    t_values <= t0
+  }
+
+  # Step 1: For fixed d_star, and given p2,
+  # calculate the likelihood of each table in A
+  # and sum over tables in the tail to get the tail probability.
+  objective <- function(p2) {
+    p1 <- d_star + p2
+    probs <- stats::dbinom(tables$n11, size = n1, prob = p1) *
+      stats::dbinom(tables$n21, size = n2, prob = p2)
+    sum(probs[include_table])
+  }
+
+  # Step 2: For fixed d, determine valid nuisance-parameter range for p2
+  # so that p2 in [0, 1] and p1 = d + p2 in [0, 1].
+  interval <- c(max(0, -d_star), min(1, 1 - d_star))
+  if (interval[1] == interval[2]) {
+    return(objective(interval[1]))
+  }
+
+  # Step 3: Maximize the tail probability over the valid range of p2 to
+  # get the worst-case tail probability.
+  stats::optimize(
+    f = objective,
+    interval = interval,
+    maximum = TRUE
+  )$objective
+}
+
+#' Root-finding CI bounds from one-sided p-value functions
+#'
+#' This function is an internal helper for [prop_diff_uncond_exact()].
+#'
+#' @param p_value_function (`function`) one-sided p-value function in terms of `d`.
+#' @param cutoff (`number`) one-sided significance level threshold.
+#' @param direction (`string`) one of `"increasing"` or `"decreasing"`.
+#' @param interval (`numeric`) 2-element search interval.
+#' @param tol (`number`) tolerance for [stats::uniroot()].
+#' @param maxiter (`integer`) maximum number of [stats::uniroot()] iterations.
+#'
+#' @return A `number` with the requested CI bound, or `NA_real_` if no bound exists.
+#'
+#' @keywords internal
+h_find_ci_bound_uniroot <- function(p_value_function,
+                                    cutoff,
+                                    direction = c("increasing", "decreasing"),
+                                    interval = c(-1, 1),
+                                    tol = 1e-6,
+                                    maxiter = 1000) {
+  checkmate::assert_function(p_value_function)
+  checkmate::assert_number(cutoff, lower = 0, upper = 1)
+  checkmate::assert_numeric(interval, len = 2, any.missing = FALSE)
+  checkmate::assert_true(interval[1] < interval[2])
+  checkmate::assert_number(tol, lower = 0)
+  checkmate::assert_int(maxiter, lower = 1)
+
+  direction <- match.arg(direction)
+  lo <- interval[1]
+  hi <- interval[2]
+
+  # Step 0: Check for boundary cases where the p-value function is above or
+  # below the cutoff at the endpoints of the search interval.
+  # If so, return the appropriate endpoint or NA.
+  f_lo <- p_value_function(lo) - cutoff
+  f_hi <- p_value_function(hi) - cutoff
+
+  if (direction == "increasing") {
+    if (f_lo > 0) {
+      return(lo)
+    }
+    if (f_hi <= 0) {
+      return(NA_real_)
+    }
+  } else {
+    if (f_hi > 0) {
+      return(hi)
+    }
+    if (f_lo <= 0) {
+      return(NA_real_)
+    }
+  }
+
+  # Step 1: Find the value of d such that p_value_function(d) = cutoff using root finding.
+  stats::uniroot(
+    f = function(d) p_value_function(d) - cutoff,
+    interval = interval,
+    tol = tol,
+    maxiter = maxiter
+  )$root
+}
+
+#' @describeIn h_prop_diff Unconditional exact confidence interval for the difference in
+#'   proportions by inverting one-sided tail tests over a nuisance parameter. This is
+#'   the "tail method" described by Santner and Snell \insertCite{SantnerSnell1980}{tern}.
+#'
+#' @examples
+#' # Unconditional exact confidence interval
+#' n11 <- 40
+#' n21 <- 5
+#' n1 <- 78
+#' n2 <- 17
+#' rsp <- c(rep(TRUE, n21), rep(FALSE, n2 - n21), rep(TRUE, n11), rep(FALSE, n1 - n11))
+#' grp <- factor(c(rep("B", n2), rep("A", n1)), levels = c("B", "A"))
+#'
+#' prop_diff_uncond_exact(rsp = rsp, grp = grp, conf_level = 0.95)
+#'
+#' @export
+prop_diff_uncond_exact <- function(rsp,
+                                   grp,
+                                   conf_level = 0.95) {
+  grp <- as_factor_keep_attributes(grp)
+  check_diff_prop_ci(rsp = rsp, grp = grp, conf_level = conf_level)
+
+  alpha <- 1 - conf_level
+  cutoff <- alpha / 2
+
+  tbl <- table(grp, factor(rsp, levels = c(TRUE, FALSE)))
+
+  # Step 0: Calculate the observed difference in proportions
+  # and the observed test statistic value.
+  n2 <- sum(tbl[1, ])
+  n1 <- sum(tbl[2, ])
+
+  if (n1 == 0 || n2 == 0) {
+    return(list(
+      diff = NaN,
+      diff_ci = c(NaN, NaN)
+    ))
+  }
+
+  n21_obs <- tbl[1, 1]
+  n11_obs <- tbl[2, 1]
+  diff_est <- n11_obs / n1 - n21_obs / n2
+
+  # Step 1: Enumerate all tables in A with fixed row margins
+  # n1 and n2.
+  if (n1 * n2 > 1e5) {
+    warning("uncond_exact_diff: Large sample sizes may lead to long computation time.")
+  }
+  tables <- expand.grid(
+    n11 = 0:n1,
+    n21 = 0:n2
+  )
+
+  # Step 2: Compute T(a) = n11 / n1 - n21 / n2 for each table a in A.
+  t_values <- tables$n11 / n1 - tables$n21 / n2
+  t0 <- diff_est
+
+  # Step 3: For each hypothesized difference d*, compute the worst-case
+  # tail probabilities P_U(d*) and P_L(d*) by maximizing over the nuisance
+  # parameter p2.
+  p_upper <- function(d_star) {
+    # Step 4a: Compute worst-case one-sided tail probability:
+    # P_U(d*) = sup_p2 sum_{T(a) >= t0} f(...)
+    h_worst_case_tail_probability(
+      d_star = d_star,
+      n1 = n1,
+      n2 = n2,
+      t_values = t_values,
+      t0 = t0,
+      tables = tables,
+      tail = "upper"
+    )
+  }
+  p_lower <- function(d_star) {
+    # Step 4b: Compute worst-case one-sided tail probability:
+    # P_L(d*) = sup_p2 sum_{T(a) <= t0} f(...)
+    h_worst_case_tail_probability(
+      d_star = d_star,
+      n1 = n1,
+      n2 = n2,
+      t_values = t_values,
+      t0 = t0,
+      tables = tables,
+      tail = "lower"
+    )
+  }
+
+  # Step 5: Invert one-sided tests to obtain the two-sided
+  # 100 * (1 - alpha)% CI for d = p1 - p2.
+  # For monotone one-sided p-value functions, use uniroot to solve
+  # P_U(d) = alpha/2 and P_L(d) = alpha/2 directly.
+  diff_ci <- c(
+    h_find_ci_bound_uniroot(p_upper, cutoff = cutoff, direction = "increasing"),
+    h_find_ci_bound_uniroot(p_lower, cutoff = cutoff, direction = "decreasing")
+  )
+
+  list(
+    diff = diff_est,
+    diff_ci = diff_ci
   )
 }
