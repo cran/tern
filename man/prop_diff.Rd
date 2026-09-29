@@ -14,7 +14,7 @@ estimate_proportion_diff(
   conf_level = 0.95,
   method = c("waldcc", "wald", "cmh", "cmh_sato", "cmh_mn", "ha", "newcombe",
     "newcombecc", "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"),
-  weights_method = "cmh",
+  weights_method = c("cmh", "wilson_h"),
   var_labels = vars,
   na_str = default_na_str(),
   nested = TRUE,
@@ -27,19 +27,20 @@ estimate_proportion_diff(
   .stat_names = NULL,
   .formats = c(diff = "xx.x", diff_ci = "(xx.x, xx.x)", se_diff = "xx.x"),
   .labels = NULL,
-  .indent_mods = c(diff = 0L, diff_ci = 1L, se_diff = 1L)
+  .indent_mods = c(diff = 0L, diff_est_ci = 0L, diff_ci = 1L, se_diff = 1L)
 )
 
 s_proportion_diff(
   df,
   .var,
-  .ref_group,
-  .in_ref_col,
+  .ref_group = NULL,
+  .in_ref_col = NULL,
   variables = list(strata = NULL),
   conf_level = 0.95,
   method = c("waldcc", "wald", "cmh", "cmh_sato", "cmh_mn", "ha", "newcombe",
     "newcombecc", "strat_newcombe", "strat_newcombecc", "uncond_exact_diff"),
-  weights_method = "cmh",
+  weights_method = c("cmh", "wilson_h"),
+  val = TRUE,
   ...
 )
 
@@ -64,8 +65,11 @@ a_proportion_diff(
 
 \item{method}{(\code{string})\cr the method used for the confidence interval estimation.}
 
-\item{weights_method}{(\code{string})\cr weights method. Can be either \code{"cmh"} or \code{"heuristic"}
-and directs the way weights are estimated.}
+\item{weights_method}{(\code{string})\cr method used to estimate the weights for
+stratified Newcombe method.
+Must be either \code{"cmh"} or \code{"wilson_h"}. \code{"cmh"} uses weights derived from
+the Cochran-Mantel-Haenszel method, while \code{"wilson_h"} uses the heuristic
+weights proposed by \code{\link[=prop_strat_wilson]{prop_strat_wilson()}}.}
 
 \item{var_labels}{(\code{character})\cr variable labels.}
 
@@ -89,7 +93,7 @@ defined by this split instruction, or \code{NA_character_} (the default) for no 
 
 \item{.stats}{(\code{character})\cr statistics to select for the table.
 
-Options are: \verb{'diff', 'diff_ci'}}
+Options are: \verb{'diff', 'diff_ci', 'diff_est_ci'}}
 
 \item{.stat_names}{(\code{character})\cr names of the statistics that are passed directly to name single statistics
 (\code{.stats}). This option is visible when producing \code{\link[rtables:as_result_df]{rtables::as_result_df()}} with \code{make_ard = TRUE}.}
@@ -110,6 +114,11 @@ by a statistics function.}
 \item{.ref_group}{(\code{data.frame} or \code{vector})\cr the data corresponding to the reference group.}
 
 \item{.in_ref_col}{(\code{flag})\cr \code{TRUE} when working with the reference level, \code{FALSE} otherwise.}
+
+\item{val}{(\code{character(1)} or \code{logical(1)})\cr
+the value in \code{df[[.var]]} (and, if supplied, in \code{.ref_group[[.var]]}) that
+defines a positive response. All other observations are treated as
+non-responses.}
 }
 \value{
 \itemize{
@@ -119,7 +128,9 @@ the statistics from \code{s_proportion_diff()} to the table layout.
 }
 
 \itemize{
-\item \code{s_proportion_diff()} returns a named list of elements \code{diff} and \code{diff_ci}.
+\item \code{s_proportion_diff()} returns a named list containing the elements \code{diff},
+\code{diff_ci}, and \code{diff_est_ci} (\code{diff_est_ci} combines the \code{diff} and \code{diff_ci}
+values into a 3-element vector).
 Depending on the method used, also the standard error of the difference \code{se_diff} is
 returned.
 }
@@ -230,4 +241,6 @@ a_proportion_diff(
 }
 \seealso{
 \code{\link[=d_proportion_diff]{d_proportion_diff()}}
+
+\code{\link[=h_prepare_rsp_table]{h_prepare_rsp_table()}}
 }

@@ -152,7 +152,7 @@ testthat::test_that("prop_schouten returns right result", {
       grp <- c(rep("A", N[1]), rep("B", N[2]))
 
       tbl <- table(grp, rsp)
-      if (ncol(tbl) < 2 | nrow(tbl) < 2) {
+      if (ncol(tbl) < 2 || nrow(tbl) < 2) {
         return(NA_real_)
       }
       prop_schouten(tbl)
@@ -280,6 +280,28 @@ testthat::test_that("prop_cmh with Sato variance estimator and Wilson-Hilferty t
   testthat::expect_snapshot_value(result, style = "deparse", tolerance = 1e-3)
 })
 
+test_that("d_test_proportion_diff returns correct descriptions", {
+  expect_identical(
+    d_test_proportion_diff("cmh_sato"),
+    "p-value (Cochran-Mantel-Haenszel Test with Sato Variance Estimator)"
+  )
+
+  expect_identical(
+    d_test_proportion_diff("cmh_sato", alternative = "greater"),
+    "p-value (Cochran-Mantel-Haenszel Test with Sato Variance Estimator, 1-sided, direction greater)"
+  )
+
+  expect_identical(
+    d_test_proportion_diff("cmh_sato", alternative = "two.sided", method_only = TRUE),
+    "Cochran-Mantel-Haenszel Test with Sato Variance Estimator"
+  )
+
+  expect_identical(
+    d_test_proportion_diff("cmh_sato", alternative = "greater", method_only = TRUE),
+    "Cochran-Mantel-Haenszel Test with Sato Variance Estimator, 1-sided, direction greater"
+  )
+})
+
 testthat::test_that("s_test_proportion_diff and d_test_proportion_diff return right result", {
   set.seed(1984, kind = "Mersenne-Twister")
   dta <- data.frame(
@@ -329,6 +351,75 @@ testthat::test_that("s_test_proportion_diff and d_test_proportion_diff work with
     res <- testthat::expect_silent(result)
     testthat::expect_snapshot(res)
   }
+})
+
+test_that("s_test_proportion_diff supports a custom response value", {
+  set.seed(1984, kind = "Mersenne-Twister")
+  dta <- data.frame(
+    rsp = sample(c("Y", "N"), 100, TRUE),
+    grp = factor(rep(c("A", "B"), each = 50)),
+    strata = factor(rep(c("V", "W", "X", "Y", "Z"), each = 20))
+  )
+
+  expect_silent(
+    result <- s_test_proportion_diff(
+      df = subset(dta, grp == "A"),
+      .var = "rsp",
+      .ref_group = subset(dta, grp == "B"),
+      .in_ref_col = FALSE,
+      variables = list(strata = "strata"),
+      method = "cmh",
+      val = "Y"
+    )
+  )
+
+  expected <- 0.6477165
+  attr(expected, "z_stat") <- 0.4569368
+  attr(expected, "label") <- "p-value (Cochran-Mantel-Haenszel Test)"
+
+  expect_equal(result, list(pval = expected), tolerance = 1e-3)
+})
+
+test_that("s_test_proportion_diff errors when stratified method is chosen without strata", {
+  dta <- data.frame(
+    rsp = sample(c("Y", "N"), 10, TRUE),
+    grp = factor(rep(c("A", "B"), each = 5)),
+    strata = factor(c("V", "W", "X", "Y", "Z"))
+  )
+
+  expect_error(
+    result <- s_test_proportion_diff(
+      df = subset(dta, grp == "A"),
+      .var = "rsp",
+      .ref_group = subset(dta, grp == "B"),
+      .in_ref_col = FALSE,
+      variables = NULL,
+      method = "cmh",
+      val = "Y"
+    ),
+    "strat"
+  )
+})
+
+test_that("s_test_proportion_diff errors when strata are provided with a non-stratified method", {
+  dta <- data.frame(
+    rsp = sample(c("Y", "N"), 10, TRUE),
+    grp = factor(rep(c("A", "B"), each = 5)),
+    strata = factor(c("V", "W", "X", "Y", "Z"))
+  )
+
+  expect_error(
+    result <- s_test_proportion_diff(
+      df = subset(dta, grp == "A"),
+      .var = "rsp",
+      .ref_group = subset(dta, grp == "B"),
+      .in_ref_col = FALSE,
+      variables = list(strata = "strata"),
+      method = "fisher",
+      val = "Y"
+    ),
+    "strat"
+  )
 })
 
 testthat::test_that("test_proportion_diff returns right result", {

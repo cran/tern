@@ -25,20 +25,29 @@ g_forest(
   as_list = FALSE,
   gp = lifecycle::deprecated(),
   draw = lifecycle::deprecated(),
-  newpage = lifecycle::deprecated()
+  newpage = lifecycle::deprecated(),
+  exclude_rows = NULL,
+  forest_header_above = TRUE,
+  forest_title = NULL
 )
 }
 \arguments{
 \item{tbl}{(\code{VTableTree})\cr \code{rtables} table with at least one column with a single value and one column with 2
 values.}
 
-\item{col_x}{(\code{integer(1)} or \code{NULL})\cr column index with estimator. By default tries to get this from
-\code{tbl} attribute \code{col_x}, otherwise needs to be manually specified. If \code{NULL}, points will be excluded
-from forest plot.}
+\item{col_x}{(\code{integer(1)} or \code{NULL})\cr column index with estimator.
+By default tries to get this from \code{tbl} attribute \code{col_x}, otherwise needs
+to be manually specified. If \code{NULL}, points will be excluded from forest plot.}
 
-\item{col_ci}{(\code{integer(1)} or \code{NULL})\cr column index with confidence intervals. By default tries to get this from
-\code{tbl} attribute \code{col_ci}, otherwise needs to be manually specified. If \code{NULL}, lines will be excluded
-from forest plot.}
+\item{col_ci}{(\code{integer(1)} or \code{NULL})\cr column index with confidence intervals.
+By default tries to get this from \code{tbl} attribute \code{col_ci}, otherwise needs
+to be manually specified. If \code{NULL}, lines will be excluded from forest plot.
+
+The estimator and confidence interval can be stored in the same column.
+In this case, \code{col_x} and \code{col_ci} must be the same, and the values in each
+row of the column indicated by \code{col_x}/\code{col_ci} must be ordered as the
+point estimate, lower confidence interval bound, and upper confidence
+interval bound, respectively.}
 
 \item{vline}{(\code{numeric(1)} or \code{NULL})\cr x coordinate for vertical line, if \code{NULL} then the line is omitted.}
 
@@ -91,6 +100,25 @@ is no longer used.}
 
 \item{newpage}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{g_forest} is now generated as a \code{ggplot} object. This argument
 is no longer used.}
+
+\item{exclude_rows}{(\code{integerish} or \code{NULL})\cr vector of positive row
+indices specifying rows to exclude from the forest plot. Row indices are
+specified relative to the data frame obtained by applying
+\code{\link[rtables:as_result_df]{rtables::as_result_df()}} to \code{tbl}. No elements of \code{exclude_rows} may be
+missing.
+The specified rows are removed before plotting. This can be used to omit
+rows that should not be displayed in the forest plot, such as rows
+containing non-plottable values. Defaults to \code{NULL}, meaning that all rows
+are considered for plotting.}
+
+\item{forest_header_above}{(\code{flag})\cr whether to display the forest plot
+header above (\code{TRUE}) or below (\code{FALSE}) the plot. Ignored if the forest
+header is not shown (i.e., when \code{vline = NULL}).}
+
+\item{forest_title}{(\code{character(1)} or \code{NULL})\cr title displayed above the
+forest plot. If \code{NULL}, no title is displayed. The title is displayed only
+if no forest header is present (i.e., when \code{vline = NULL}) or when
+\code{forest_header_above = FALSE}.}
 }
 \value{
 \code{ggplot} forest plot and table.
@@ -125,21 +153,33 @@ df <- extract_rsp_subgroups(
   variables = list(rsp = "rsp", arm = "ARM", subgroups = c("SEX", "STRATA2")),
   data = adrs
 )
-# Full commonly used response table.
 
+# Full commonly used response table.
 tbl <- basic_table() |>
   tabulate_rsp_subgroups(df)
+tbl
 g_forest(tbl)
-
+\donttest{
+g_forest(tbl, exclude_rows = 1)
+}
 # Odds ratio only table.
-
 tbl_or <- basic_table() |>
   tabulate_rsp_subgroups(df, vars = c("n_tot", "or", "ci"))
+tbl_or
 g_forest(
   tbl_or,
   forest_header = c("Comparison\nBetter", "Treatment\nBetter")
 )
-
+\donttest{
+# Estimates and confidence intervals in the same column.
+tbl <- rtable(
+  header = rheader(rrow("", "point est (CI)")),
+  rrow("row 1", rcell(c(10, 8, 12), format = "xx. (xx. - xx.)")),
+  rrow("row 2", rcell(c(11, 7, 13), format = "xx. (xx. - xx.)"))
+)
+tbl
+g_forest(tbl, col_x = 1, col_ci = 1, vline = 10, xlim = c(5, 15), logx = FALSE)
+}
 # Survival forest plot example.
 adtte <- tern_ex_adtte
 # Save variable labels before data processing steps.

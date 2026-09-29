@@ -486,6 +486,28 @@ testthat::test_that("h_find_ci_bound_uniroot handles boundary case", {
   expect_equal(boundary, -1)
 })
 
+test_that("d_proportion_diff returns correct descriptions", {
+  expect_identical(
+    d_proportion_diff(0.95, "cmh_sato"),
+    "95% CI (CMH, Sato variance estimator)"
+  )
+
+  expect_identical(
+    d_proportion_diff(0.95, "cmh_sato", long = TRUE),
+    "95% CI for adjusted difference (CMH, Sato variance estimator)"
+  )
+
+  expect_identical(
+    d_proportion_diff(0.95, "cmh_sato", long = TRUE, method_only = TRUE),
+    "CMH, Sato variance estimator"
+  )
+
+  expect_identical(
+    d_proportion_diff(0.95, "cmh_sato", long = FALSE, method_only = TRUE),
+    "CMH, Sato variance estimator"
+  )
+})
+
 testthat::test_that("`estimate_proportion_diff` is compatible with `rtables`", {
   # "Mid" case: 3/4 respond in group A, 1/2 respond in group B.
   dta <- data.frame(
@@ -688,25 +710,73 @@ testthat::test_that("s_proportion_diff works with uncond_exact_diff", {
   expect_identical(attr(result$diff_ci, "label"), "95% CI (Unconditional exact)")
 })
 
-testthat::test_that("s_proportion_diff rejects uncond_exact_diff with strata", {
+test_that("s_proportion_diff supports a custom response value", {
+  set.seed(1984, kind = "Mersenne-Twister")
   dta <- data.frame(
-    rsp = c(TRUE, FALSE, TRUE, FALSE),
-    grp = c("A", "A", "B", "B"),
-    strata = c("S1", "S2", "S1", "S2"),
-    stringsAsFactors = FALSE
+    rsp = sample(c("Y", "N"), 100, TRUE),
+    grp = factor(rep(c("A", "B"), each = 50)),
+    strata = factor(rep(c("V", "W", "X", "Y", "Z"), each = 20))
   )
 
-  expect_error(
-    s_proportion_diff(
+  expect_silent(
+    result <- s_proportion_diff(
       df = subset(dta, grp == "A"),
       .var = "rsp",
       .ref_group = subset(dta, grp == "B"),
       .in_ref_col = FALSE,
       variables = list(strata = "strata"),
-      conf_level = 0.95,
-      method = "uncond_exact_diff"
+      method = "cmh",
+      val = "Y"
+    )
+  )
+
+  expect_equal(as.numeric(result$diff), 10, tolerance = 1e-2)
+  expect_identical(attr(result$diff, "label"), "Difference in Response rate (%)")
+  expect_equal(as.numeric(result$diff_ci), c(-31.57711, 51.57711), tolerance = 1e-2)
+  expect_identical(attr(result$diff_ci, "label"), "95% CI (CMH, without correction)")
+  expect_equal(as.numeric(result$se_diff), 21.2132, tolerance = 1e-2)
+  expect_identical(attr(result$se_diff, "label"), "Standard Error of Difference in Response rate (%)")
+})
+
+test_that("s_proportion_diff errors when stratified method is chosen without strata", {
+  dta <- data.frame(
+    rsp = sample(c("Y", "N"), 10, TRUE),
+    grp = factor(rep(c("A", "B"), each = 5)),
+    strata = factor(c("V", "W", "X", "Y", "Z"))
+  )
+
+  expect_error(
+    result <- s_proportion_diff(
+      df = subset(dta, grp == "A"),
+      .var = "rsp",
+      .ref_group = subset(dta, grp == "B"),
+      .in_ref_col = FALSE,
+      variables = NULL,
+      method = "cmh",
+      val = "Y"
     ),
-    "only available for unstratified analyses"
+    "strat"
+  )
+})
+
+test_that("s_proportion_diff errors when strata are provided with the non-stratified method `uncond_exact_diff`", {
+  dta <- data.frame(
+    rsp = sample(c("Y", "N"), 10, TRUE),
+    grp = factor(rep(c("A", "B"), each = 5)),
+    strata = factor(c("V", "W", "X", "Y", "Z"))
+  )
+
+  expect_error(
+    result <- s_proportion_diff(
+      df = subset(dta, grp == "A"),
+      .var = "rsp",
+      .ref_group = subset(dta, grp == "B"),
+      .in_ref_col = FALSE,
+      variables = list(strata = "strata"),
+      method = "uncond_exact_diff",
+      val = "Y"
+    ),
+    "strat"
   )
 })
 
@@ -727,4 +797,80 @@ testthat::test_that("check_diff_prop_ci fails with wrong input", {
   testthat::expect_error(check_diff_prop_ci(
     rsp = rsp, grp = grp, conf_level = "0.90"
   ))
+})
+
+# --- diff_est_ci tests --------------------------------------------------------
+
+testthat::test_that("s_proportion_diff returns diff_est_ci with correct structure", {
+  set.seed(42, kind = "Mersenne-Twister")
+  dta <- data.frame(
+    rsp = sample(c(TRUE, FALSE), 100, TRUE),
+    grp = factor(sample(c("A", "B"), 100, TRUE))
+  )
+
+  result <- s_proportion_diff(
+    df = subset(dta, grp == "A"),
+    .var = "rsp",
+    .ref_group = subset(dta, grp == "B"),
+    .in_ref_col = FALSE,
+    conf_level = 0.95,
+    method = "wald"
+  )
+
+  # diff_est_ci must exist with 3 elements: (diff, lower, upper)
+  testthat::expect_true("diff_est_ci" %in% names(result))
+  testthat::expect_length(result$diff_est_ci, 3)
+  testthat::expect_equal(result$diff_est_ci[[1]], result$diff[[1]])
+  testthat::expect_equal(result$diff_est_ci[2:3], result$diff_ci, ignore_attr = TRUE)
+  testthat::expect_false(is.null(attr(result$diff_est_ci, "label")))
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("s_proportion_diff ref column returns empty diff_est_ci", {
+  set.seed(42, kind = "Mersenne-Twister")
+  dta <- data.frame(
+    rsp = sample(c(TRUE, FALSE), 100, TRUE),
+    grp = factor(sample(c("A", "B"), 100, TRUE))
+  )
+
+  result <- s_proportion_diff(
+    df = subset(dta, grp == "B"),
+    .var = "rsp",
+    .ref_group = subset(dta, grp == "B"),
+    .in_ref_col = TRUE,
+    conf_level = 0.95,
+    method = "wald"
+  )
+
+  testthat::expect_length(result$diff_est_ci, 0)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
+})
+
+testthat::test_that("`estimate_proportion_diff` with diff_est_ci builds single-row table", {
+  set.seed(42, kind = "Mersenne-Twister")
+  dta <- data.frame(
+    rsp = sample(c(TRUE, FALSE), 100, TRUE),
+    grp = factor(sample(c("A", "B"), 100, TRUE))
+  )
+
+  lyt <- basic_table() |>
+    split_cols_by("grp", ref_group = "B") |>
+    estimate_proportion_diff(
+      vars = "rsp",
+      conf_level = 0.95,
+      method = "wald",
+      .stats = "diff_est_ci"
+    )
+
+  result <- build_table(lyt, df = dta)
+
+  # Single data row (diff_est_ci replaces diff + diff_ci)
+  testthat::expect_equal(nrow(result), 1)
+
+  res <- testthat::expect_silent(result)
+  testthat::expect_snapshot(res)
 })

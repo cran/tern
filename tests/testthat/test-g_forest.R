@@ -99,6 +99,398 @@ testthat::test_that("g_forest as_list argument works", {
   expect_snapshot_ggplot("g_forest_plot_only", g_forest_plot_only, width = 2, height = 3)
 })
 
+testthat::test_that("g_forest handles NULL col_x/col_ci", {
+  tbl <- rtable(
+    header = rheader(rrow("", "est", "CI")),
+    rrow("row 1", rcell(10), rcell(c(8, 12), format = "(xx, xx)")),
+    rrow("row 2", rcell(11), rcell(c(7, 13), format = "(xx, xx)"))
+  )
+
+  # nolint: col_x = NULL
+  testthat::expect_silent(
+    p_n2 <- g_forest(tbl, col_x = NULL, col_ci = 2, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_n2_logf <- g_forest(tbl, col_x = NULL, col_ci = 2, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  # nolint: col_ci = NULL
+  testthat::expect_silent(
+    p_1n <- g_forest(tbl, col_x = 1, col_ci = NULL, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_1n_logf <- g_forest(tbl, col_x = 1, col_ci = NULL, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  # nolint: col_ci = NULL
+  testthat::expect_silent(
+    p_nn <- g_forest(tbl, col_x = NULL, col_ci = NULL, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_nn_logf <- g_forest(tbl, col_x = NULL, col_ci = NULL, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  expect_snapshot_ggplot("g_forest_x_NULL", p_n2, width = 15, height = 3)
+  expect_snapshot_ggplot("g_forest_x_NULL_logf", p_n2_logf, width = 15, height = 3)
+
+  expect_snapshot_ggplot("g_forest_ci_NULL", p_1n, width = 15, height = 3)
+  expect_snapshot_ggplot("g_forest_ci_NULL_logf", p_1n_logf, width = 15, height = 3)
+
+  expect_snapshot_ggplot("g_forest_NULL", p_nn, width = 15, height = 3)
+  expect_snapshot_ggplot("g_forest_NULL_logf", p_nn_logf, width = 15, height = 3)
+})
+
+testthat::test_that("g_forest validates exclude_rows", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_error(
+    g_forest(tbl, exclude_rows = 0)
+  )
+
+  testthat::expect_error(
+    g_forest(tbl, exclude_rows = -1)
+  )
+
+  testthat::expect_error(
+    g_forest(tbl, exclude_rows = NA_integer_)
+  )
+
+  testthat::expect_error(
+    g_forest(tbl, exclude_rows = nrow(as_result_df(tbl)) + 1)
+  )
+
+  testthat::expect_error(
+    g_forest(tbl, exclude_rows = "1")
+  )
+})
+
+testthat::test_that("g_forest exclude_rows works", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p <- g_forest(tbl, exclude_rows = c(2, 4))
+  )
+
+  expect_snapshot_ggplot("g_forest_exclude_rows", p, width = 15, height = 3)
+})
+
+testthat::test_that("g_forest works when all rows are excluded", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  exclude_rows <- seq_len(nrow(as_result_df(tbl)))
+
+  testthat::expect_silent(
+    p <- g_forest(tbl, exclude_rows = exclude_rows)
+  )
+
+  expect_snapshot_ggplot("g_forest_exclude_all_rows", p, width = 15, height = 3)
+})
+
+testthat::test_that("g_forest works for point est. and CI in the same column", {
+  tbl <- rtable(
+    header = rheader(rrow("", "point est (CI)")),
+    rrow("row 1", rcell(c(10, 8, 12), format = "xx. (xx. - xx.)")),
+    rrow("row 2", rcell(c(11, 7, 13), format = "xx. (xx. - xx.)"))
+  )
+
+  testthat::expect_silent(
+    p <- g_forest(tbl, col_x = 1, col_ci = 1, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci", p, width = 15, height = 3)
+})
+
+testthat::test_that("g_forest handles NULL col_x/col_ci in same column", {
+  tbl <- rtable(
+    header = rheader(rrow("", "point est (CI)")),
+    rrow("row 1", rcell(c(10, 8, 12), format = "xx. (xx. - xx.)")),
+    rrow("row 2", rcell(c(11, 7, 13), format = "xx. (xx. - xx.)"))
+  )
+
+  # nolint: col_x = NULL
+  testthat::expect_silent(
+    p_n1 <- g_forest(tbl, col_x = NULL, col_ci = 1, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_n1_logf <- g_forest(tbl, col_x = NULL, col_ci = 1, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  # nolint: col_ci = NULL
+  testthat::expect_silent(
+    p_1n <- g_forest(tbl, col_x = 1, col_ci = NULL, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_1n_logf <- g_forest(tbl, col_x = 1, col_ci = NULL, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  # nolint: col_x, col_ci = NULL
+  testthat::expect_silent(
+    p_nn <- g_forest(tbl, col_x = NULL, col_ci = NULL, vline = 10, xlim = c(5, 15))
+  )
+  testthat::expect_silent(
+    p_nn_logf <- g_forest(tbl, col_x = NULL, col_ci = NULL, vline = 10, xlim = c(5, 15), logx = FALSE)
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_x_NULL", p_n1, width = 15, height = 3)
+  expect_snapshot_ggplot("g_forest_same_x_ci_x_NULL_logf", p_n1_logf, width = 15, height = 3)
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_ci_NULL", p_1n, width = 15, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_same_x_ci_ci_NULL_logf", p_1n_logf,
+    width = 15, height = 3
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_NULL", p_nn, width = 15, height = 3)
+  expect_snapshot_ggplot("g_forest_same_x_ci_NULL_logf", p_nn_logf, width = 15, height = 3)
+})
+
+testthat::test_that("g_forest handles NULL col_x/col_ci in same column (all rows excluded)", {
+  tbl <- rtable(
+    header = rheader(rrow("", "point est (CI)")),
+    rrow("row 1", rcell(c(10, 8, 12), format = "xx. (xx. - xx.)")),
+    rrow("row 2", rcell(c(11, 7, 13), format = "xx. (xx. - xx.)"))
+  )
+
+  # nolint: col_x = NULL
+  testthat::expect_silent(
+    p_n1 <- g_forest(tbl, exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = NULL, col_ci = 1)
+  )
+  testthat::expect_silent(
+    p_n1_logf <- g_forest(tbl, exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = NULL, col_ci = 1, logx = FALSE)
+  )
+
+  # nolint: col_ci = NULL
+  testthat::expect_silent(
+    p_1n <- g_forest(tbl, exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = 1, col_ci = NULL)
+  )
+  testthat::expect_silent(
+    p_1n_logf <- g_forest(tbl, exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = 1, col_ci = NULL, logx = FALSE)
+  )
+
+  # nolint: col_x, col_ci = NULL
+  testthat::expect_silent(
+    p_nn <- g_forest(tbl, exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = NULL, col_ci = NULL)
+  )
+  testthat::expect_silent(
+    p_nn_logf <- g_forest(
+      tbl,
+      exclude_rows = 1:2, vline = 10, xlim = c(5, 15), col_x = NULL, col_ci = NULL, logx = FALSE
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_excl_x_NULL", p_n1, width = 15, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_same_x_ci_excl_x_NULL_logf", p_n1_logf,
+    width = 15, height = 3
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_excl_ci_NULL", p_1n, width = 15, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_same_x_ci_excl_ci_NULL_logf", p_1n_logf,
+    width = 15, height = 3
+  )
+
+  expect_snapshot_ggplot("g_forest_same_x_ci_excl_NULL", p_nn, width = 15, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_same_x_ci_excl_NULL_logf", p_nn_logf,
+    width = 15, height = 3
+  )
+})
+
+testthat::test_that("g_forest forest_header_above works", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p_habove <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello", "World"),
+      forest_header_above = TRUE
+    )
+  )
+
+  testthat::expect_silent(
+    p_hblw <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello", "World"),
+      forest_header_above = FALSE
+    )
+  )
+
+  testthat::expect_silent(
+    p_vline_null_habove <- g_forest(
+      tbl,
+      vline = NULL,
+      forest_header = c("Hello", "World"),
+      forest_header_above = TRUE
+    )
+  )
+
+  testthat::expect_silent(
+    p_vline_null_hblw <- g_forest(
+      tbl,
+      vline = NULL,
+      forest_header = c("Hello", "World"),
+      forest_header_above = FALSE
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_header_above", p_habove, width = 6, height = 3)
+  expect_snapshot_ggplot("g_forest_header_below", p_hblw, width = 6, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_vline_NULL_header_above", p_vline_null_habove,
+    width = 6, height = 3
+  )
+  expect_snapshot_ggplot(
+    "g_forest_vline_NULL_header_below", p_vline_null_hblw,
+    width = 6, height = 3
+  )
+})
+
+testthat::test_that("g_forest forest_header_above works for two-line header", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p_2lh_above <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello\nBelow", "World\nBelow"),
+      forest_header_above = TRUE
+    )
+  )
+
+  testthat::expect_silent(
+    p_2lh_blw <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello\nBelow", "World\nBelow"),
+      forest_header_above = FALSE
+    )
+  )
+
+  testthat::expect_silent(
+    p_2lh_blw_title <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello\nBelow", "World\nBelow"),
+      forest_header_above = FALSE,
+      forest_title = "Some forest plot title"
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_2lh_above", p_2lh_above, width = 6, height = 3)
+  expect_snapshot_ggplot("g_forest_2lh_blw", p_2lh_blw, width = 6, height = 3)
+  expect_snapshot_ggplot("g_forest_2lh_blw_title", p_2lh_blw_title, width = 6, height = 3)
+})
+
+testthat::test_that("g_forest forest_header_above works when logx = FALSE", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p_logx_habove <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello\nBelow", "World\nBelow"),
+      forest_header_above = TRUE,
+      logx = FALSE
+    )
+  )
+
+  testthat::expect_silent(
+    p_logx_hblw <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello\nBelow", "World\nBelow"),
+      forest_header_above = FALSE,
+      logx = FALSE
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_logx_habove", p_logx_habove, width = 6, height = 3)
+  expect_snapshot_ggplot("g_forest_logx_hblw", p_logx_hblw, width = 6, height = 3)
+})
+
+testthat::test_that("g_forest forest_title works", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p_title_habove <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello", "World"),
+      forest_header_above = TRUE,
+      forest_title = "Some forest plot title"
+    )
+  )
+
+  testthat::expect_silent(
+    p_title_hblw <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello", "World"),
+      forest_header_above = FALSE,
+      forest_title = "Some forest plot title"
+    )
+  )
+
+  testthat::expect_silent(
+    p_title_vline_null_habove <- g_forest(
+      tbl,
+      vline = NULL,
+      forest_header = c("Hello", "World"),
+      forest_header_above = TRUE,
+      forest_title = "Some forest plot title"
+    )
+  )
+
+  testthat::expect_silent(
+    p_title_vline_null_hblw <- g_forest(
+      tbl,
+      vline = NULL,
+      forest_header = c("Hello", "World"),
+      forest_header_above = FALSE,
+      forest_title = "Some forest plot title"
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_title_habove", p_title_habove, width = 6, height = 3)
+  expect_snapshot_ggplot("g_forest_title_hblw", p_title_hblw, width = 6, height = 3)
+  expect_snapshot_ggplot(
+    "g_forest_title_vline_null_habove", p_title_vline_null_habove,
+    width = 6, height = 3
+  )
+  expect_snapshot_ggplot(
+    "g_forest_title_vline_null_hblw", p_title_vline_null_hblw,
+    width = 6, height = 3
+  )
+})
+
+testthat::test_that("g_forest forest_title works when logx = FALSE", {
+  tbl <- basic_table() |>
+    tabulate_rsp_subgroups(df)
+
+  testthat::expect_silent(
+    p_title_logx <- g_forest(
+      tbl,
+      vline = 1,
+      forest_header = c("Hello", "World"),
+      forest_header_above = FALSE,
+      forest_title = "Some forest plot title",
+      logx = FALSE
+    )
+  )
+
+  expect_snapshot_ggplot("g_forest_title_logx", p_title_logx, width = 6, height = 3)
+})
+
 testthat::test_that("g_forest argument deprecation warnings work", {
   tbl <- basic_table() |>
     tabulate_rsp_subgroups(df)
