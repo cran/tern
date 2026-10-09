@@ -1,7 +1,7 @@
 Package: tern
 Title: Create Common TLGs Used in Clinical Trials
-Version: 0.9.12
-Date: 2026-09-29
+Version: 0.9.13
+Date: 2026-10-09
 Authors@R: c(
     person("Joe", "Zhu", , "joe.zhu@roche.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7566-2787")),
@@ -20,6 +20,7 @@ Authors@R: c(
     person("Chendi", "Liao", role = "aut"),
     person("Jennifer", "Li", role = "aut"),
     person("David", "Munoz Tord", , "david.munoztord@mailbox.org", role = "ctb"),
+    person("Wojciech", "Wojciak", , "wojciech.wojciak@gmail.com", role = "ctb"),
     person("F. Hoffmann-La Roche AG", role = c("cph", "fnd"))
   )
 Description: Table, Listings, and Graphs (TLG) library for common outputs
@@ -101,7 +102,7 @@ Collate: 'formatting_functions.R' 'abnormal.R' 'abnormal_by_baseline.R'
         'utils_split_funs.R'
 Config/roxygen2/version: 8.1.0
 NeedsCompilation: no
-Packaged: 2026-09-29 11:43:38 UTC; zhus31
+Packaged: 2026-10-09 00:34:48 UTC; zhus31
 Author: Joe Zhu [aut, cre] (ORCID: <https://orcid.org/0000-0001-7566-2787>),
   Daniel Sabanés Bové [aut],
   Jana Stoilova [aut],
@@ -116,7 +117,8 @@ Author: Joe Zhu [aut, cre] (ORCID: <https://orcid.org/0000-0001-7566-2787>),
   Chendi Liao [aut],
   Jennifer Li [aut],
   David Munoz Tord [ctb],
+  Wojciech Wojciak [ctb],
   F. Hoffmann-La Roche AG [cph, fnd]
 Maintainer: Joe Zhu <joe.zhu@roche.com>
 Repository: CRAN
-Date/Publication: 2026-09-29 21:20:02 UTC
+Date/Publication: 2026-10-09 07:20:02 UTC

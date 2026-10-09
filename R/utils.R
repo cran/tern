@@ -187,6 +187,17 @@ make_names <- function(nams) {
   gsub(".", "", x = orig, fixed = TRUE)
 }
 
+#' Escape regular expression metacharacters
+#'
+#' @param x (`character`)\cr strings to be used literally inside a regular expression.
+#'
+#' @return A `character` `vector` where all regular expression metacharacters in `x` are escaped.
+#'
+#' @keywords internal
+escape_regex <- function(x) {
+  gsub("([.\\\\|()[{}^$*+?]|\\])", "\\\\\\1", x)
+}
+
 #' Conversion of months to days
 #'
 #' @description `r lifecycle::badge("stable")`
@@ -538,4 +549,31 @@ get_complete_cases <- function(df, quiet = FALSE, additional_message = ".") {
   } else {
     df
   }
+}
+
+#' Find a root while returning NA for missing function values
+#'
+#' @description `r lifecycle::badge("experimental")`
+#'
+#' A wrapper around [stats::uniroot()] that returns `NA_real_` when `f` is `NA`
+#' at either end of `interval`.
+#'
+#' @param f (`function`)\cr function for which the root is sought.
+#' @param interval (`numeric(2)`)\cr end points of the interval to be searched.
+#' @param ... further arguments passed to [stats::uniroot()].
+#'
+#' @return
+#'   A numeric scalar containing the found root, or `NA_real_` if `f` returns
+#'   `NA` at either endpoint of `interval`.
+#'
+#' @seealso [stats::uniroot()]
+#' @keywords internal
+uniroot_catch_na <- function(f, interval, ...) {
+  # Checked here, as the uniroot() error message is translated.
+  f_lower <- f(min(interval))
+  f_upper <- f(max(interval))
+  if (is.na(f_lower) || is.na(f_upper)) {
+    return(NA_real_)
+  }
+  stats::uniroot(f, interval = interval, f.lower = f_lower, f.upper = f_upper, ...)$root
 }

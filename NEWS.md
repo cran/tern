@@ -1,6 +1,22 @@
+# tern 0.9.13
+
+### Bug Fixes
+
+* Fixed overly narrow confidence intervals in `prop_diff_uncond_exact()` caused by floating-point comparisons excluding tied tables from the tails. Tail comparisons now use integer cross-products to preserve ties without a numerical tolerance.
+
 # tern 0.9.12
 
 * Fixing CRAN release issue.
+* Fixed `prop_diff_cmh()` giving wrong Sato and Miettinen-Nurminen results when
+  some strata have only one group, and failing with a single stratum. (#1535)
+* `prop_diff_cmh()` returns `weights`, `n1` and `n2` for all strata now, with `NA`
+  weights for empty strata. It returns `NA` instead of `0` when no stratum has
+  both groups. (#1535)
+* `prop_cmh()` returns `NA` instead of `1` for the Sato p-value when the response
+  has no variation. (#1535)
+* Fixed `summarize_ancova()` returning empty difference, confidence interval and
+  p-value cells when arm levels contain regular expression metacharacters such as
+  `+`, `(` or `.`. (#1471)
 
 # tern 0.9.11
 

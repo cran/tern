@@ -1,6 +1,6 @@
-9d2097c17e440b5b914374fa63cb7142 *DESCRIPTION
-b55b454b8c4e932ed139a42fac5053c7 *NAMESPACE
-0aeae44506861b32a9535fbab4b2b71f *NEWS.md
+ca82153bf80a6e9b1b37953cefc68d8c *DESCRIPTION
+40223979a2af68b74f451b1365b75186 *NAMESPACE
+291f2ae54774649f0cb6f5614b535aeb *NEWS.md
 b789e16fcdaa62aa905dfff16cefdf2f *R/abnormal.R
 759a1eb304b184cefa9036d81c178af7 *R/abnormal_by_baseline.R
 569b33d0f3bb5acf4e6f66215a57ea61 *R/abnormal_by_marked.R
@@ -65,8 +65,8 @@ d38b299a314f15df7ca89cc2b3d0215d *R/imputation_rule.R
 74fae8f4e2bedfac971a603f496548e5 *R/missing_data.R
 9ee8949338f2a07e126026a335f4cee4 *R/odds_ratio.R
 61185ce9683dc15a6f71089cc47eacae *R/package.R
-06c9643ec00c0a870ea53ebbf22513f5 *R/prop_diff.R
-1a732a130ed25d9e2968f39671326b0c *R/prop_diff_test.R
+24bd1770c9cbd1e1b395b2919d06f37d *R/prop_diff.R
+ff3839966bb8d6be90eaab02a695c4c4 *R/prop_diff_test.R
 af38aa0da56ab46b70caf44316edb6a5 *R/prune_occurrences.R
 5b73b179d65045f87b32cdf3077a49ef *R/response_biomarkers_subgroups.R
 f90e52c79cf65397df0b00a16e7c3a49 *R/response_subgroups.R
@@ -75,7 +75,7 @@ e7225a4099cf8713146f24a6ee9e7b19 *R/rtables_access.R
 2953900b33a99e3cc7b0b0db19d6a795 *R/score_occurrences.R
 003ac9261a327d723c9c4676bff39475 *R/split_cols_by_groups.R
 76da2d6fded7c91d039d24e636a41ee0 *R/stat.R
-b3c913a9f42e365b374ac3fb8fb75ae1 *R/summarize_ancova.R
+6073c3965fb9e9fc858654e8f87eef27 *R/summarize_ancova.R
 5c855cdb1d461afd3c91d0392ba10316 *R/summarize_change.R
 7f77d6dc1e4c57e842f02f62ac8c9b72 *R/summarize_colvars.R
 0ff9442dc680a988767d1aacb2fe9db3 *R/summarize_coxreg.R
@@ -88,7 +88,7 @@ f8cde239679903012796a5b18d6246f3 *R/summarize_patients_exposure_in_cols.R
 0c433a3189bde556e48e2e8b215b0a52 *R/survival_duration_subgroups.R
 fa47df1486aa994dbd04908a609f8a5a *R/survival_time.R
 0c1d829ddd69fe3d5dd35d1f95a65ecf *R/survival_timepoint.R
-4746282433dc96aff4f014976522e983 *R/utils.R
+27438df26e80c5bc4b55ed99ab151abe *R/utils.R
 1384d4d082b593727388afddeddf6547 *R/utils_checkmate.R
 79a125a6376c0ddb8ac42270e67c91f8 *R/utils_default_stats_formats_labels.R
 19f46b80a4e73d248cd71a385f5ad539 *R/utils_factor.R
@@ -97,7 +97,7 @@ fa47df1486aa994dbd04908a609f8a5a *R/survival_time.R
 20f21e94188fa77e40b9182a8ed354c2 *R/utils_rtables.R
 762001f977fe1f1f2d77a7b98c1c1261 *R/utils_split_funs.R
 e7ea0e0540154b5256ae46a7abea5aac *README.md
-5571e131d8aeddfdca7ad3237091ea1c *build/partial.rdb
+52175b020af6ee875f2a5e18e32453be *build/partial.rdb
 6eb2271b933fecb4afae76434661ae4d *build/vignette.rds
 f21f82a97e285a97322015da40b20eb9 *data/tern_ex_adae.rda
 a2d65f14f5ac0371f94a363af40c1f01 *data/tern_ex_adlb.rda
@@ -109,7 +109,7 @@ c1a728440f236cd1d7d8f1701fb782d1 *inst/REFERENCES.bib
 a53bef89d7453386503e90b5f0fb7bf2 *inst/WORDLIST
 91c3cfe71df8ccab97e447e7429634d0 *inst/doc/mantel_fleiss_criterion.R
 74ca6574a9ca69c2f58378120118efc1 *inst/doc/mantel_fleiss_criterion.Rmd
-03c97f4a2965fe50439c85b2975fae57 *inst/doc/mantel_fleiss_criterion.html
+3e3b1700d74cdd535695d370af21b6f4 *inst/doc/mantel_fleiss_criterion.html
 4e863c87c46ebef73cf28474b229404a *inst/doc/missing_values.R
 c7a882810424b7129a03d0f62ff9c257 *inst/doc/missing_values.Rmd
 edd3539b48543b1006935b4e9e547c35 *inst/doc/missing_values.html
@@ -127,7 +127,7 @@ bd985449f9114bdebff84e2c7bbe5aa3 *inst/doc/tern_functions_guide.Rmd
 405267b583569eac2e7e959e5b694f86 *inst/doc/tern_functions_guide.html
 2a54d38e7e2a4965e4c0840eb6be6ea6 *inst/doc/uncond_exact_prop_diff_ci.R
 e04a465e36db0783687aeb36da322654 *inst/doc/uncond_exact_prop_diff_ci.Rmd
-8e5240c4a6bdd1568669f7e6f5d13d2f *inst/doc/uncond_exact_prop_diff_ci.html
+61a0efc92c1327ad833bdb92da318875 *inst/doc/uncond_exact_prop_diff_ci.html
 c1babd92d7069978d216642fc917f958 *man/abnormal.Rd
 ff9632c759997e172a40a670946bf263 *man/abnormal_by_baseline.Rd
 2fd503238e0e06d8244437a7c9494029 *man/abnormal_by_marked.Rd
@@ -204,6 +204,7 @@ bef1152dbdc11e80ae0989431c142bed *man/default_stats_formats_labels.Rd
 e05ee919a0c626b00e076049ac452a4b *man/dot-is_equal_float.Rd
 d5aea739fa7cbcb518083d168f270d14 *man/draw_grob.Rd
 e6ff079a8d8838d0f9b2ddf966dc7aff *man/empty_vector_if_na.Rd
+21353533802cf44b17a4e28ac5e3890e *man/escape_regex.Rd
 ed9157e0d4d74ac1e57bf7f305bf170e *man/estimate_coef.Rd
 83c16730fbacdf16ee4ff5b896716659 *man/estimate_multinomial_rsp.Rd
 c24714811360b9bf230d16ac865a0dd8 *man/estimate_proportion.Rd
@@ -263,6 +264,7 @@ ddf90a4b2a3eaec028409ddf57e25616 *man/h_adlb_worsen.Rd
 aab3c655e9d0624adcbfc2c8253d746d *man/h_ancova.Rd
 37802f9d4330a30d052f98dd4a0c4ffd *man/h_append_grade_groups.Rd
 8f5a9ae503469f0066c86dbec511e03b *man/h_biomarkers_subgroups.Rd
+2df4fe01e8ed9ee184d03bf72eb1979b *man/h_cmh_sato_var.Rd
 877dc2575c9b8e554e43b3eb30519d20 *man/h_col_indices.Rd
 98a008659d186daafcb9f5441b61f9fb *man/h_count_cumulative.Rd
 8a1630d6d337a73349c4b5cb141401af *man/h_cox_regression.Rd
@@ -281,12 +283,14 @@ d47d75114c9d0140cbef9668d7bccb74 *man/h_incidence_rate.Rd
 e1ee60bb32eb72780ce5e4188969deed *man/h_km_layout.Rd
 13b6a99ca65358713503cb4c77e8b3ec *man/h_logistic_regression.Rd
 7d92eaee1b64d81d2856a2aee7face67 *man/h_map_for_count_abnormal.Rd
-9dc073f9e2b889e59ec91f6bc48ebf53 *man/h_miettinen_nurminen_var_est.Rd
+e6e1ba12d13a5da495be86ace4fd5faf *man/h_miettinen_nurminen_stratified_ci.Rd
+08f6346acce92d612bfbe32e9e2d3f84 *man/h_miettinen_nurminen_var.Rd
 e3660192ba56b6ada0594635b87e2ff2 *man/h_odds_ratio.Rd
 3d14bccc73f1935bd90e291e32efb8d1 *man/h_pkparam_sort.Rd
 1aa873d774595d1dfcc354454f9afa64 *man/h_ppmeans.Rd
 47691c9319618a1716a7445f8b58e367 *man/h_prepare_rsp_table.Rd
-8476dc5118f642990f50c2351b22e934 *man/h_prop_diff.Rd
+5ba8613d5555727fcc45cbb67b7ea293 *man/h_prop_cmh.Rd
+4ae92c03d8d70066a60f299e31cd8c5e *man/h_prop_diff.Rd
 dd10182222fc03745390f1dbb9c59de9 *man/h_prop_diff_test.Rd
 cac9fd378d2d09626de7ab8eb699f722 *man/h_proportions.Rd
 73aa021e9a81a2f5da7c4a78c3b7917b *man/h_response_biomarkers_subgroups.Rd
@@ -349,13 +353,14 @@ f5be6c32cb1015fd9407629897eb90a6 *man/summarize_num_patients.Rd
 611c5cb412df19889d6acf7a3ce05e9a *man/survival_duration_subgroups.Rd
 1c85271c819f740d39acbc3073474d9c *man/survival_time.Rd
 91c09cd40649a1db065f42045935bdd1 *man/survival_timepoint.Rd
-0d21b06f6697fd016504aad498e17f40 *man/tern-package.Rd
+2cb8a7e4ba868f97e84f182e04c02b32 *man/tern-package.Rd
 798daf30a6ba33a09c35eef021778f32 *man/tidy.glm.Rd
 50ee847c8ade032baa12ef03f6d96781 *man/tidy.step.Rd
 dc1d616027367046c16e65a3a644a8f6 *man/tidy_coxreg.Rd
 e0dbeb1e47cc58a7e4a7cb42b68f9dcf *man/to_n.Rd
 1701680bb707c1ef27a143cb0c8aaf8a *man/to_string_matrix.Rd
 b22b8f290cb92f4b20c677c7cad0dd17 *man/try_car_anova.Rd
+714c6431687d52bedc4a5c8ac263c50c *man/uniroot_catch_na.Rd
 25c716fe0d50cac4e9095d77ee3c22c4 *man/univariate.Rd
 3482dbc309c6c89d5e913dee91d09fcf *man/unlist_and_blank_na.Rd
 59fb285b9cf2632523b82a4c5d033daf *man/update_weights_strat_wilson.Rd
@@ -483,7 +488,7 @@ e10ddd46707dca252df951ec75aea891 *tests/testthat/_snaps/imputation_rule.md
 81e19c1c437642e0dc32f22c40f35bd8 *tests/testthat/_snaps/logistic_regression.md
 3fa97aabaf7b9d9044bf6a70f2bd1872 *tests/testthat/_snaps/make_afun.md
 ef36db224f2d107f8cacd942eb83824a *tests/testthat/_snaps/odds_ratio.md
-730efde339ebb346d3f735459e98a5da *tests/testthat/_snaps/prop_diff.md
+569b43ffe24f77a49600e3284e2b1298 *tests/testthat/_snaps/prop_diff.md
 aca2702e5c06f7b6b4bea78a3b4724d3 *tests/testthat/_snaps/prune_occurrences.md
 85e5319f4dda580f1e967a734d354a07 *tests/testthat/_snaps/response_biomarkers_subgroups.md
 d27aab03adde65efdfa7da322a8a5e2b *tests/testthat/_snaps/response_subgroups.md
@@ -491,7 +496,7 @@ d27aab03adde65efdfa7da322a8a5e2b *tests/testthat/_snaps/response_subgroups.md
 db4597a7d319aa003eb7f342bfb070dd *tests/testthat/_snaps/score_occurrences.md
 63743ba076f928b6bbdc8484e1b1f04c *tests/testthat/_snaps/split_cols_by_groups.md
 68536048bf0290c2d72d6db8b0bf5df6 *tests/testthat/_snaps/stat.md
-16a364a495704e495d1665f0199251c5 *tests/testthat/_snaps/summarize_ancova.md
+ef63f83dac30a5aa4c4d6c647c91c0d8 *tests/testthat/_snaps/summarize_ancova.md
 b1bd3b8797f03a1bdd1c8d7fe5fd2e26 *tests/testthat/_snaps/summarize_change.md
 1af1d8295e3493fd7e242760f0f2a331 *tests/testthat/_snaps/summarize_colvars.md
 ef815db1d6755d0a3d05efacb0050693 *tests/testthat/_snaps/summarize_coxreg.md
@@ -503,7 +508,7 @@ c7181f7a90357208385972dc6cf25405 *tests/testthat/_snaps/survival_coxph_pairwise.
 964c9f822d52da5de7df80bab66fe300 *tests/testthat/_snaps/survival_duration_subgroups.md
 d006739483edf8990731c84a0c497cb6 *tests/testthat/_snaps/survival_time.md
 13cd93a9fd9a7dc0a27a7793722545ef *tests/testthat/_snaps/survival_timepoint.md
-f0e6d413390269610547c0b4e1a42b10 *tests/testthat/_snaps/test_proportion_diff.md
+fad73f6b72dacbf616e6daaa78cd793f *tests/testthat/_snaps/test_proportion_diff.md
 8602e205b6d7b06da68d16ed38cb5785 *tests/testthat/_snaps/utils.md
 66d571d32145010c56abf769d6c43e65 *tests/testthat/_snaps/utils_default_stats_formats_labels.md
 593d5ee8590a143942caca830d54f369 *tests/testthat/_snaps/utils_factor.md
@@ -517,6 +522,7 @@ e39502675c6ae7ea80c6ec5c1b0b17a0 *tests/testthat/_snaps/utils_ggplot/rtable2gg_d
 8ece09c3b9bab145100293f8650051d1 *tests/testthat/_snaps/utils_ggplot/rtable2gg_lblpad.svg
 91944da10261816349f52531d564002f *tests/testthat/_snaps/utils_rtables.md
 8b17ffe5f67bd9174f10b56ebdf8782e *tests/testthat/_snaps/utils_split_fun.md
+40712c06b920dc6b5c8c20e12c8a005c *tests/testthat/helper-prop_diff.R
 e1eebf1cf7fc0822e4b4e5c8a56eb09f *tests/testthat/setup-options.R
 8aa24fcb5f62a29423fbe10e7c3dbce6 *tests/testthat/setup.R
 cb552feca48f3d7b5f83b3d9105e0245 *tests/testthat/test-abnormal.R
@@ -579,7 +585,7 @@ f1049528c2618e0c677343545a9577bb *tests/testthat/test-individual_patient_plot.R
 b19dbb9a505332cf958493ef3f7dd62b *tests/testthat/test-make_afun.R
 9576a71557cdd815304fd1ab2d5f5891 *tests/testthat/test-mantel_fleiss_crit.R
 962e6d0d21c119131d7e6b863e3446ed *tests/testthat/test-odds_ratio.R
-6e35a686abf5657bf4c581ee4c3b7728 *tests/testthat/test-prop_diff.R
+7d69ceb91f040f3dd7838f48873a06f2 *tests/testthat/test-prop_diff.R
 d01a14388de72d3fa3fb0e6b019e867a *tests/testthat/test-prune_occurrences.R
 dcf50ab6d430a540f25b21050296b69a *tests/testthat/test-response_biomarkers_subgroups.R
 42c0151f5e34f4d5838e64a760504efe *tests/testthat/test-response_subgroups.R
@@ -587,7 +593,7 @@ fe2a8f5fefcaf7355ed4e2921322541b *tests/testthat/test-rtables_access.R
 941eee80a841e7711b95c39329362415 *tests/testthat/test-score_occurrences.R
 b734afacf5339a415a47100e32fbd209 *tests/testthat/test-split_cols_by_groups.R
 5928019dff7e76446a3bd0b0ad006efe *tests/testthat/test-stat.R
-b54bfadf1cd87115f64c895dcb4f0b08 *tests/testthat/test-summarize_ancova.R
+46412c8373204512f7c58aedf6fc918a *tests/testthat/test-summarize_ancova.R
 4e3ff1fa2fd81e91911a8f2dbf62bfa0 *tests/testthat/test-summarize_change.R
 d69e2de02d68ed6373db765c86a9e966 *tests/testthat/test-summarize_colvars.R
 e88a9b7b1588471520d4df36ec28bbae *tests/testthat/test-summarize_coxreg.R
@@ -599,8 +605,8 @@ d08c209cf9d37007002e9b63bf2fef49 *tests/testthat/test-survival_coxph_pairwise.R
 d45959186103cc3e0d0e6c5223016fd6 *tests/testthat/test-survival_duration_subgroups.R
 ba41ce7ba3f4add679de7db4e83f8955 *tests/testthat/test-survival_time.R
 6ed3af449d9f9378969fc65921686e91 *tests/testthat/test-survival_timepoint.R
-b0d5f3861e6cf184202413a88eb24adb *tests/testthat/test-test_proportion_diff.R
-03b5e2b5332471fafc0e28a818e90f21 *tests/testthat/test-utils.R
+21e66e5c9339565dbc4d88d48032912c *tests/testthat/test-test_proportion_diff.R
+e572061a8e6fb163d5ba2a86b74d3af9 *tests/testthat/test-utils.R
 8dc8d077e28c0cc5f4feeb726cfd4543 *tests/testthat/test-utils_checkmate.R
 d351cd168b3660325ebad9aea2984744 *tests/testthat/test-utils_default_stats_formats_labels.R
 2249fdc818a5c4b2843686664bbdebf9 *tests/testthat/test-utils_factor.R
